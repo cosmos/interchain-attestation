@@ -1,0 +1,15 @@
+syntax = "proto3";
+package hub.pessimist;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "hub/x/pessimist/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (amino.name) = "hub/x/pessimist/Params";
+  option (gogoproto.equal) = true;
+
+  
+}
