@@ -6,6 +6,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "hub/pessimist/params.proto";
+import "hub/pessimist/validation.proto";
 
 option go_package = "hub/x/pessimist/types";
 
@@ -28,3 +29,4 @@ message QueryParamsResponse {
     (amino.dont_omitempty) = true
   ];
 }
+

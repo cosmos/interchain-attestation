@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -22,4 +23,8 @@ type BankKeeper interface {
 type ParamSubspace interface {
 	Get(context.Context, []byte, interface{})
 	Set(context.Context, []byte, interface{})
+}
+
+type StakingKeeper interface {
+	Validator(context.Context, sdk.ValAddress) (stakingtypes.ValidatorI, error)
 }

@@ -1,0 +1,24 @@
+syntax = "proto3";
+package hub.pessimist;
+
+import "cosmos_proto/cosmos.proto";
+import "google/protobuf/any.proto";
+
+option go_package = "hub/x/pessimist/types";
+
+message ValidationObjective {
+  string client_id = 1;
+  uint64 required_power = 2;
+  repeated Validator validators = 3;
+  bool activated = 4;
+}
+
+message Validator {
+  string validator_addr = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
+  google.protobuf.Any pub_key = 2 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
+}
+
+message ValidatorPower {
+  Validator validator = 1;
+  uint64 power = 2;
+}
