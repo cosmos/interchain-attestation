@@ -1,6 +1,7 @@
 package app
 
 import (
+	"hub/x/pessimist/lightclient"
 	"io"
 	"os"
 	"path/filepath"
@@ -140,7 +141,8 @@ type App struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 
-	PessimistKeeper pessimistmodulekeeper.Keeper
+	PessimistKeeper              pessimistmodulekeeper.Keeper
+	PessimisticLightClientModule lightclient.LightClientModule
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// simulation manager
@@ -280,6 +282,7 @@ func New(
 		&app.GroupKeeper,
 		&app.CircuitBreakerKeeper,
 		&app.PessimistKeeper,
+		&app.PessimisticLightClientModule,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)

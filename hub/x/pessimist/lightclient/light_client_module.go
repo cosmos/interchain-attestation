@@ -20,8 +20,8 @@ type LightClientModule struct {
 	keeper        keeper.Keeper
 }
 
-func NewLightClientModule(cdc codec.BinaryCodec, keeper keeper.Keeper) *LightClientModule {
-	return &LightClientModule{
+func NewLightClientModule(cdc codec.BinaryCodec, keeper keeper.Keeper) LightClientModule {
+	return LightClientModule{
 		cdc:    cdc,
 		keeper: keeper,
 	}

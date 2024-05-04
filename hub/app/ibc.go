@@ -35,6 +35,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	solomachine "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	pessimistmoduletypes "hub/x/pessimist/types"
 	// this line is used by starport scaffolding # ibc/app/import
 )
 
@@ -175,6 +176,8 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 
 	smLightClientModule := solomachine.NewLightClientModule(app.appCodec)
 	clientRouter.AddRoute(solomachine.ModuleName, &smLightClientModule)
+
+	clientRouter.AddRoute(pessimistmoduletypes.ClientType, &app.PessimisticLightClientModule)
 
 	// register IBC modules
 	if err := app.RegisterModules(

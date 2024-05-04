@@ -2,13 +2,12 @@ package pessimist
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
+	"encoding/json"
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -17,6 +16,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"hub/x/pessimist/lightclient"
 
 	// this line is used by starport scaffolding # 1
 
@@ -188,8 +188,9 @@ type ModuleInputs struct {
 type ModuleOutputs struct {
 	depinject.Out
 
-	PessimistKeeper keeper.Keeper
-	Module          appmodule.AppModule
+	PessimistKeeper   keeper.Keeper
+	Module            appmodule.AppModule
+	LightClientModule lightclient.LightClientModule
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -211,6 +212,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.AccountKeeper,
 		in.BankKeeper,
 	)
+	l := lightclient.NewLightClientModule(in.Cdc, k)
 
-	return ModuleOutputs{PessimistKeeper: k, Module: m}
+	return ModuleOutputs{PessimistKeeper: k, Module: m, LightClientModule: l}
 }
