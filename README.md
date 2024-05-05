@@ -26,8 +26,11 @@ Incentives to behave:
 
 ## Work to be done
 
+- [x] Create validation objective
+- [x] Signing up for a validation objective
 - [ ] Implement a simple "sign-off" light client that validators can use to sign off on rollup heights.
-- [ ] Create validation objective
-- [ ] Signing up for a validation objective
 - [ ] Starting a validation objective (including creating light client)
 - [ ] Implement VoteExtension to update light client and relay packets
+
+## Some issues I'm aware of
+* Rotated validator keys are not handled

@@ -40,6 +40,12 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Short:          "Send a create-validation-objective tx",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "clientId"}, {ProtoField: "requiredPower"}},
 				},
+				{
+					RpcMethod:      "SignUpForObjective",
+					Use:            "sign-up-for-objective [client-id]",
+					Short:          "Send a sign-up-for-objective tx",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "clientId"}},
+				},
 				// this line is used by ignite scaffolding # autocli/tx
 			},
 		},

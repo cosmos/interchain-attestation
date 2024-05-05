@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	errorsmod "cosmossdk.io/errors"
 	"hub/x/pessimist/types"
 
 	"cosmossdk.io/math"
@@ -53,4 +54,18 @@ func (k Keeper) GetValidatorPower(ctx context.Context, validators []*types.Valid
 	}
 
 	return totalPower
+}
+
+func (k Keeper) AddValidatorToObjective(ctx context.Context, clientID string, validator *types.Validator) error {
+	objective, ok := k.GetValidationObjective(ctx, clientID)
+	if !ok {
+		return errorsmod.Wrapf(types.ErrObjectiveNotFound, "objective not found for client %s", clientID)
+	}
+
+	objective.Validators = append(objective.Validators, validator)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.ValidatorObjectiveKeyPrefix))
+	store.Set(types.ValidatorObjectiveKey(clientID), k.cdc.MustMarshal(&objective))
+
+	return nil
 }

@@ -176,10 +176,10 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	StoreService store.KVStoreService
 	Cdc          codec.Codec
-	Config       *modulev1.Module
+	StoreService store.KVStoreService
 	Logger       log.Logger
+	Config       *modulev1.Module
 
 	AccountKeeper types.AccountKeeper
 	BankKeeper    types.BankKeeper

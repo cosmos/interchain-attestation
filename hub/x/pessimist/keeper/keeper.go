@@ -36,6 +36,22 @@ func NewKeeper(
 		panic(fmt.Sprintf("invalid authority address: %s", authority))
 	}
 
+	if storeService == nil {
+		panic("store service cannot be nil")
+	}
+
+	if logger == nil {
+		panic("logger cannot be nil")
+	}
+
+	if stakingKeeper == nil {
+		panic("staking keeper cannot be nil")
+	}
+
+	if authority == "" {
+		panic("authority address cannot be empty")
+	}
+
 	return Keeper{
 		cdc:           cdc,
 		storeService:  storeService,
