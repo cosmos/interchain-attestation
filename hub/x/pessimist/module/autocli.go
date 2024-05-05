@@ -17,6 +17,12 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Use:       "params",
 					Short:     "Shows the parameters of the module",
 				},
+				{
+					RpcMethod:      "ValidationObjective",
+					Use:            "validation-objective [client-id]",
+					Short:          "Query validation-objective",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "clientId"}},
+				},
 				// this line is used by ignite scaffolding # autocli/query
 			},
 		},
@@ -27,6 +33,12 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 				{
 					RpcMethod: "UpdateParams",
 					Skip:      true, // skipped because authority gated
+				},
+				{
+					RpcMethod:      "CreateValidationObjective",
+					Use:            "create-validation-objective [client-id] [required-power]",
+					Short:          "Send a create-validation-objective tx",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "clientId"}, {ProtoField: "requiredPower"}},
 				},
 				// this line is used by ignite scaffolding # autocli/tx
 			},

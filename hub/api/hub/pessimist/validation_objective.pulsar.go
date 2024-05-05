@@ -66,20 +66,22 @@ func (x *_ValidationObjective_3_list) IsValid() bool {
 }
 
 var (
-	md_ValidationObjective                protoreflect.MessageDescriptor
-	fd_ValidationObjective_client_id      protoreflect.FieldDescriptor
-	fd_ValidationObjective_required_power protoreflect.FieldDescriptor
-	fd_ValidationObjective_validators     protoreflect.FieldDescriptor
-	fd_ValidationObjective_activated      protoreflect.FieldDescriptor
+	md_ValidationObjective                       protoreflect.MessageDescriptor
+	fd_ValidationObjective_client_id_to_validate protoreflect.FieldDescriptor
+	fd_ValidationObjective_required_power        protoreflect.FieldDescriptor
+	fd_ValidationObjective_validators            protoreflect.FieldDescriptor
+	fd_ValidationObjective_activated             protoreflect.FieldDescriptor
+	fd_ValidationObjective_client_id_to_notify   protoreflect.FieldDescriptor
 )
 
 func init() {
-	file_hub_pessimist_validation_proto_init()
-	md_ValidationObjective = File_hub_pessimist_validation_proto.Messages().ByName("ValidationObjective")
-	fd_ValidationObjective_client_id = md_ValidationObjective.Fields().ByName("client_id")
+	file_hub_pessimist_validation_objective_proto_init()
+	md_ValidationObjective = File_hub_pessimist_validation_objective_proto.Messages().ByName("ValidationObjective")
+	fd_ValidationObjective_client_id_to_validate = md_ValidationObjective.Fields().ByName("client_id_to_validate")
 	fd_ValidationObjective_required_power = md_ValidationObjective.Fields().ByName("required_power")
 	fd_ValidationObjective_validators = md_ValidationObjective.Fields().ByName("validators")
 	fd_ValidationObjective_activated = md_ValidationObjective.Fields().ByName("activated")
+	fd_ValidationObjective_client_id_to_notify = md_ValidationObjective.Fields().ByName("client_id_to_notify")
 }
 
 var _ protoreflect.Message = (*fastReflection_ValidationObjective)(nil)
@@ -91,7 +93,7 @@ func (x *ValidationObjective) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ValidationObjective) slowProtoReflect() protoreflect.Message {
-	mi := &file_hub_pessimist_validation_proto_msgTypes[0]
+	mi := &file_hub_pessimist_validation_objective_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -147,9 +149,9 @@ func (x *fastReflection_ValidationObjective) Interface() protoreflect.ProtoMessa
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_ValidationObjective) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.ClientId != "" {
-		value := protoreflect.ValueOfString(x.ClientId)
-		if !f(fd_ValidationObjective_client_id, value) {
+	if x.ClientIdToValidate != "" {
+		value := protoreflect.ValueOfString(x.ClientIdToValidate)
+		if !f(fd_ValidationObjective_client_id_to_validate, value) {
 			return
 		}
 	}
@@ -171,6 +173,12 @@ func (x *fastReflection_ValidationObjective) Range(f func(protoreflect.FieldDesc
 			return
 		}
 	}
+	if x.ClientIdToNotify != "" {
+		value := protoreflect.ValueOfString(x.ClientIdToNotify)
+		if !f(fd_ValidationObjective_client_id_to_notify, value) {
+			return
+		}
+	}
 }
 
 // Has reports whether a field is populated.
@@ -186,14 +194,16 @@ func (x *fastReflection_ValidationObjective) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ValidationObjective) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "hub.pessimist.ValidationObjective.client_id":
-		return x.ClientId != ""
+	case "hub.pessimist.ValidationObjective.client_id_to_validate":
+		return x.ClientIdToValidate != ""
 	case "hub.pessimist.ValidationObjective.required_power":
 		return x.RequiredPower != uint64(0)
 	case "hub.pessimist.ValidationObjective.validators":
 		return len(x.Validators) != 0
 	case "hub.pessimist.ValidationObjective.activated":
 		return x.Activated != false
+	case "hub.pessimist.ValidationObjective.client_id_to_notify":
+		return x.ClientIdToNotify != ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationObjective"))
@@ -210,14 +220,16 @@ func (x *fastReflection_ValidationObjective) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ValidationObjective) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "hub.pessimist.ValidationObjective.client_id":
-		x.ClientId = ""
+	case "hub.pessimist.ValidationObjective.client_id_to_validate":
+		x.ClientIdToValidate = ""
 	case "hub.pessimist.ValidationObjective.required_power":
 		x.RequiredPower = uint64(0)
 	case "hub.pessimist.ValidationObjective.validators":
 		x.Validators = nil
 	case "hub.pessimist.ValidationObjective.activated":
 		x.Activated = false
+	case "hub.pessimist.ValidationObjective.client_id_to_notify":
+		x.ClientIdToNotify = ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationObjective"))
@@ -234,8 +246,8 @@ func (x *fastReflection_ValidationObjective) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ValidationObjective) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "hub.pessimist.ValidationObjective.client_id":
-		value := x.ClientId
+	case "hub.pessimist.ValidationObjective.client_id_to_validate":
+		value := x.ClientIdToValidate
 		return protoreflect.ValueOfString(value)
 	case "hub.pessimist.ValidationObjective.required_power":
 		value := x.RequiredPower
@@ -249,6 +261,9 @@ func (x *fastReflection_ValidationObjective) Get(descriptor protoreflect.FieldDe
 	case "hub.pessimist.ValidationObjective.activated":
 		value := x.Activated
 		return protoreflect.ValueOfBool(value)
+	case "hub.pessimist.ValidationObjective.client_id_to_notify":
+		value := x.ClientIdToNotify
+		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationObjective"))
@@ -269,8 +284,8 @@ func (x *fastReflection_ValidationObjective) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ValidationObjective) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "hub.pessimist.ValidationObjective.client_id":
-		x.ClientId = value.Interface().(string)
+	case "hub.pessimist.ValidationObjective.client_id_to_validate":
+		x.ClientIdToValidate = value.Interface().(string)
 	case "hub.pessimist.ValidationObjective.required_power":
 		x.RequiredPower = value.Uint()
 	case "hub.pessimist.ValidationObjective.validators":
@@ -279,6 +294,8 @@ func (x *fastReflection_ValidationObjective) Set(fd protoreflect.FieldDescriptor
 		x.Validators = *clv.list
 	case "hub.pessimist.ValidationObjective.activated":
 		x.Activated = value.Bool()
+	case "hub.pessimist.ValidationObjective.client_id_to_notify":
+		x.ClientIdToNotify = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationObjective"))
@@ -305,12 +322,14 @@ func (x *fastReflection_ValidationObjective) Mutable(fd protoreflect.FieldDescri
 		}
 		value := &_ValidationObjective_3_list{list: &x.Validators}
 		return protoreflect.ValueOfList(value)
-	case "hub.pessimist.ValidationObjective.client_id":
-		panic(fmt.Errorf("field client_id of message hub.pessimist.ValidationObjective is not mutable"))
+	case "hub.pessimist.ValidationObjective.client_id_to_validate":
+		panic(fmt.Errorf("field client_id_to_validate of message hub.pessimist.ValidationObjective is not mutable"))
 	case "hub.pessimist.ValidationObjective.required_power":
 		panic(fmt.Errorf("field required_power of message hub.pessimist.ValidationObjective is not mutable"))
 	case "hub.pessimist.ValidationObjective.activated":
 		panic(fmt.Errorf("field activated of message hub.pessimist.ValidationObjective is not mutable"))
+	case "hub.pessimist.ValidationObjective.client_id_to_notify":
+		panic(fmt.Errorf("field client_id_to_notify of message hub.pessimist.ValidationObjective is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationObjective"))
@@ -324,7 +343,7 @@ func (x *fastReflection_ValidationObjective) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ValidationObjective) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "hub.pessimist.ValidationObjective.client_id":
+	case "hub.pessimist.ValidationObjective.client_id_to_validate":
 		return protoreflect.ValueOfString("")
 	case "hub.pessimist.ValidationObjective.required_power":
 		return protoreflect.ValueOfUint64(uint64(0))
@@ -333,6 +352,8 @@ func (x *fastReflection_ValidationObjective) NewField(fd protoreflect.FieldDescr
 		return protoreflect.ValueOfList(&_ValidationObjective_3_list{list: &list})
 	case "hub.pessimist.ValidationObjective.activated":
 		return protoreflect.ValueOfBool(false)
+	case "hub.pessimist.ValidationObjective.client_id_to_notify":
+		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationObjective"))
@@ -402,7 +423,7 @@ func (x *fastReflection_ValidationObjective) ProtoMethods() *protoiface.Methods 
 		var n int
 		var l int
 		_ = l
-		l = len(x.ClientId)
+		l = len(x.ClientIdToValidate)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -417,6 +438,10 @@ func (x *fastReflection_ValidationObjective) ProtoMethods() *protoiface.Methods 
 		}
 		if x.Activated {
 			n += 2
+		}
+		l = len(x.ClientIdToNotify)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
 		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
@@ -446,6 +471,13 @@ func (x *fastReflection_ValidationObjective) ProtoMethods() *protoiface.Methods 
 		if x.unknownFields != nil {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.ClientIdToNotify) > 0 {
+			i -= len(x.ClientIdToNotify)
+			copy(dAtA[i:], x.ClientIdToNotify)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ClientIdToNotify)))
+			i--
+			dAtA[i] = 0x2a
 		}
 		if x.Activated {
 			i--
@@ -478,10 +510,10 @@ func (x *fastReflection_ValidationObjective) ProtoMethods() *protoiface.Methods 
 			i--
 			dAtA[i] = 0x10
 		}
-		if len(x.ClientId) > 0 {
-			i -= len(x.ClientId)
-			copy(dAtA[i:], x.ClientId)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ClientId)))
+		if len(x.ClientIdToValidate) > 0 {
+			i -= len(x.ClientIdToValidate)
+			copy(dAtA[i:], x.ClientIdToValidate)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ClientIdToValidate)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -536,7 +568,7 @@ func (x *fastReflection_ValidationObjective) ProtoMethods() *protoiface.Methods 
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ClientId", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ClientIdToValidate", wireType)
 				}
 				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
@@ -564,7 +596,7 @@ func (x *fastReflection_ValidationObjective) ProtoMethods() *protoiface.Methods 
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.ClientId = string(dAtA[iNdEx:postIndex])
+				x.ClientIdToValidate = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			case 2:
 				if wireType != 0 {
@@ -639,6 +671,38 @@ func (x *fastReflection_ValidationObjective) ProtoMethods() *protoiface.Methods 
 					}
 				}
 				x.Activated = bool(v != 0)
+			case 5:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ClientIdToNotify", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ClientIdToNotify = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -681,8 +745,8 @@ var (
 )
 
 func init() {
-	file_hub_pessimist_validation_proto_init()
-	md_Validator = File_hub_pessimist_validation_proto.Messages().ByName("Validator")
+	file_hub_pessimist_validation_objective_proto_init()
+	md_Validator = File_hub_pessimist_validation_objective_proto.Messages().ByName("Validator")
 	fd_Validator_validator_addr = md_Validator.Fields().ByName("validator_addr")
 	fd_Validator_pub_key = md_Validator.Fields().ByName("pub_key")
 }
@@ -696,7 +760,7 @@ func (x *Validator) ProtoReflect() protoreflect.Message {
 }
 
 func (x *Validator) slowProtoReflect() protoreflect.Message {
-	mi := &file_hub_pessimist_validation_proto_msgTypes[1]
+	mi := &file_hub_pessimist_validation_objective_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1180,8 +1244,8 @@ var (
 )
 
 func init() {
-	file_hub_pessimist_validation_proto_init()
-	md_ValidatorPower = File_hub_pessimist_validation_proto.Messages().ByName("ValidatorPower")
+	file_hub_pessimist_validation_objective_proto_init()
+	md_ValidatorPower = File_hub_pessimist_validation_objective_proto.Messages().ByName("ValidatorPower")
 	fd_ValidatorPower_validator = md_ValidatorPower.Fields().ByName("validator")
 	fd_ValidatorPower_power = md_ValidatorPower.Fields().ByName("power")
 }
@@ -1195,7 +1259,7 @@ func (x *ValidatorPower) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ValidatorPower) slowProtoReflect() protoreflect.Message {
-	mi := &file_hub_pessimist_validation_proto_msgTypes[2]
+	mi := &file_hub_pessimist_validation_objective_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1660,7 +1724,7 @@ func (x *fastReflection_ValidatorPower) ProtoMethods() *protoiface.Methods {
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: hub/pessimist/validation.proto
+// source: hub/pessimist/validation_objective.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -1674,16 +1738,17 @@ type ValidationObjective struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ClientId      string       `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	RequiredPower uint64       `protobuf:"varint,2,opt,name=required_power,json=requiredPower,proto3" json:"required_power,omitempty"`
-	Validators    []*Validator `protobuf:"bytes,3,rep,name=validators,proto3" json:"validators,omitempty"`
-	Activated     bool         `protobuf:"varint,4,opt,name=activated,proto3" json:"activated,omitempty"`
+	ClientIdToValidate string       `protobuf:"bytes,1,opt,name=client_id_to_validate,json=clientIdToValidate,proto3" json:"client_id_to_validate,omitempty"`
+	RequiredPower      uint64       `protobuf:"varint,2,opt,name=required_power,json=requiredPower,proto3" json:"required_power,omitempty"`
+	Validators         []*Validator `protobuf:"bytes,3,rep,name=validators,proto3" json:"validators,omitempty"`
+	Activated          bool         `protobuf:"varint,4,opt,name=activated,proto3" json:"activated,omitempty"`
+	ClientIdToNotify   string       `protobuf:"bytes,5,opt,name=client_id_to_notify,json=clientIdToNotify,proto3" json:"client_id_to_notify,omitempty"`
 }
 
 func (x *ValidationObjective) Reset() {
 	*x = ValidationObjective{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_hub_pessimist_validation_proto_msgTypes[0]
+		mi := &file_hub_pessimist_validation_objective_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1697,12 +1762,12 @@ func (*ValidationObjective) ProtoMessage() {}
 
 // Deprecated: Use ValidationObjective.ProtoReflect.Descriptor instead.
 func (*ValidationObjective) Descriptor() ([]byte, []int) {
-	return file_hub_pessimist_validation_proto_rawDescGZIP(), []int{0}
+	return file_hub_pessimist_validation_objective_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ValidationObjective) GetClientId() string {
+func (x *ValidationObjective) GetClientIdToValidate() string {
 	if x != nil {
-		return x.ClientId
+		return x.ClientIdToValidate
 	}
 	return ""
 }
@@ -1728,6 +1793,13 @@ func (x *ValidationObjective) GetActivated() bool {
 	return false
 }
 
+func (x *ValidationObjective) GetClientIdToNotify() string {
+	if x != nil {
+		return x.ClientIdToNotify
+	}
+	return ""
+}
+
 type Validator struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1740,7 +1812,7 @@ type Validator struct {
 func (x *Validator) Reset() {
 	*x = Validator{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_hub_pessimist_validation_proto_msgTypes[1]
+		mi := &file_hub_pessimist_validation_objective_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1754,7 +1826,7 @@ func (*Validator) ProtoMessage() {}
 
 // Deprecated: Use Validator.ProtoReflect.Descriptor instead.
 func (*Validator) Descriptor() ([]byte, []int) {
-	return file_hub_pessimist_validation_proto_rawDescGZIP(), []int{1}
+	return file_hub_pessimist_validation_objective_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Validator) GetValidatorAddr() string {
@@ -1783,7 +1855,7 @@ type ValidatorPower struct {
 func (x *ValidatorPower) Reset() {
 	*x = ValidatorPower{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_hub_pessimist_validation_proto_msgTypes[2]
+		mi := &file_hub_pessimist_validation_objective_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1797,7 +1869,7 @@ func (*ValidatorPower) ProtoMessage() {}
 
 // Deprecated: Use ValidatorPower.ProtoReflect.Descriptor instead.
 func (*ValidatorPower) Descriptor() ([]byte, []int) {
-	return file_hub_pessimist_validation_proto_rawDescGZIP(), []int{2}
+	return file_hub_pessimist_validation_objective_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ValidatorPower) GetValidator() *Validator {
@@ -1814,19 +1886,21 @@ func (x *ValidatorPower) GetPower() uint64 {
 	return 0
 }
 
-var File_hub_pessimist_validation_proto protoreflect.FileDescriptor
+var File_hub_pessimist_validation_objective_proto protoreflect.FileDescriptor
 
-var file_hub_pessimist_validation_proto_rawDesc = []byte{
-	0x0a, 0x1e, 0x68, 0x75, 0x62, 0x2f, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x2f,
-	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x12, 0x0d, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x1a,
-	0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f,
-	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x67, 0x6f, 0x6f, 0x67,
-	0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x61, 0x6e, 0x79, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xb1, 0x01, 0x0a, 0x13, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x4f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x12, 0x1b, 0x0a,
-	0x09, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x08, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x25, 0x0a, 0x0e, 0x72, 0x65,
+var file_hub_pessimist_validation_objective_proto_rawDesc = []byte{
+	0x0a, 0x28, 0x68, 0x75, 0x62, 0x2f, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x2f,
+	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x6f, 0x62, 0x6a, 0x65, 0x63,
+	0x74, 0x69, 0x76, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0d, 0x68, 0x75, 0x62, 0x2e,
+	0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
+	0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x61, 0x6e, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22,
+	0xf6, 0x01, 0x0a, 0x13, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x4f, 0x62,
+	0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x12, 0x31, 0x0a, 0x15, 0x63, 0x6c, 0x69, 0x65, 0x6e,
+	0x74, 0x5f, 0x69, 0x64, 0x5f, 0x74, 0x6f, 0x5f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x12, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64,
+	0x54, 0x6f, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x65, 0x12, 0x25, 0x0a, 0x0e, 0x72, 0x65,
 	0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x5f, 0x70, 0x6f, 0x77, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01,
 	0x28, 0x04, 0x52, 0x0d, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x50, 0x6f, 0x77, 0x65,
 	0x72, 0x12, 0x38, 0x0a, 0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x18,
@@ -1834,55 +1908,59 @@ var file_hub_pessimist_validation_proto_rawDesc = []byte{
 	0x69, 0x6d, 0x69, 0x73, 0x74, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52,
 	0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x12, 0x1c, 0x0a, 0x09, 0x61,
 	0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x09,
-	0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x64, 0x22, 0x9e, 0x01, 0x0a, 0x09, 0x56, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x48, 0x0a, 0x0e, 0x76, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42,
-	0x21, 0xd2, 0xb4, 0x2d, 0x1d, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x56, 0x61, 0x6c, 0x69,
-	0x64, 0x61, 0x74, 0x6f, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69,
-	0x6e, 0x67, 0x52, 0x0d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x41, 0x64, 0x64,
-	0x72, 0x12, 0x47, 0x0a, 0x07, 0x70, 0x75, 0x62, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x0b, 0x32, 0x14, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x62, 0x75, 0x66, 0x2e, 0x41, 0x6e, 0x79, 0x42, 0x18, 0xca, 0xb4, 0x2d, 0x14, 0x63, 0x6f,
-	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x50, 0x75, 0x62, 0x4b,
-	0x65, 0x79, 0x52, 0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x22, 0x5e, 0x0a, 0x0e, 0x56, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x12, 0x36, 0x0a, 0x09,
-	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x18, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x2e,
-	0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x12, 0x14, 0x0a, 0x05, 0x70, 0x6f, 0x77, 0x65, 0x72, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x04, 0x52, 0x05, 0x70, 0x6f, 0x77, 0x65, 0x72, 0x42, 0x99, 0x01, 0x0a, 0x11, 0x63,
-	0x6f, 0x6d, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74,
-	0x42, 0x0f, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x50, 0x72, 0x6f, 0x74,
-	0x6f, 0x50, 0x01, 0x5a, 0x1e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69,
-	0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x68, 0x75, 0x62, 0x2f, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d,
-	0x69, 0x73, 0x74, 0xa2, 0x02, 0x03, 0x48, 0x50, 0x58, 0xaa, 0x02, 0x0d, 0x48, 0x75, 0x62, 0x2e,
-	0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0xca, 0x02, 0x0d, 0x48, 0x75, 0x62, 0x5c,
-	0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0xe2, 0x02, 0x19, 0x48, 0x75, 0x62, 0x5c,
-	0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74,
-	0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0e, 0x48, 0x75, 0x62, 0x3a, 0x3a, 0x50, 0x65, 0x73,
-	0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x64, 0x12, 0x2d, 0x0a, 0x13, 0x63, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x5f, 0x74, 0x6f, 0x5f, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79,
+	0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x10, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64,
+	0x54, 0x6f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x22, 0x9e, 0x01, 0x0a, 0x09, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x48, 0x0a, 0x0e, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x21,
+	0xd2, 0xb4, 0x2d, 0x1d, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64,
+	0x61, 0x74, 0x6f, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e,
+	0x67, 0x52, 0x0d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x41, 0x64, 0x64, 0x72,
+	0x12, 0x47, 0x0a, 0x07, 0x70, 0x75, 0x62, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x14, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x62, 0x75, 0x66, 0x2e, 0x41, 0x6e, 0x79, 0x42, 0x18, 0xca, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x50, 0x75, 0x62, 0x4b, 0x65,
+	0x79, 0x52, 0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x22, 0x5e, 0x0a, 0x0e, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x12, 0x36, 0x0a, 0x09, 0x76,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18,
+	0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x2e, 0x56,
+	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x12, 0x14, 0x0a, 0x05, 0x70, 0x6f, 0x77, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x04, 0x52, 0x05, 0x70, 0x6f, 0x77, 0x65, 0x72, 0x42, 0xa2, 0x01, 0x0a, 0x11, 0x63, 0x6f,
+	0x6d, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x42,
+	0x18, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x4f, 0x62, 0x6a, 0x65, 0x63,
+	0x74, 0x69, 0x76, 0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x1e, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x68, 0x75,
+	0x62, 0x2f, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0xa2, 0x02, 0x03, 0x48, 0x50,
+	0x58, 0xaa, 0x02, 0x0d, 0x48, 0x75, 0x62, 0x2e, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73,
+	0x74, 0xca, 0x02, 0x0d, 0x48, 0x75, 0x62, 0x5c, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73,
+	0x74, 0xe2, 0x02, 0x19, 0x48, 0x75, 0x62, 0x5c, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73,
+	0x74, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0e,
+	0x48, 0x75, 0x62, 0x3a, 0x3a, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_hub_pessimist_validation_proto_rawDescOnce sync.Once
-	file_hub_pessimist_validation_proto_rawDescData = file_hub_pessimist_validation_proto_rawDesc
+	file_hub_pessimist_validation_objective_proto_rawDescOnce sync.Once
+	file_hub_pessimist_validation_objective_proto_rawDescData = file_hub_pessimist_validation_objective_proto_rawDesc
 )
 
-func file_hub_pessimist_validation_proto_rawDescGZIP() []byte {
-	file_hub_pessimist_validation_proto_rawDescOnce.Do(func() {
-		file_hub_pessimist_validation_proto_rawDescData = protoimpl.X.CompressGZIP(file_hub_pessimist_validation_proto_rawDescData)
+func file_hub_pessimist_validation_objective_proto_rawDescGZIP() []byte {
+	file_hub_pessimist_validation_objective_proto_rawDescOnce.Do(func() {
+		file_hub_pessimist_validation_objective_proto_rawDescData = protoimpl.X.CompressGZIP(file_hub_pessimist_validation_objective_proto_rawDescData)
 	})
-	return file_hub_pessimist_validation_proto_rawDescData
+	return file_hub_pessimist_validation_objective_proto_rawDescData
 }
 
-var file_hub_pessimist_validation_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_hub_pessimist_validation_proto_goTypes = []interface{}{
+var file_hub_pessimist_validation_objective_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_hub_pessimist_validation_objective_proto_goTypes = []interface{}{
 	(*ValidationObjective)(nil), // 0: hub.pessimist.ValidationObjective
 	(*Validator)(nil),           // 1: hub.pessimist.Validator
 	(*ValidatorPower)(nil),      // 2: hub.pessimist.ValidatorPower
 	(*anypb.Any)(nil),           // 3: google.protobuf.Any
 }
-var file_hub_pessimist_validation_proto_depIdxs = []int32{
+var file_hub_pessimist_validation_objective_proto_depIdxs = []int32{
 	1, // 0: hub.pessimist.ValidationObjective.validators:type_name -> hub.pessimist.Validator
 	3, // 1: hub.pessimist.Validator.pub_key:type_name -> google.protobuf.Any
 	1, // 2: hub.pessimist.ValidatorPower.validator:type_name -> hub.pessimist.Validator
@@ -1893,13 +1971,13 @@ var file_hub_pessimist_validation_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_hub_pessimist_validation_proto_init() }
-func file_hub_pessimist_validation_proto_init() {
-	if File_hub_pessimist_validation_proto != nil {
+func init() { file_hub_pessimist_validation_objective_proto_init() }
+func file_hub_pessimist_validation_objective_proto_init() {
+	if File_hub_pessimist_validation_objective_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_hub_pessimist_validation_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_hub_pessimist_validation_objective_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ValidationObjective); i {
 			case 0:
 				return &v.state
@@ -1911,7 +1989,7 @@ func file_hub_pessimist_validation_proto_init() {
 				return nil
 			}
 		}
-		file_hub_pessimist_validation_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_hub_pessimist_validation_objective_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Validator); i {
 			case 0:
 				return &v.state
@@ -1923,7 +2001,7 @@ func file_hub_pessimist_validation_proto_init() {
 				return nil
 			}
 		}
-		file_hub_pessimist_validation_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_hub_pessimist_validation_objective_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ValidatorPower); i {
 			case 0:
 				return &v.state
@@ -1940,18 +2018,18 @@ func file_hub_pessimist_validation_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_hub_pessimist_validation_proto_rawDesc,
+			RawDescriptor: file_hub_pessimist_validation_objective_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_hub_pessimist_validation_proto_goTypes,
-		DependencyIndexes: file_hub_pessimist_validation_proto_depIdxs,
-		MessageInfos:      file_hub_pessimist_validation_proto_msgTypes,
+		GoTypes:           file_hub_pessimist_validation_objective_proto_goTypes,
+		DependencyIndexes: file_hub_pessimist_validation_objective_proto_depIdxs,
+		MessageInfos:      file_hub_pessimist_validation_objective_proto_msgTypes,
 	}.Build()
-	File_hub_pessimist_validation_proto = out.File
-	file_hub_pessimist_validation_proto_rawDesc = nil
-	file_hub_pessimist_validation_proto_goTypes = nil
-	file_hub_pessimist_validation_proto_depIdxs = nil
+	File_hub_pessimist_validation_objective_proto = out.File
+	file_hub_pessimist_validation_objective_proto_rawDesc = nil
+	file_hub_pessimist_validation_objective_proto_goTypes = nil
+	file_hub_pessimist_validation_objective_proto_depIdxs = nil
 }

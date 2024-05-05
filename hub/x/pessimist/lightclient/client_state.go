@@ -1,13 +1,14 @@
 package lightclient
 
 import (
-	storetypes "cosmossdk.io/store/types"
 	"fmt"
+	"hub/x/pessimist/types"
+
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-	"hub/x/pessimist/types"
 )
 
 func getClientState(store storetypes.KVStore, cdc codec.BinaryCodec) (*types.ClientState, bool) {

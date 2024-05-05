@@ -1,6 +1,8 @@
 package app
 
 import (
+	pessimistmoduletypes "hub/x/pessimist/types"
+
 	"cosmossdk.io/core/appmodule"
 	storetypes "cosmossdk.io/store/types"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -35,7 +37,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	solomachine "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	pessimistmoduletypes "hub/x/pessimist/types"
 	// this line is used by starport scaffolding # ibc/app/import
 )
 

@@ -1,6 +1,9 @@
 package lightclient
 
 import (
+	"hub/x/pessimist/keeper"
+	"hub/x/pessimist/types"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -8,8 +11,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-	"hub/x/pessimist/keeper"
-	"hub/x/pessimist/types"
 )
 
 var _ exported.LightClientModule = (*LightClientModule)(nil)

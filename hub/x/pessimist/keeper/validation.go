@@ -2,12 +2,27 @@ package keeper
 
 import (
 	"context"
+	"hub/x/pessimist/types"
+
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"hub/x/pessimist/types"
 )
+
+func (k Keeper) CreateNewValidationObjective(ctx context.Context, clientIDToValidate string, requiredPower uint64) {
+	objective := &types.ValidationObjective{
+		ClientIdToValidate: clientIDToValidate,
+		RequiredPower:      requiredPower,
+		Validators:         nil,
+		Activated:          false,
+		ClientIdToNotify:   "",
+	}
+	// TODO: Validate it
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.ValidatorObjectiveKeyPrefix))
+	store.Set(types.ValidatorObjectiveKey(clientIDToValidate), k.cdc.MustMarshal(objective))
+}
 
 func (k Keeper) GetValidationObjective(ctx context.Context, clientID string) (types.ValidationObjective, bool) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
