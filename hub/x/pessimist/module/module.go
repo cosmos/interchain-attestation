@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	"hub/x/pessimist/lightclient"
 
 	"cosmossdk.io/core/appmodule"
@@ -184,6 +185,7 @@ type ModuleInputs struct {
 	AccountKeeper types.AccountKeeper
 	BankKeeper    types.BankKeeper
 	StakingKeeper types.StakingKeeper
+	IBCKeeperFn   func() *ibckeeper.Keeper `optional:"true"`
 }
 
 type ModuleOutputs struct {
@@ -205,6 +207,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.StoreService,
 		in.Logger,
 		in.StakingKeeper,
+		in.IBCKeeperFn,
 		authority.String(),
 	)
 	m := NewAppModule(

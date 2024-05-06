@@ -14,6 +14,7 @@ message ClientState {
   string dependent_client_id = 1;
   //ibc.core.client.v1.Height latest_height = 2 [(gogoproto.nullable) = false];
   Height latest_height = 2 [(gogoproto.nullable) = false];
+  google.protobuf.Timestamp latest_height_timestamp = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // TODO: Add app hash here too!

@@ -1,6 +1,7 @@
 package lightclient
 
 import (
+	"fmt"
 	"hub/x/pessimist/keeper"
 	"hub/x/pessimist/types"
 
@@ -65,8 +66,6 @@ func (l *LightClientModule) VerifyClientMessage(ctx sdk.Context, clientID string
 		return err
 	}
 
-	// TODO: Call dependent light client to check the height is good
-
 	latestHeight := clientState.LatestHeight.ToIBCHeight()
 	proposedHeight := committeeProposal.Height.ToIBCHeight()
 
@@ -76,6 +75,11 @@ func (l *LightClientModule) VerifyClientMessage(ctx sdk.Context, clientID string
 
 	if proposedHeight.EQ(latestHeight) {
 		return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "proposed height is equal to the latest height")
+	}
+
+	heightAtDependentClient := l.keeper.GetClientKeeper().GetClientLatestHeight(ctx, clientState.DependentClientId)
+	if heightAtDependentClient.LT(proposedHeight) {
+		return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "dependent client height is less than the proposed height")
 	}
 
 	// Not even sure how one would go about supporting an incremented revision number, so just won't support it for now
@@ -138,8 +142,23 @@ func (l *LightClientModule) UpdateStateOnMisbehaviour(ctx sdk.Context, clientID 
 }
 
 func (l *LightClientModule) UpdateState(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) []exported.Height {
-	//TODO implement me
-	panic("implement me")
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		panic("client state not found") // Should not happen
+	}
+
+	committeeProposal, ok := clientMsg.(*types.CommitteeProposal)
+	if !ok {
+		panic("invalid client message type") // Should not happen
+	}
+
+	clientState.LatestHeight = committeeProposal.Height
+	clientState.LatestHeightTimestamp = ctx.BlockTime()
+
+	setClientState(clientStore, l.cdc, clientState)
+
+	return []exported.Height{clientState.LatestHeight.ToIBCHeight()}
 }
 
 func (l *LightClientModule) VerifyMembership(ctx sdk.Context, clientID string, height exported.Height, delayTimePeriod uint64, delayBlockPeriod uint64, proof []byte, path exported.Path, value []byte) error {
@@ -153,26 +172,40 @@ func (l *LightClientModule) VerifyNonMembership(ctx sdk.Context, clientID string
 }
 
 func (l *LightClientModule) Status(ctx sdk.Context, clientID string) exported.Status {
-	//TODO implement me
-	panic("implement me")
+	return exported.Active
 }
 
 func (l *LightClientModule) LatestHeight(ctx sdk.Context, clientID string) exported.Height {
-	//TODO implement me
-	panic("implement me")
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		panic("client state not found") // Should not happen
+	}
+
+	return clientState.LatestHeight.ToIBCHeight()
 }
 
 func (l *LightClientModule) TimestampAtHeight(ctx sdk.Context, clientID string, height exported.Height) (uint64, error) {
-	//TODO implement me
-	panic("implement me")
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		return 0, errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
+	}
+
+	if height.GetRevisionNumber() != clientState.LatestHeight.RevisionNumber {
+		return 0, errorsmod.Wrap(types.ErrNotSupported, "revision number does not match")
+	}
+	if height.GetRevisionHeight() != clientState.LatestHeight.RevisionHeight {
+		return 0, errorsmod.Wrap(types.ErrNotSupported, "revision height does not match")
+	}
+
+	return uint64(clientState.LatestHeightTimestamp.UnixMilli()), nil
 }
 
 func (l *LightClientModule) RecoverClient(ctx sdk.Context, clientID, substituteClientID string) error {
-	//TODO implement me
-	panic("implement me")
+	return fmt.Errorf("not implemented")
 }
 
 func (l *LightClientModule) VerifyUpgradeAndUpdateState(ctx sdk.Context, clientID string, newClient []byte, newConsState []byte, upgradeClientProof, upgradeConsensusStateProof []byte) error {
-	//TODO implement me
-	panic("implement me")
+	return fmt.Errorf("not implemented")
 }

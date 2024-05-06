@@ -1,0 +1,55 @@
+global:
+  api-listen-addr: :5183
+  timeout: 10s
+  memo: ""
+  light-cache-size: 20
+  log-level: info
+  ics20-memo-limit: 0
+  max-receiver-size: 150
+chains:
+  hub:
+    type: cosmos
+    value:
+      key-directory: /Users/gg/.relayer/keys/hub
+      key: default
+      chain-id: hub
+      rpc-addr: tcp://127.0.0.1:26657
+      account-prefix: hub
+      keyring-backend: test
+      gas-adjustment: 2.5
+      gas-prices: 0.05stake
+      debug: true
+      timeout: 20s
+      block-timeout: ""
+      output-format: json
+      sign-mode: direct
+      extra-codecs: [ ]
+      coin-type: null
+      signing-algorithm: ""
+      broadcast-mode: batch
+      min-loop-duration: 0s
+      extension-options: [ ]
+      feegrants: null
+  rolly:
+    type: cosmos
+    value:
+      key-directory: /Users/gg/.relayer/keys/rolly
+      key: default
+      chain-id: rolly
+      rpc-addr: tcp://127.0.0.1:27657
+      account-prefix: rolly
+      keyring-backend: test
+      gas-adjustment: 2.5
+      gas-prices: 0.05stake
+      debug: true
+      timeout: 20s
+      block-timeout: ""
+      output-format: json
+      sign-mode: direct
+      extra-codecs: [ ]
+      coin-type: null
+      signing-algorithm: ""
+      broadcast-mode: batch
+      min-loop-duration: 0s
+      extension-options: [ ]
+      feegrants: null

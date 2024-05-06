@@ -2,6 +2,8 @@ package types
 
 import (
 	"context"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -28,4 +30,10 @@ type ParamSubspace interface {
 
 type StakingKeeper interface {
 	Validator(context.Context, sdk.ValAddress) (stakingtypes.ValidatorI, error)
+}
+
+type ClientKeeper interface {
+	GetClientStatus(ctx sdk.Context, clientID string) exported.Status
+	CreateClient(ctx sdk.Context, clientType string, clientState, consensusState []byte) (string, error)
+	GetClientLatestHeight(ctx sdk.Context, clientID string) clienttypes.Height
 }

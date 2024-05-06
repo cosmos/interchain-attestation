@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
@@ -17,7 +18,8 @@ type (
 		storeService store.KVStoreService
 		logger       log.Logger
 
-		stakingKeeper types.StakingKeeper
+		stakingKeeper  types.StakingKeeper
+		getIBCKeeperFn func() *ibckeeper.Keeper
 
 		// the address capable of executing a MsgUpdateParams message. Typically, this
 		// should be the x/gov module account.
@@ -30,6 +32,7 @@ func NewKeeper(
 	storeService store.KVStoreService,
 	logger log.Logger,
 	stakingKeeper types.StakingKeeper,
+	getIBCKeeperFn func() *ibckeeper.Keeper,
 	authority string,
 ) Keeper {
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
@@ -53,11 +56,12 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		cdc:           cdc,
-		storeService:  storeService,
-		logger:        logger,
-		stakingKeeper: stakingKeeper,
-		authority:     authority,
+		cdc:            cdc,
+		storeService:   storeService,
+		logger:         logger,
+		stakingKeeper:  stakingKeeper,
+		getIBCKeeperFn: getIBCKeeperFn,
+		authority:      authority,
 	}
 }
 
@@ -69,4 +73,8 @@ func (k Keeper) GetAuthority() string {
 // Logger returns a module-specific logger.
 func (k Keeper) Logger() log.Logger {
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+func (k Keeper) GetClientKeeper() types.ClientKeeper {
+	return k.getIBCKeeperFn().ClientKeeper
 }

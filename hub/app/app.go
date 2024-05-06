@@ -141,6 +141,7 @@ type App struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 
+	// TODO: Remove all this silly pointer stuff after IBC dep inj exists...
 	PessimistKeeper              pessimistmodulekeeper.Keeper
 	PessimisticLightClientModule lightclient.LightClientModule
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration

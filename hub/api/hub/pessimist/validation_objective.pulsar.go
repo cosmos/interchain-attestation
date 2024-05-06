@@ -1733,6 +1733,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// TODO: Rename the client IDs to something more descriptive
 type ValidationObjective struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

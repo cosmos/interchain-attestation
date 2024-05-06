@@ -34,3 +34,4 @@ Incentives to behave:
 
 ## Some issues I'm aware of
 * Rotated validator keys are not handled
+* Creating validation objective is permissionless, should maybe be done by gov/authority

@@ -9,6 +9,11 @@ accounts:
   coins:
   - 10000token
   - 100000000stake
+- name: relayer
+  address: hub1avl4q6s02pss5q2ftrkjqaft3jk75q4lawts4h
+  coins:
+  - 10000token
+  - 100000000stake
 client:
   openapi:
     path: docs/static/openapi.yml

@@ -6,6 +6,7 @@ import "google/protobuf/any.proto";
 
 option go_package = "hub/x/pessimist/types";
 
+// TODO: Rename the client IDs to something more descriptive
 message ValidationObjective {
   string client_id_to_validate = 1;
   uint64 required_power = 2;

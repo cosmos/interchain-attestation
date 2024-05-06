@@ -24,6 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// TODO: Rename the client IDs to something more descriptive
 type ValidationObjective struct {
 	ClientIdToValidate string       `protobuf:"bytes,1,opt,name=client_id_to_validate,json=clientIdToValidate,proto3" json:"client_id_to_validate,omitempty"`
 	RequiredPower      uint64       `protobuf:"varint,2,opt,name=required_power,json=requiredPower,proto3" json:"required_power,omitempty"`
