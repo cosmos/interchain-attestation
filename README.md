@@ -28,8 +28,9 @@ Incentives to behave:
 
 - [x] Create validation objective
 - [x] Signing up for a validation objective
-- [ ] Implement a simple "sign-off" light client that validators can use to sign off on rollup heights.
-- [ ] Starting a validation objective (including creating light client)
+- [x] Implement a simple "sign-off" light client that validators can use to sign off on rollup heights.
+- [x] Starting a validation objective (including creating light client)
+- [ ] E2E Test setup
 - [ ] Implement VoteExtension to update light client and relay packets
 
 ## Some issues I'm aware of
