@@ -2,8 +2,6 @@ module rolly
 
 go 1.21.1
 
-toolchain go1.22.2
-
 replace (
 	// fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.0
