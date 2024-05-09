@@ -51,6 +51,10 @@ type E2ETestSuite struct {
 	ctx     context.Context
 	ic      *interchaintest.Interchain
 	network string
+	r 	 	ibc.Relayer
+	eRep   	*testreporter.RelayerExecReporter
+	initialPath string
+
 	hub     *cosmos.CosmosChain
 	rolly   *cosmos.CosmosChain
 }
@@ -81,17 +85,20 @@ func (s *E2ETestSuite) SetupSuite() {
 		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
 	r := rf.Build(s.T(), client, network)
+	s.r = r
 
 	ic.AddRelayer(r, "relayer")
+	s.initialPath = "ibc-path"
 	ic.AddLink(interchaintest.InterchainLink{
 		Chain1:  hub,
 		Chain2:  rolly,
 		Relayer: r,
-		Path:    "ibc-path",
+		Path:    s.initialPath,
 	})
 
 	rep := testreporter.NewNopReporter()
 	eRep := rep.RelayerExecReporter(s.T())
+	s.eRep = eRep
 
 	err = ic.Build(s.ctx, eRep, interchaintest.InterchainBuildOptions{
 		TestName:         s.T().Name(),
