@@ -15,6 +15,13 @@ I have two ideas on how to do this:
 2. Extend IBC with a light client middleware that can block packets for heights not signed off by the validators.
    - Potentially: some kind of middleware that just blocks the actual packets, but allows light client updates.
 
+### Pessimistic Validation Objective
+
+To enable vote extensions:
+```shell
+$ hubd tx consensus update-params --block '{"max_bytes": "22020096", "max_gas": "-1"}' --evidence '{"max_age_num_blocks": "100000", "max_age_duration": "172800s", "max_bytes": "1048576"}' --validator '{ "pub_key_types": ["ed25519"] }' --abci '{"vote_extensions_enable_height": "2"}' --from authority --chain-id hub
+```
+
 ## Economic models and considerations
 I've not implemented any economic models in this proof of concept, but I have some ideas:
 * Whoever creates a validation objective can set a bounty for validators to claim

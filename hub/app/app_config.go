@@ -288,7 +288,9 @@ var (
 			},
 			{
 				Name:   consensustypes.ModuleName,
-				Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
+				Config: appconfig.WrapAny(&consensusmodulev1.Module{
+					Authority: "hub1kdt0j7fp494sjluz07kz7je3paut0yuc2uq99p", // copy horror distance stick flock tortoise talk robust grape alter quality call climb dumb arrive leopard digital panel scale decide regret digital humble dust
+				}),
 			},
 			{
 				Name:   circuittypes.ModuleName,

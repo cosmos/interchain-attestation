@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	"os"
 	"strings"
 
@@ -119,6 +120,8 @@ func NewRootCmd() *cobra.Command {
 		flags.FlagChainID:        strings.ReplaceAll(app.Name, "-", ""),
 		flags.FlagKeyringBackend: "test",
 	})
+
+	autoCliOpts.Modules[consensustypes.ModuleName] = ConsensusAutoCliOverride{}
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)

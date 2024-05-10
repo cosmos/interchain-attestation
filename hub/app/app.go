@@ -1,6 +1,8 @@
 package app
 
 import (
+	abci "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"hub/x/pessimist/lightclient"
 	"io"
 	"os"
@@ -320,6 +322,38 @@ func New(
 	// 	voteExtHandler := NewVoteExtensionHandler()
 	// 	voteExtHandler.SetHandlers(bApp)
 	// }
+
+	voteExtOp := func(bApp *baseapp.BaseApp) {
+		bApp.SetExtendVoteHandler(func(ctx sdk.Context, vote *abci.RequestExtendVote) (*abci.ResponseExtendVote, error) {
+			ctx.Logger().Info("vote extension handler", "height", ctx.BlockHeight())
+			return &abci.ResponseExtendVote{
+				VoteExtension: []byte("vote extension"),
+			}, nil
+		})
+		bApp.SetVerifyVoteExtensionHandler(func(ctx sdk.Context, vote *abci.RequestVerifyVoteExtension) (*abci.ResponseVerifyVoteExtension, error) {
+			ctx.Logger().Info("verify vote extension handler", "height", ctx.BlockHeight(), vote, string(vote.VoteExtension))
+			return &abci.ResponseVerifyVoteExtension{
+				Status: abci.ResponseVerifyVoteExtension_ACCEPT,
+			}, nil
+		})
+		bApp.SetPrepareProposal(func(ctx sdk.Context, proposal *abci.RequestPrepareProposal) (*abci.ResponsePrepareProposal, error) {
+			ctx.Logger().Info("prepare proposal handler", "height", ctx.BlockHeight(), "extensionvotes", len(proposal.LocalLastCommit.Votes), "enabled height", ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight)
+
+			if proposal.Height > ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight {
+				ctx.Logger().Info("vote extension enabled", "height", ctx.BlockHeight())
+
+				for _, vote := range proposal.LocalLastCommit.Votes {
+					ctx.Logger().Info("vote extension received", "vote", string(vote.VoteExtension))
+				}
+			}
+
+			return &abci.ResponsePrepareProposal{
+				Txs: proposal.Txs,
+			}, nil
+		})
+	}
+
+	baseAppOptions = append(baseAppOptions, voteExtOp)
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
