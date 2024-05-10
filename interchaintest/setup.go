@@ -148,6 +148,10 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 				ConfigFileOverrides: nil,
 				EncodingConfig:      getEncodingConfig(),
 				ModifyGenesis:       cosmos.ModifyGenesis(genesis),
+				// TODO: Add a callback for each validator to adjust env and maybe other config things?
+				Env: []string{
+					"PESSIMIST_CONFIG_PATH=/var/cosmos-chain/hub/config/pessimist.yaml",
+				},
 			},
 			NumValidators: &hubVals,
 			NumFullNodes:  &hubFull,
@@ -216,7 +220,7 @@ da_address = \"http://%s:%s\"" >> /var/cosmos-chain/rolly/config/config.toml`, n
 
 					return cosmos.ModifyGenesis(newGenesis)(config, bytes)
 				},
-				AdditionalStartArgs: []string{"--rollkit.aggregator", "true", "--api.enable", "--api.enabled-unsafe-cors"},
+				AdditionalStartArgs: []string{"--rollkit.aggregator", "true", "--api.enable", "--api.enabled-unsafe-cors", "--rpc.laddr", "tcp://0.0.0.0:26657"},
 				SidecarConfigs: []ibc.SidecarConfig{
 					{
 						ProcessName: "mock-da",

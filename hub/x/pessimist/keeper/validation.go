@@ -37,6 +37,22 @@ func (k Keeper) CreateNewValidationObjective(ctx context.Context, clientIDToVali
 	return nil
 }
 
+func (k Keeper) GetAllValidationObjectives(ctx context.Context) []types.ValidationObjective {
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.ValidatorObjectiveKeyPrefix))
+	iterator := store.Iterator(nil, nil)
+	defer iterator.Close()
+
+	var objectives []types.ValidationObjective
+	for ; iterator.Valid(); iterator.Next() {
+		var objective types.ValidationObjective
+		k.cdc.MustUnmarshal(iterator.Value(), &objective)
+		objectives = append(objectives, objective)
+	}
+
+	return objectives
+}
+
 func (k Keeper) GetValidationObjective(ctx context.Context, clientID string) (types.ValidationObjective, bool) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.ValidatorObjectiveKeyPrefix))

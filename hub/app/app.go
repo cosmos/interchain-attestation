@@ -1,13 +1,6 @@
 package app
 
 import (
-	abci "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"hub/x/pessimist/lightclient"
-	"io"
-	"os"
-	"path/filepath"
-
 	_ "cosmossdk.io/api/cosmos/tx/config/v1" // import for side-effects
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
@@ -22,6 +15,9 @@ import (
 	_ "cosmossdk.io/x/nft/module" // import for side-effects
 	_ "cosmossdk.io/x/upgrade"    // import for side-effects
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	"encoding/json"
+	"fmt"
+	abci "github.com/cometbft/cometbft/abci/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -32,6 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth" // import for side-effects
@@ -77,6 +74,12 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	"gopkg.in/yaml.v2"
+	"hub/x/pessimist/lightclient"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
 
 	pessimistmodulekeeper "hub/x/pessimist/keeper"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
@@ -325,13 +328,82 @@ func New(
 
 	voteExtOp := func(bApp *baseapp.BaseApp) {
 		bApp.SetExtendVoteHandler(func(ctx sdk.Context, vote *abci.RequestExtendVote) (*abci.ResponseExtendVote, error) {
+			// TODO: Move all this into something async and just pick the latest value from memory to not slow things down
 			ctx.Logger().Info("vote extension handler", "height", ctx.BlockHeight())
+
+			validationObjectives := app.PessimistKeeper.GetAllValidationObjectives(ctx)
+
+			voteExtensions := make([]voteExtension, 0)
+
+			pessimistConfigPath := os.Getenv("PESSIMIST_CONFIG_PATH")
+			if pessimistConfigPath == "" {
+				return &abci.ResponseExtendVote{
+					VoteExtension: []byte(""), // empty vote extension
+				}, nil
+			}
+			file, err := os.ReadFile(pessimistConfigPath)
+			if err != nil {
+				ctx.Logger().Error("failed to read pessimist config", "error", err)
+				return nil, err
+			}
+			var pessimistConfig pessimisticValidationConfig
+			if err := yaml.Unmarshal(file, &pessimistConfig); err != nil {
+				ctx.Logger().Error("failed to unmarshal pessimist config", "error", err)
+				return nil, err
+			}
+			ctx.Logger().Info("pessimist config", "config", pessimistConfig)
+
+			for _, objective := range validationObjectives {
+				if !objective.Activated {
+					continue
+				}
+				rpcAddr := pessimistConfig.ChainsToValidate[objective.ClientIdToValidate].RPC
+				if rpcAddr == "" {
+					ctx.Logger().Info("rpc address not found (this might be OK)", "client", objective.ClientIdToValidate)
+					continue
+				}
+
+				resp, err := http.Get(fmt.Sprintf("%s/status", rpcAddr))
+				if err != nil {
+					ctx.Logger().Error("failed to get status from rpc", "rpc", rpcAddr, "error", err)
+					continue
+				}
+
+				if resp.StatusCode != http.StatusOK {
+					ctx.Logger().Error("rpc status not ok", "rpc", rpcAddr, "status", resp.Status)
+					continue
+				}
+
+				body, err := io.ReadAll(resp.Body)
+				if err != nil {
+					ctx.Logger().Error("failed to read body", "error", err)
+					continue
+				}
+
+				var status Status
+				if err := json.Unmarshal(body, &status); err != nil {
+					ctx.Logger().Error("failed to unmarshal body", "error", err, "body", string(body), "endpoint", fmt.Sprintf("%s/status", rpcAddr))
+					continue
+				}
+				voteExtensions = append(voteExtensions, voteExtension{
+					Height: status.Result.SyncInfo.LatestBlockHeight,
+					Hash: status.Result.SyncInfo.LatestAppHash,
+				})
+			}
+
+			marshalledVoteExtensions, err := json.Marshal(voteExtensions)
+			if err != nil {
+				ctx.Logger().Error("failed to marshal vote extensions", "error", err)
+				return nil, err
+			}
+
 			return &abci.ResponseExtendVote{
-				VoteExtension: []byte("vote extension"),
+				VoteExtension: marshalledVoteExtensions,
 			}, nil
 		})
 		bApp.SetVerifyVoteExtensionHandler(func(ctx sdk.Context, vote *abci.RequestVerifyVoteExtension) (*abci.ResponseVerifyVoteExtension, error) {
 			ctx.Logger().Info("verify vote extension handler", "height", ctx.BlockHeight(), vote, string(vote.VoteExtension))
+			// TODO: implement verification logic
 			return &abci.ResponseVerifyVoteExtension{
 				Status: abci.ResponseVerifyVoteExtension_ACCEPT,
 			}, nil

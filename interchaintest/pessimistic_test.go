@@ -8,6 +8,7 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	testifysuite "github.com/stretchr/testify/suite"
+	"gopkg.in/yaml.v3"
 	"strconv"
 	"testing"
 )
@@ -80,6 +81,22 @@ func (s *E2ETestSuite) TestTheKitchenSink() {
 	s.True(objectiveRespAfter.ValidationObjective.Activated)
 	s.Len(objectiveRespAfter.ValidationObjective.Validators, 3)
 	s.Equal(strconv.FormatInt(requiredSecurity.Int64(), 10), objectiveRespAfter.ValidationObjective.RequiredPower)
+
+	rollyHostName := s.rolly.GetNode().HostName()
+	config := PessimisticValidationConfig{
+		ChainsToValidate: map[string]struct {
+			RPC string `yaml:"rpc"`
+		}{
+			"07-tendermint-0": {
+				RPC: fmt.Sprintf("http://%s:26657", rollyHostName),
+			},
+		},
+	}
+	configBz, err := yaml.Marshal(config)
+	s.NoError(err)
+	s.NoError(s.hub.Validators[0].WriteFile(s.ctx, configBz, "config/pessimist.yaml"))
+	s.NoError(s.hub.Validators[1].WriteFile(s.ctx, configBz, "config/pessimist.yaml"))
+	s.NoError(s.hub.Validators[2].WriteFile(s.ctx, configBz, "config/pessimist.yaml"))
 
 	currentHeight, err := s.hub.Height(s.ctx)
 	s.NoError(err)

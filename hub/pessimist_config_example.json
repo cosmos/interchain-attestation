@@ -1,0 +1,3 @@
+chains_to_validate:
+  07-tendermint-01:
+    rpc: "test"

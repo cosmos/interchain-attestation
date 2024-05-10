@@ -79,3 +79,9 @@ type TxResponse struct {
 		} `json:"attributes"`
 	} `json:"events"`
 }
+
+type PessimisticValidationConfig struct {
+	ChainsToValidate map[string]struct{
+		RPC string `yaml:"rpc"`
+	} `yaml:"chains_to_validate"`
+}
