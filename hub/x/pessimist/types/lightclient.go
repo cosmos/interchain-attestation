@@ -27,57 +27,36 @@ func (m *CommitteeProposal) ClientType() string {
 }
 
 func (m *CommitteeProposal) ValidateBasic() error {
-	if m.Height.RevisionNumber < 0 {
-		return errorsmod.Wrap(ErrInvalidCommitteeProposal, "revision number cannot be negative")
-	}
-
-	if m.Height.RevisionHeight < 0 {
-		return errorsmod.Wrap(ErrInvalidCommitteeProposal, "revision height cannot be negative")
-	}
-
 	if len(m.Commitments) == 0 {
 		return errorsmod.Wrap(ErrInvalidCommitteeProposal, "commitments cannot be empty")
 	}
 
 	for _, commitment := range m.Commitments {
-		if commitment == nil {
-			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "commitment cannot be nil")
+		if commitment.ValidatorAddress == nil {
+			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "validator address cannot be nil")
 		}
 
-		if commitment.Height.RevisionNumber != m.Height.RevisionNumber {
-			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "commitment revision number must match proposal revision number")
-		}
-
-		if commitment.Height.RevisionHeight != m.Height.RevisionHeight {
-			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "commitment revision height must match proposal revision height")
-		}
-
-		if _, err := sdk.ValAddressFromBech32(commitment.ValidatorAddr); err != nil {
+		valAddr := sdk.ValAddress(commitment.ValidatorAddress)
+		if _, err := sdk.ValAddressFromBech32(valAddr.String()); err != nil {
 			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "invalid validator address")
 		}
 
-		if commitment.ClientId == "" {
-			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "client id cannot be empty")
+		if commitment.ExtensionSignature == nil {
+			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "extension signature cannot be nil")
 		}
 
-		if commitment.Signature == nil {
-			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "signature cannot be nil")
+		if commitment.CanonicalVoteExtension.Extension == nil {
+			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "extension cannot be nil")
 		}
 
-		if commitment.Timestamp.IsZero() {
-			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "timestamp cannot be zero")
+		if commitment.CanonicalVoteExtension.Height <= 0 {
+			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "height cannot be zero or negative")
+		}
+
+		if commitment.CanonicalVoteExtension.ChainId == "" {
+			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "chain id cannot be empty")
 		}
 	}
 
 	return nil
-}
-
-func (m *Commitment) Data() []byte {
-	data := []byte(m.ClientId)
-	data = append(data, sdk.Uint64ToBigEndian(m.Height.RevisionNumber)...)
-	data = append(data, sdk.Uint64ToBigEndian(m.Height.RevisionHeight)...)
-	data = append(data, sdk.Uint64ToBigEndian(uint64(m.Timestamp.Unix()))...)
-	data = append(data, m.ValidatorAddr...)
-
-	return data
 }

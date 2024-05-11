@@ -1,16 +1,13 @@
 package app
 
-import "time"
+import (
+	"time"
+)
 
-type pessimisticValidationConfig struct {
+type PessimisticValidationConfig struct {
 	ChainsToValidate map[string]struct{
 		RPC string `yaml:"rpc"`
 	} `yaml:"chains_to_validate"`
-}
-
-type voteExtension struct {
-	Height string `json:"height"`
-	Hash  string `json:"hash"`
 }
 
 type Status struct {

@@ -15,6 +15,7 @@ import (
 	_ "cosmossdk.io/x/nft/module" // import for side-effects
 	_ "cosmossdk.io/x/upgrade"    // import for side-effects
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -80,8 +81,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	pessimistmodulekeeper "hub/x/pessimist/keeper"
+	pessimisttypes "hub/x/pessimist/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	"hub/docs"
@@ -333,7 +336,7 @@ func New(
 
 			validationObjectives := app.PessimistKeeper.GetAllValidationObjectives(ctx)
 
-			voteExtensions := make([]voteExtension, 0)
+			validationVotes := make([]pessimisttypes.ValidationVote, 0)
 
 			pessimistConfigPath := os.Getenv("PESSIMIST_CONFIG_PATH")
 			if pessimistConfigPath == "" {
@@ -346,7 +349,7 @@ func New(
 				ctx.Logger().Error("failed to read pessimist config", "error", err)
 				return nil, err
 			}
-			var pessimistConfig pessimisticValidationConfig
+			var pessimistConfig PessimisticValidationConfig
 			if err := yaml.Unmarshal(file, &pessimistConfig); err != nil {
 				ctx.Logger().Error("failed to unmarshal pessimist config", "error", err)
 				return nil, err
@@ -385,13 +388,22 @@ func New(
 					ctx.Logger().Error("failed to unmarshal body", "error", err, "body", string(body), "endpoint", fmt.Sprintf("%s/status", rpcAddr))
 					continue
 				}
-				voteExtensions = append(voteExtensions, voteExtension{
-					Height: status.Result.SyncInfo.LatestBlockHeight,
-					Hash: status.Result.SyncInfo.LatestAppHash,
+				heightInt, err := strconv.Atoi(status.Result.SyncInfo.LatestBlockHeight)
+				if err != nil {
+					ctx.Logger().Error("failed to parse height", "error", err)
+					continue
+				}
+				validationVotes = append(validationVotes, pessimisttypes.ValidationVote{
+					ClientIdToValidate: objective.ClientIdToValidate,
+					ClientIdToUpdate:   objective.ClientIdToNotify,
+					Height:             int64(heightInt),
 				})
 			}
 
-			marshalledVoteExtensions, err := json.Marshal(voteExtensions)
+			voteExtension := pessimisttypes.VoteExtension{
+				ValidationVotes: validationVotes,
+			}
+			marshalledVoteExtensions, err := app.appCodec.Marshal(&voteExtension)
 			if err != nil {
 				ctx.Logger().Error("failed to marshal vote extensions", "error", err)
 				return nil, err
@@ -402,8 +414,40 @@ func New(
 			}, nil
 		})
 		bApp.SetVerifyVoteExtensionHandler(func(ctx sdk.Context, vote *abci.RequestVerifyVoteExtension) (*abci.ResponseVerifyVoteExtension, error) {
-			ctx.Logger().Info("verify vote extension handler", "height", ctx.BlockHeight(), vote, string(vote.VoteExtension))
-			// TODO: implement verification logic
+			consAddr := sdk.ConsAddress(vote.ValidatorAddress)
+			ctx.Logger().Info("verify vote extension handler", "height", ctx.BlockHeight(), "vote", vote, "vote extension", string(vote.VoteExtension), "validator hex", hex.EncodeToString(vote.ValidatorAddress), "consAddr", consAddr.String())
+
+			var voteExt pessimisttypes.VoteExtension
+			if err := app.appCodec.Unmarshal(vote.VoteExtension, &voteExt); err != nil {
+				ctx.Logger().Error("failed to unmarshal vote extension", "error", err)
+				return &abci.ResponseVerifyVoteExtension{
+					Status: abci.ResponseVerifyVoteExtension_REJECT,
+				}, nil
+			}
+
+			for _, validationVote := range voteExt.ValidationVotes {
+				if validationVote.Height <= 0 {
+					ctx.Logger().Error("invalid height", "height", validationVote.Height)
+					return &abci.ResponseVerifyVoteExtension{
+						Status: abci.ResponseVerifyVoteExtension_REJECT,
+					}, nil
+				}
+
+				if validationVote.ClientIdToValidate == "" {
+					ctx.Logger().Error("invalid client id to validate", "client", validationVote.ClientIdToValidate)
+					return &abci.ResponseVerifyVoteExtension{
+						Status: abci.ResponseVerifyVoteExtension_REJECT,
+					}, nil
+				}
+
+				if validationVote.ClientIdToUpdate == "" {
+					ctx.Logger().Error("invalid client id to update", "client", validationVote.ClientIdToUpdate)
+					return &abci.ResponseVerifyVoteExtension{
+						Status: abci.ResponseVerifyVoteExtension_REJECT,
+					}, nil
+				}
+			}
+
 			return &abci.ResponseVerifyVoteExtension{
 				Status: abci.ResponseVerifyVoteExtension_ACCEPT,
 			}, nil
@@ -411,17 +455,100 @@ func New(
 		bApp.SetPrepareProposal(func(ctx sdk.Context, proposal *abci.RequestPrepareProposal) (*abci.ResponsePrepareProposal, error) {
 			ctx.Logger().Info("prepare proposal handler", "height", ctx.BlockHeight(), "extensionvotes", len(proposal.LocalLastCommit.Votes), "enabled height", ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight)
 
-			if proposal.Height > ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight {
-				ctx.Logger().Info("vote extension enabled", "height", ctx.BlockHeight())
+			if ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight > 0 && proposal.Height > ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight {
+				ctx.Logger().Info("prepare proposal: vote extension enabled", "height", ctx.BlockHeight())
 
-				for _, vote := range proposal.LocalLastCommit.Votes {
-					ctx.Logger().Info("vote extension received", "vote", string(vote.VoteExtension))
+				clientIdsToUpdate := make(map[string]bool)
+				committeeProposal := pessimisttypes.CommitteeProposal{
+					Commitments: []pessimisttypes.Commitment{},
 				}
+				for _, vote := range proposal.LocalLastCommit.Votes {
+					ctx.Logger().Info("vote extension received", "vote", vote.String())
+
+
+					var voteExt pessimisttypes.VoteExtension
+					if err := app.appCodec.Unmarshal(vote.VoteExtension, &voteExt); err != nil {
+						ctx.Logger().Error("failed to unmarshal vote extension", "error", err)
+						return nil, err
+					}
+					for _, validationVote := range voteExt.ValidationVotes {
+						committeeProposal.Commitments = append(committeeProposal.Commitments, pessimisttypes.Commitment{
+							ValidatorAddress: vote.Validator.Address,
+							CanonicalVoteExtension: pessimisttypes.CanonicalVoteExtension{
+								Extension: vote.VoteExtension,
+								Height:    proposal.Height - 1,
+								Round:     int64(proposal.LocalLastCommit.Round),
+								ChainId:   "hub", // TODO get chain id
+							},
+							ExtensionSignature:     vote.ExtensionSignature,
+						})
+
+						clientIdsToUpdate[validationVote.ClientIdToUpdate] = true
+					}
+				}
+
+				if len(committeeProposal.Commitments) > 0 {
+					specialTx := pessimisttypes.CommitteeProposalSpecialTx{
+						CommitteeProposal: committeeProposal,
+						ClientIdsToSendTo: []string{},
+					}
+
+					for clientId, _ := range clientIdsToUpdate {
+						specialTx.ClientIdsToSendTo = append(specialTx.ClientIdsToSendTo, clientId)
+					}
+
+					specialTxBz, err := app.appCodec.Marshal(&specialTx)
+					if err != nil {
+						ctx.Logger().Error("failed to marshal special tx", "error", err)
+						return nil, err
+					}
+
+					return &abci.ResponsePrepareProposal{
+						Txs: append([][]byte{specialTxBz}, proposal.Txs...),
+					}, nil
+				}
+
 			}
 
 			return &abci.ResponsePrepareProposal{
 				Txs: proposal.Txs,
 			}, nil
+		})
+		bApp.SetProcessProposal(func(ctx sdk.Context, proposal *abci.RequestProcessProposal) (*abci.ResponseProcessProposal, error) {
+			ctx.Logger().Info("process proposal handler", "height", ctx.BlockHeight())
+
+			if ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight > 0 && proposal.Height > ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight {
+				ctx.Logger().Info("process proposal: vote extension enabled", "height", ctx.BlockHeight())
+
+				// TODO: DO VALIDATION STUFF ?
+			}
+
+			return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
+		})
+		bApp.SetPreBlocker(func(ctx sdk.Context, req *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+			ctx.Logger().Info("pre-blocker", "height", ctx.BlockHeight())
+			res := &sdk.ResponsePreBlock{}
+			if len(req.Txs) == 0 {
+				return res, nil
+			}
+
+			if ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight > 0 && req.Height > ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight {
+				specialTxBz := req.Txs[0]
+				var specialTx pessimisttypes.CommitteeProposalSpecialTx
+				if err := app.appCodec.Unmarshal(specialTxBz, &specialTx); err != nil {
+					ctx.Logger().Info("failed to unmarshal special tx", "error", err)
+					return res, nil // Dont want this to fail everything and this might be an OK scenario?
+				}
+
+				for _, clientId := range specialTx.ClientIdsToSendTo {
+					if err := app.GetIBCKeeper().ClientKeeper.UpdateClient(ctx, clientId, &specialTx.CommitteeProposal); err != nil {
+						ctx.Logger().Error("failed to update client", "error", err, "client", clientId)
+						return res, nil // Dont want the chain to halt because of this
+					}
+				}
+			}
+
+			return res, nil
 		})
 	}
 

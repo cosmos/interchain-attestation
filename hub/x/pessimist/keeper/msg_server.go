@@ -55,6 +55,7 @@ func (k msgServer) SignUpForObjective(goCtx context.Context, msg *types.MsgSignU
 		return nil, err
 	}
 
+
 	var pkAny *codectypes.Any
 	if pubKey != nil {
 		var err error
@@ -62,8 +63,10 @@ func (k msgServer) SignUpForObjective(goCtx context.Context, msg *types.MsgSignU
 			return nil, err
 		}
 	}
+	consAddr := sdk.ConsAddress(pubKey.Address())
 	if err := k.AddValidatorToObjective(ctx, msg.ClientId, &types.Validator{
 		ValidatorAddr: msg.ValidatorAddress,
+		ConsAddr: 	   consAddr.String(),
 		PubKey:        pkAny,
 	}); err != nil {
 		return nil, err

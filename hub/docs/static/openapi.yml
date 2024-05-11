@@ -9429,6 +9429,8 @@ paths:
                       properties:
                         validator_addr:
                           type: string
+                        cons_addr:
+                          type: string
                         pub_key:
                           type: object
                           properties:
@@ -21330,6 +21332,8 @@ definitions:
               properties:
                 validator_addr:
                   type: string
+                cons_addr:
+                  type: string
                 pub_key:
                   type: object
                   properties:
@@ -21529,6 +21533,8 @@ definitions:
           properties:
             validator_addr:
               type: string
+            cons_addr:
+              type: string
             pub_key:
               type: object
               properties:
@@ -21711,6 +21717,8 @@ definitions:
     type: object
     properties:
       validator_addr:
+        type: string
+      cons_addr:
         type: string
       pub_key:
         type: object

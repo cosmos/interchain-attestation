@@ -1,20 +1,23 @@
 package lightclient
 
 import (
-	"fmt"
-	"hub/x/pessimist/keeper"
-	"hub/x/pessimist/types"
-
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	"hub/x/pessimist/keeper"
+	"hub/x/pessimist/types"
 )
 
 var _ exported.LightClientModule = (*LightClientModule)(nil)
+
+type ValidationVoteWithCommitment struct {
+	ValidationVote types.ValidationVote
+	Commitment types.Commitment
+	Validator types.ValidatorPower
+}
 
 type LightClientModule struct {
 	cdc           codec.BinaryCodec
@@ -52,81 +55,8 @@ func (l *LightClientModule) Initialize(ctx sdk.Context, clientID string, clientS
 
 // TODO: Test this
 func (l *LightClientModule) VerifyClientMessage(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) error {
-	clientStore := l.storeProvider.ClientStore(ctx, clientID)
-	clientState, found := getClientState(clientStore, l.cdc)
-	if !found {
-		return errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
-	}
-
-	committeeProposal, ok := clientMsg.(*types.CommitteeProposal)
-	if !ok {
-		return clienttypes.ErrInvalidClientType
-	}
-	if err := committeeProposal.ValidateBasic(); err != nil {
+	if _, err := l.processClientMessage(ctx, clientID, clientMsg); err != nil {
 		return err
-	}
-
-	latestHeight := clientState.LatestHeight.ToIBCHeight()
-	proposedHeight := committeeProposal.Height.ToIBCHeight()
-
-	if proposedHeight.LTE(latestHeight) {
-		return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "proposed height is less than or equal to the latest height")
-	}
-
-	if proposedHeight.EQ(latestHeight) {
-		return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "proposed height is equal to the latest height")
-	}
-
-	heightAtDependentClient := l.keeper.GetClientKeeper().GetClientLatestHeight(ctx, clientState.DependentClientId)
-	if heightAtDependentClient.LT(proposedHeight) {
-		return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "dependent client height is less than the proposed height")
-	}
-
-	// Not even sure how one would go about supporting an incremented revision number, so just won't support it for now
-	if proposedHeight.GetRevisionNumber() != latestHeight.GetRevisionNumber() {
-		return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "proposed height revision number must match latest height revision number")
-	}
-
-	validationObjective, found := l.keeper.GetValidationObjective(ctx, clientState.DependentClientId)
-	if !found {
-		return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "validation objective not found")
-	}
-
-	var signedValidators []*types.Validator
-	for _, commitment := range committeeProposal.Commitments {
-		if commitment.ClientId != clientState.DependentClientId {
-			return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "commitment client id must match dependent client id")
-		}
-
-		// Validate basic has already verified that all the heights are the same as the top level proposal height
-
-		var validator *types.Validator
-		for _, v := range validationObjective.Validators {
-			if v.ValidatorAddr == commitment.ValidatorAddr {
-				validator = v
-				break
-			}
-		}
-		if validator == nil {
-			return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "validator not found in validator set")
-		}
-
-		data := commitment.Data()
-		pubKey, ok := validator.PubKey.GetCachedValue().(cryptotypes.PubKey)
-		if !ok {
-			return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "validator public key is not cryptotypes.PubKey")
-		}
-
-		if verified := pubKey.VerifySignature(data, commitment.Signature); !verified {
-			return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "signature verification failed")
-		}
-
-		signedValidators = append(signedValidators, validator)
-	}
-
-	power := l.keeper.GetValidatorPower(ctx, signedValidators)
-	if power.LT(math.NewIntFromUint64(validationObjective.RequiredPower)) {
-		return errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "insufficient power by signed members")
 	}
 
 	return nil
@@ -148,31 +78,73 @@ func (l *LightClientModule) UpdateState(ctx sdk.Context, clientID string, client
 		panic("client state not found") // Should not happen
 	}
 
-	committeeProposal, ok := clientMsg.(*types.CommitteeProposal)
-	if !ok {
-		panic("invalid client message type") // Should not happen
+	height, err := l.processClientMessage(ctx, clientID, clientMsg)
+	if err != nil {
+		panic(err) // Should not happen
+	}
+	ibcHeight := &clienttypes.Height{
+		RevisionNumber: 0,
+		RevisionHeight: uint64(height),
 	}
 
-	clientState.LatestHeight = committeeProposal.Height
-	clientState.LatestHeightTimestamp = ctx.BlockTime()
-
+	clientState.LatestHeight = height
 	setClientState(clientStore, l.cdc, clientState)
 
-	return []exported.Height{clientState.LatestHeight.ToIBCHeight()}
+	return []exported.Height{ibcHeight}
 }
 
 func (l *LightClientModule) VerifyMembership(ctx sdk.Context, clientID string, height exported.Height, delayTimePeriod uint64, delayBlockPeriod uint64, proof []byte, path exported.Path, value []byte) error {
-	//TODO implement me
-	return nil
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		return errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
+	}
+
+	if clientState.LatestHeight < int64(height.GetRevisionHeight()) {
+		return errorsmod.Wrap(clienttypes.ErrInvalidHeight, "client state height is less than the height of the proof")
+	}
+
+	dependentClientModule, found := l.keeper.GetClientKeeper().Route(clientState.DependentClientId)
+	if !found {
+		return errorsmod.Wrap(clienttypes.ErrInvalidClientType, "dependent client not found")
+	}
+
+	return dependentClientModule.VerifyMembership(ctx, clientState.DependentClientId, height, delayTimePeriod, delayBlockPeriod, proof, path, value)
 }
 
 func (l *LightClientModule) VerifyNonMembership(ctx sdk.Context, clientID string, height exported.Height, delayTimePeriod uint64, delayBlockPeriod uint64, proof []byte, path exported.Path) error {
-	//TODO implement me
-	return nil
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		return errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
+	}
+
+	if clientState.LatestHeight < int64(height.GetRevisionHeight()) {
+		return errorsmod.Wrap(clienttypes.ErrInvalidHeight, "client state height is less than the height of the proof")
+	}
+
+	dependentClientModule, found := l.keeper.GetClientKeeper().Route(clientState.DependentClientId)
+	if !found {
+		return errorsmod.Wrap(clienttypes.ErrInvalidClientType, "dependent client not found")
+	}
+
+	return dependentClientModule.VerifyNonMembership(ctx, clientState.DependentClientId, height, delayTimePeriod, delayBlockPeriod, proof, path)
 }
 
 func (l *LightClientModule) Status(ctx sdk.Context, clientID string) exported.Status {
-	return exported.Active
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		ctx.Logger().Error("client state not found", "clientID", clientID)
+		return exported.Unknown
+	}
+	dependentClientModule, found := l.keeper.GetClientKeeper().Route(clientState.DependentClientId)
+	if !found {
+		ctx.Logger().Error("dependent client not found", "clientID", clientID)
+		return exported.Unknown
+	}
+
+	return dependentClientModule.Status(ctx, clientState.DependentClientId)
 }
 
 func (l *LightClientModule) LatestHeight(ctx sdk.Context, clientID string) exported.Height {
@@ -182,7 +154,10 @@ func (l *LightClientModule) LatestHeight(ctx sdk.Context, clientID string) expor
 		panic("client state not found") // Should not happen
 	}
 
-	return clientState.LatestHeight.ToIBCHeight()
+	return &clienttypes.Height{
+		RevisionNumber: 0,
+		RevisionHeight: uint64(clientState.LatestHeight),
+	}
 }
 
 func (l *LightClientModule) TimestampAtHeight(ctx sdk.Context, clientID string, height exported.Height) (uint64, error) {
@@ -191,15 +166,12 @@ func (l *LightClientModule) TimestampAtHeight(ctx sdk.Context, clientID string, 
 	if !found {
 		return 0, errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
 	}
-
-	if height.GetRevisionNumber() != clientState.LatestHeight.RevisionNumber {
-		return 0, errorsmod.Wrap(types.ErrNotSupported, "revision number does not match")
-	}
-	if height.GetRevisionHeight() != clientState.LatestHeight.RevisionHeight {
-		return 0, errorsmod.Wrap(types.ErrNotSupported, "revision height does not match")
+	dependentClientModule, found := l.keeper.GetClientKeeper().Route(clientState.DependentClientId)
+	if !found {
+		return 0, errorsmod.Wrap(clienttypes.ErrInvalidClientType, "dependent client not found")
 	}
 
-	return uint64(clientState.LatestHeightTimestamp.UnixMilli()), nil
+	return dependentClientModule.TimestampAtHeight(ctx, clientState.DependentClientId, height)
 }
 
 func (l *LightClientModule) RecoverClient(ctx sdk.Context, clientID, substituteClientID string) error {

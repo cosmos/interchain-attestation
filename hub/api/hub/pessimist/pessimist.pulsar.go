@@ -2,6 +2,7 @@
 package pessimist
 
 import (
+	binary "encoding/binary"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
@@ -9,17 +10,16 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	reflect "reflect"
 	sync "sync"
 )
 
 var (
-	md_ClientState                         protoreflect.MessageDescriptor
-	fd_ClientState_dependent_client_id     protoreflect.FieldDescriptor
-	fd_ClientState_latest_height           protoreflect.FieldDescriptor
-	fd_ClientState_latest_height_timestamp protoreflect.FieldDescriptor
+	md_ClientState                     protoreflect.MessageDescriptor
+	fd_ClientState_dependent_client_id protoreflect.FieldDescriptor
+	fd_ClientState_latest_height       protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -27,7 +27,6 @@ func init() {
 	md_ClientState = File_hub_pessimist_pessimist_proto.Messages().ByName("ClientState")
 	fd_ClientState_dependent_client_id = md_ClientState.Fields().ByName("dependent_client_id")
 	fd_ClientState_latest_height = md_ClientState.Fields().ByName("latest_height")
-	fd_ClientState_latest_height_timestamp = md_ClientState.Fields().ByName("latest_height_timestamp")
 }
 
 var _ protoreflect.Message = (*fastReflection_ClientState)(nil)
@@ -101,15 +100,9 @@ func (x *fastReflection_ClientState) Range(f func(protoreflect.FieldDescriptor, 
 			return
 		}
 	}
-	if x.LatestHeight != nil {
-		value := protoreflect.ValueOfMessage(x.LatestHeight.ProtoReflect())
+	if x.LatestHeight != int64(0) {
+		value := protoreflect.ValueOfInt64(x.LatestHeight)
 		if !f(fd_ClientState_latest_height, value) {
-			return
-		}
-	}
-	if x.LatestHeightTimestamp != nil {
-		value := protoreflect.ValueOfMessage(x.LatestHeightTimestamp.ProtoReflect())
-		if !f(fd_ClientState_latest_height_timestamp, value) {
 			return
 		}
 	}
@@ -131,9 +124,7 @@ func (x *fastReflection_ClientState) Has(fd protoreflect.FieldDescriptor) bool {
 	case "hub.pessimist.ClientState.dependent_client_id":
 		return x.DependentClientId != ""
 	case "hub.pessimist.ClientState.latest_height":
-		return x.LatestHeight != nil
-	case "hub.pessimist.ClientState.latest_height_timestamp":
-		return x.LatestHeightTimestamp != nil
+		return x.LatestHeight != int64(0)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ClientState"))
@@ -153,9 +144,7 @@ func (x *fastReflection_ClientState) Clear(fd protoreflect.FieldDescriptor) {
 	case "hub.pessimist.ClientState.dependent_client_id":
 		x.DependentClientId = ""
 	case "hub.pessimist.ClientState.latest_height":
-		x.LatestHeight = nil
-	case "hub.pessimist.ClientState.latest_height_timestamp":
-		x.LatestHeightTimestamp = nil
+		x.LatestHeight = int64(0)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ClientState"))
@@ -177,10 +166,7 @@ func (x *fastReflection_ClientState) Get(descriptor protoreflect.FieldDescriptor
 		return protoreflect.ValueOfString(value)
 	case "hub.pessimist.ClientState.latest_height":
 		value := x.LatestHeight
-		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "hub.pessimist.ClientState.latest_height_timestamp":
-		value := x.LatestHeightTimestamp
-		return protoreflect.ValueOfMessage(value.ProtoReflect())
+		return protoreflect.ValueOfInt64(value)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ClientState"))
@@ -204,9 +190,7 @@ func (x *fastReflection_ClientState) Set(fd protoreflect.FieldDescriptor, value 
 	case "hub.pessimist.ClientState.dependent_client_id":
 		x.DependentClientId = value.Interface().(string)
 	case "hub.pessimist.ClientState.latest_height":
-		x.LatestHeight = value.Message().Interface().(*Height)
-	case "hub.pessimist.ClientState.latest_height_timestamp":
-		x.LatestHeightTimestamp = value.Message().Interface().(*timestamppb.Timestamp)
+		x.LatestHeight = value.Int()
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ClientState"))
@@ -227,18 +211,10 @@ func (x *fastReflection_ClientState) Set(fd protoreflect.FieldDescriptor, value 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ClientState) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "hub.pessimist.ClientState.latest_height":
-		if x.LatestHeight == nil {
-			x.LatestHeight = new(Height)
-		}
-		return protoreflect.ValueOfMessage(x.LatestHeight.ProtoReflect())
-	case "hub.pessimist.ClientState.latest_height_timestamp":
-		if x.LatestHeightTimestamp == nil {
-			x.LatestHeightTimestamp = new(timestamppb.Timestamp)
-		}
-		return protoreflect.ValueOfMessage(x.LatestHeightTimestamp.ProtoReflect())
 	case "hub.pessimist.ClientState.dependent_client_id":
 		panic(fmt.Errorf("field dependent_client_id of message hub.pessimist.ClientState is not mutable"))
+	case "hub.pessimist.ClientState.latest_height":
+		panic(fmt.Errorf("field latest_height of message hub.pessimist.ClientState is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ClientState"))
@@ -255,11 +231,7 @@ func (x *fastReflection_ClientState) NewField(fd protoreflect.FieldDescriptor) p
 	case "hub.pessimist.ClientState.dependent_client_id":
 		return protoreflect.ValueOfString("")
 	case "hub.pessimist.ClientState.latest_height":
-		m := new(Height)
-		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "hub.pessimist.ClientState.latest_height_timestamp":
-		m := new(timestamppb.Timestamp)
-		return protoreflect.ValueOfMessage(m.ProtoReflect())
+		return protoreflect.ValueOfInt64(int64(0))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ClientState"))
@@ -333,13 +305,8 @@ func (x *fastReflection_ClientState) ProtoMethods() *protoiface.Methods {
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		if x.LatestHeight != nil {
-			l = options.Size(x.LatestHeight)
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		if x.LatestHeightTimestamp != nil {
-			l = options.Size(x.LatestHeightTimestamp)
-			n += 1 + l + runtime.Sov(uint64(l))
+		if x.LatestHeight != 0 {
+			n += 9
 		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
@@ -370,33 +337,11 @@ func (x *fastReflection_ClientState) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if x.LatestHeightTimestamp != nil {
-			encoded, err := options.Marshal(x.LatestHeightTimestamp)
-			if err != nil {
-				return protoiface.MarshalOutput{
-					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-					Buf:               input.Buf,
-				}, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+		if x.LatestHeight != 0 {
+			i -= 8
+			binary.LittleEndian.PutUint64(dAtA[i:], uint64(x.LatestHeight))
 			i--
-			dAtA[i] = 0x1a
-		}
-		if x.LatestHeight != nil {
-			encoded, err := options.Marshal(x.LatestHeight)
-			if err != nil {
-				return protoiface.MarshalOutput{
-					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-					Buf:               input.Buf,
-				}, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
-			i--
-			dAtA[i] = 0x12
+			dAtA[i] = 0x11
 		}
 		if len(x.DependentClientId) > 0 {
 			i -= len(x.DependentClientId)
@@ -487,77 +432,15 @@ func (x *fastReflection_ClientState) ProtoMethods() *protoiface.Methods {
 				x.DependentClientId = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			case 2:
-				if wireType != 2 {
+				if wireType != 1 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field LatestHeight", wireType)
 				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
+				x.LatestHeight = 0
+				if (iNdEx + 8) > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				if x.LatestHeight == nil {
-					x.LatestHeight = &Height{}
-				}
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.LatestHeight); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
-			case 3:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field LatestHeightTimestamp", wireType)
-				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if x.LatestHeightTimestamp == nil {
-					x.LatestHeightTimestamp = &timestamppb.Timestamp{}
-				}
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.LatestHeightTimestamp); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
+				x.LatestHeight = int64(binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+				iNdEx += 8
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -593,67 +476,65 @@ func (x *fastReflection_ClientState) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var _ protoreflect.List = (*_CommitteeProposal_2_list)(nil)
+var _ protoreflect.List = (*_CommitteeProposal_3_list)(nil)
 
-type _CommitteeProposal_2_list struct {
+type _CommitteeProposal_3_list struct {
 	list *[]*Commitment
 }
 
-func (x *_CommitteeProposal_2_list) Len() int {
+func (x *_CommitteeProposal_3_list) Len() int {
 	if x.list == nil {
 		return 0
 	}
 	return len(*x.list)
 }
 
-func (x *_CommitteeProposal_2_list) Get(i int) protoreflect.Value {
+func (x *_CommitteeProposal_3_list) Get(i int) protoreflect.Value {
 	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
 }
 
-func (x *_CommitteeProposal_2_list) Set(i int, value protoreflect.Value) {
+func (x *_CommitteeProposal_3_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*Commitment)
 	(*x.list)[i] = concreteValue
 }
 
-func (x *_CommitteeProposal_2_list) Append(value protoreflect.Value) {
+func (x *_CommitteeProposal_3_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*Commitment)
 	*x.list = append(*x.list, concreteValue)
 }
 
-func (x *_CommitteeProposal_2_list) AppendMutable() protoreflect.Value {
+func (x *_CommitteeProposal_3_list) AppendMutable() protoreflect.Value {
 	v := new(Commitment)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_CommitteeProposal_2_list) Truncate(n int) {
+func (x *_CommitteeProposal_3_list) Truncate(n int) {
 	for i := n; i < len(*x.list); i++ {
 		(*x.list)[i] = nil
 	}
 	*x.list = (*x.list)[:n]
 }
 
-func (x *_CommitteeProposal_2_list) NewElement() protoreflect.Value {
+func (x *_CommitteeProposal_3_list) NewElement() protoreflect.Value {
 	v := new(Commitment)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_CommitteeProposal_2_list) IsValid() bool {
+func (x *_CommitteeProposal_3_list) IsValid() bool {
 	return x.list != nil
 }
 
 var (
 	md_CommitteeProposal             protoreflect.MessageDescriptor
-	fd_CommitteeProposal_height      protoreflect.FieldDescriptor
 	fd_CommitteeProposal_commitments protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_hub_pessimist_pessimist_proto_init()
 	md_CommitteeProposal = File_hub_pessimist_pessimist_proto.Messages().ByName("CommitteeProposal")
-	fd_CommitteeProposal_height = md_CommitteeProposal.Fields().ByName("height")
 	fd_CommitteeProposal_commitments = md_CommitteeProposal.Fields().ByName("commitments")
 }
 
@@ -722,14 +603,8 @@ func (x *fastReflection_CommitteeProposal) Interface() protoreflect.ProtoMessage
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_CommitteeProposal) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Height != nil {
-		value := protoreflect.ValueOfMessage(x.Height.ProtoReflect())
-		if !f(fd_CommitteeProposal_height, value) {
-			return
-		}
-	}
 	if len(x.Commitments) != 0 {
-		value := protoreflect.ValueOfList(&_CommitteeProposal_2_list{list: &x.Commitments})
+		value := protoreflect.ValueOfList(&_CommitteeProposal_3_list{list: &x.Commitments})
 		if !f(fd_CommitteeProposal_commitments, value) {
 			return
 		}
@@ -749,8 +624,6 @@ func (x *fastReflection_CommitteeProposal) Range(f func(protoreflect.FieldDescri
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_CommitteeProposal) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "hub.pessimist.CommitteeProposal.height":
-		return x.Height != nil
 	case "hub.pessimist.CommitteeProposal.commitments":
 		return len(x.Commitments) != 0
 	default:
@@ -769,8 +642,6 @@ func (x *fastReflection_CommitteeProposal) Has(fd protoreflect.FieldDescriptor) 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CommitteeProposal) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "hub.pessimist.CommitteeProposal.height":
-		x.Height = nil
 	case "hub.pessimist.CommitteeProposal.commitments":
 		x.Commitments = nil
 	default:
@@ -789,14 +660,11 @@ func (x *fastReflection_CommitteeProposal) Clear(fd protoreflect.FieldDescriptor
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_CommitteeProposal) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "hub.pessimist.CommitteeProposal.height":
-		value := x.Height
-		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	case "hub.pessimist.CommitteeProposal.commitments":
 		if len(x.Commitments) == 0 {
-			return protoreflect.ValueOfList(&_CommitteeProposal_2_list{})
+			return protoreflect.ValueOfList(&_CommitteeProposal_3_list{})
 		}
-		listValue := &_CommitteeProposal_2_list{list: &x.Commitments}
+		listValue := &_CommitteeProposal_3_list{list: &x.Commitments}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
@@ -818,11 +686,9 @@ func (x *fastReflection_CommitteeProposal) Get(descriptor protoreflect.FieldDesc
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CommitteeProposal) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "hub.pessimist.CommitteeProposal.height":
-		x.Height = value.Message().Interface().(*Height)
 	case "hub.pessimist.CommitteeProposal.commitments":
 		lv := value.List()
-		clv := lv.(*_CommitteeProposal_2_list)
+		clv := lv.(*_CommitteeProposal_3_list)
 		x.Commitments = *clv.list
 	default:
 		if fd.IsExtension() {
@@ -844,16 +710,11 @@ func (x *fastReflection_CommitteeProposal) Set(fd protoreflect.FieldDescriptor, 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CommitteeProposal) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "hub.pessimist.CommitteeProposal.height":
-		if x.Height == nil {
-			x.Height = new(Height)
-		}
-		return protoreflect.ValueOfMessage(x.Height.ProtoReflect())
 	case "hub.pessimist.CommitteeProposal.commitments":
 		if x.Commitments == nil {
 			x.Commitments = []*Commitment{}
 		}
-		value := &_CommitteeProposal_2_list{list: &x.Commitments}
+		value := &_CommitteeProposal_3_list{list: &x.Commitments}
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
@@ -868,12 +729,9 @@ func (x *fastReflection_CommitteeProposal) Mutable(fd protoreflect.FieldDescript
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_CommitteeProposal) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "hub.pessimist.CommitteeProposal.height":
-		m := new(Height)
-		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	case "hub.pessimist.CommitteeProposal.commitments":
 		list := []*Commitment{}
-		return protoreflect.ValueOfList(&_CommitteeProposal_2_list{list: &list})
+		return protoreflect.ValueOfList(&_CommitteeProposal_3_list{list: &list})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CommitteeProposal"))
@@ -943,10 +801,6 @@ func (x *fastReflection_CommitteeProposal) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
-		if x.Height != nil {
-			l = options.Size(x.Height)
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
 		if len(x.Commitments) > 0 {
 			for _, e := range x.Commitments {
 				l = options.Size(e)
@@ -995,22 +849,8 @@ func (x *fastReflection_CommitteeProposal) ProtoMethods() *protoiface.Methods {
 				copy(dAtA[i:], encoded)
 				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 				i--
-				dAtA[i] = 0x12
+				dAtA[i] = 0x1a
 			}
-		}
-		if x.Height != nil {
-			encoded, err := options.Marshal(x.Height)
-			if err != nil {
-				return protoiface.MarshalOutput{
-					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-					Buf:               input.Buf,
-				}, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
-			i--
-			dAtA[i] = 0xa
 		}
 		if input.Buf != nil {
 			input.Buf = append(input.Buf, dAtA...)
@@ -1061,43 +901,7 @@ func (x *fastReflection_CommitteeProposal) ProtoMethods() *protoiface.Methods {
 				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CommitteeProposal: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
-			case 1:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Height", wireType)
-				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if x.Height == nil {
-					x.Height = &Height{}
-				}
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Height); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
-			case 2:
+			case 3:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Commitments", wireType)
 				}
@@ -1167,22 +971,18 @@ func (x *fastReflection_CommitteeProposal) ProtoMethods() *protoiface.Methods {
 }
 
 var (
-	md_Commitment                protoreflect.MessageDescriptor
-	fd_Commitment_clientId       protoreflect.FieldDescriptor
-	fd_Commitment_height         protoreflect.FieldDescriptor
-	fd_Commitment_timestamp      protoreflect.FieldDescriptor
-	fd_Commitment_validator_addr protoreflect.FieldDescriptor
-	fd_Commitment_signature      protoreflect.FieldDescriptor
+	md_Commitment                          protoreflect.MessageDescriptor
+	fd_Commitment_validator_address        protoreflect.FieldDescriptor
+	fd_Commitment_canonical_vote_extension protoreflect.FieldDescriptor
+	fd_Commitment_extension_signature      protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_hub_pessimist_pessimist_proto_init()
 	md_Commitment = File_hub_pessimist_pessimist_proto.Messages().ByName("Commitment")
-	fd_Commitment_clientId = md_Commitment.Fields().ByName("clientId")
-	fd_Commitment_height = md_Commitment.Fields().ByName("height")
-	fd_Commitment_timestamp = md_Commitment.Fields().ByName("timestamp")
-	fd_Commitment_validator_addr = md_Commitment.Fields().ByName("validator_addr")
-	fd_Commitment_signature = md_Commitment.Fields().ByName("signature")
+	fd_Commitment_validator_address = md_Commitment.Fields().ByName("validator_address")
+	fd_Commitment_canonical_vote_extension = md_Commitment.Fields().ByName("canonical_vote_extension")
+	fd_Commitment_extension_signature = md_Commitment.Fields().ByName("extension_signature")
 }
 
 var _ protoreflect.Message = (*fastReflection_Commitment)(nil)
@@ -1250,33 +1050,21 @@ func (x *fastReflection_Commitment) Interface() protoreflect.ProtoMessage {
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_Commitment) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.ClientId != "" {
-		value := protoreflect.ValueOfString(x.ClientId)
-		if !f(fd_Commitment_clientId, value) {
+	if len(x.ValidatorAddress) != 0 {
+		value := protoreflect.ValueOfBytes(x.ValidatorAddress)
+		if !f(fd_Commitment_validator_address, value) {
 			return
 		}
 	}
-	if x.Height != nil {
-		value := protoreflect.ValueOfMessage(x.Height.ProtoReflect())
-		if !f(fd_Commitment_height, value) {
+	if x.CanonicalVoteExtension != nil {
+		value := protoreflect.ValueOfMessage(x.CanonicalVoteExtension.ProtoReflect())
+		if !f(fd_Commitment_canonical_vote_extension, value) {
 			return
 		}
 	}
-	if x.Timestamp != nil {
-		value := protoreflect.ValueOfMessage(x.Timestamp.ProtoReflect())
-		if !f(fd_Commitment_timestamp, value) {
-			return
-		}
-	}
-	if x.ValidatorAddr != "" {
-		value := protoreflect.ValueOfString(x.ValidatorAddr)
-		if !f(fd_Commitment_validator_addr, value) {
-			return
-		}
-	}
-	if len(x.Signature) != 0 {
-		value := protoreflect.ValueOfBytes(x.Signature)
-		if !f(fd_Commitment_signature, value) {
+	if len(x.ExtensionSignature) != 0 {
+		value := protoreflect.ValueOfBytes(x.ExtensionSignature)
+		if !f(fd_Commitment_extension_signature, value) {
 			return
 		}
 	}
@@ -1295,16 +1083,12 @@ func (x *fastReflection_Commitment) Range(f func(protoreflect.FieldDescriptor, p
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_Commitment) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "hub.pessimist.Commitment.clientId":
-		return x.ClientId != ""
-	case "hub.pessimist.Commitment.height":
-		return x.Height != nil
-	case "hub.pessimist.Commitment.timestamp":
-		return x.Timestamp != nil
-	case "hub.pessimist.Commitment.validator_addr":
-		return x.ValidatorAddr != ""
-	case "hub.pessimist.Commitment.signature":
-		return len(x.Signature) != 0
+	case "hub.pessimist.Commitment.validator_address":
+		return len(x.ValidatorAddress) != 0
+	case "hub.pessimist.Commitment.canonical_vote_extension":
+		return x.CanonicalVoteExtension != nil
+	case "hub.pessimist.Commitment.extension_signature":
+		return len(x.ExtensionSignature) != 0
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Commitment"))
@@ -1321,16 +1105,12 @@ func (x *fastReflection_Commitment) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Commitment) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "hub.pessimist.Commitment.clientId":
-		x.ClientId = ""
-	case "hub.pessimist.Commitment.height":
-		x.Height = nil
-	case "hub.pessimist.Commitment.timestamp":
-		x.Timestamp = nil
-	case "hub.pessimist.Commitment.validator_addr":
-		x.ValidatorAddr = ""
-	case "hub.pessimist.Commitment.signature":
-		x.Signature = nil
+	case "hub.pessimist.Commitment.validator_address":
+		x.ValidatorAddress = nil
+	case "hub.pessimist.Commitment.canonical_vote_extension":
+		x.CanonicalVoteExtension = nil
+	case "hub.pessimist.Commitment.extension_signature":
+		x.ExtensionSignature = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Commitment"))
@@ -1347,20 +1127,14 @@ func (x *fastReflection_Commitment) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_Commitment) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "hub.pessimist.Commitment.clientId":
-		value := x.ClientId
-		return protoreflect.ValueOfString(value)
-	case "hub.pessimist.Commitment.height":
-		value := x.Height
+	case "hub.pessimist.Commitment.validator_address":
+		value := x.ValidatorAddress
+		return protoreflect.ValueOfBytes(value)
+	case "hub.pessimist.Commitment.canonical_vote_extension":
+		value := x.CanonicalVoteExtension
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "hub.pessimist.Commitment.timestamp":
-		value := x.Timestamp
-		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "hub.pessimist.Commitment.validator_addr":
-		value := x.ValidatorAddr
-		return protoreflect.ValueOfString(value)
-	case "hub.pessimist.Commitment.signature":
-		value := x.Signature
+	case "hub.pessimist.Commitment.extension_signature":
+		value := x.ExtensionSignature
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
@@ -1382,16 +1156,12 @@ func (x *fastReflection_Commitment) Get(descriptor protoreflect.FieldDescriptor)
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Commitment) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "hub.pessimist.Commitment.clientId":
-		x.ClientId = value.Interface().(string)
-	case "hub.pessimist.Commitment.height":
-		x.Height = value.Message().Interface().(*Height)
-	case "hub.pessimist.Commitment.timestamp":
-		x.Timestamp = value.Message().Interface().(*timestamppb.Timestamp)
-	case "hub.pessimist.Commitment.validator_addr":
-		x.ValidatorAddr = value.Interface().(string)
-	case "hub.pessimist.Commitment.signature":
-		x.Signature = value.Bytes()
+	case "hub.pessimist.Commitment.validator_address":
+		x.ValidatorAddress = value.Bytes()
+	case "hub.pessimist.Commitment.canonical_vote_extension":
+		x.CanonicalVoteExtension = value.Message().Interface().(*CanonicalVoteExtension)
+	case "hub.pessimist.Commitment.extension_signature":
+		x.ExtensionSignature = value.Bytes()
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Commitment"))
@@ -1412,22 +1182,15 @@ func (x *fastReflection_Commitment) Set(fd protoreflect.FieldDescriptor, value p
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Commitment) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "hub.pessimist.Commitment.height":
-		if x.Height == nil {
-			x.Height = new(Height)
+	case "hub.pessimist.Commitment.canonical_vote_extension":
+		if x.CanonicalVoteExtension == nil {
+			x.CanonicalVoteExtension = new(CanonicalVoteExtension)
 		}
-		return protoreflect.ValueOfMessage(x.Height.ProtoReflect())
-	case "hub.pessimist.Commitment.timestamp":
-		if x.Timestamp == nil {
-			x.Timestamp = new(timestamppb.Timestamp)
-		}
-		return protoreflect.ValueOfMessage(x.Timestamp.ProtoReflect())
-	case "hub.pessimist.Commitment.clientId":
-		panic(fmt.Errorf("field clientId of message hub.pessimist.Commitment is not mutable"))
-	case "hub.pessimist.Commitment.validator_addr":
-		panic(fmt.Errorf("field validator_addr of message hub.pessimist.Commitment is not mutable"))
-	case "hub.pessimist.Commitment.signature":
-		panic(fmt.Errorf("field signature of message hub.pessimist.Commitment is not mutable"))
+		return protoreflect.ValueOfMessage(x.CanonicalVoteExtension.ProtoReflect())
+	case "hub.pessimist.Commitment.validator_address":
+		panic(fmt.Errorf("field validator_address of message hub.pessimist.Commitment is not mutable"))
+	case "hub.pessimist.Commitment.extension_signature":
+		panic(fmt.Errorf("field extension_signature of message hub.pessimist.Commitment is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Commitment"))
@@ -1441,17 +1204,12 @@ func (x *fastReflection_Commitment) Mutable(fd protoreflect.FieldDescriptor) pro
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_Commitment) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "hub.pessimist.Commitment.clientId":
-		return protoreflect.ValueOfString("")
-	case "hub.pessimist.Commitment.height":
-		m := new(Height)
+	case "hub.pessimist.Commitment.validator_address":
+		return protoreflect.ValueOfBytes(nil)
+	case "hub.pessimist.Commitment.canonical_vote_extension":
+		m := new(CanonicalVoteExtension)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "hub.pessimist.Commitment.timestamp":
-		m := new(timestamppb.Timestamp)
-		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "hub.pessimist.Commitment.validator_addr":
-		return protoreflect.ValueOfString("")
-	case "hub.pessimist.Commitment.signature":
+	case "hub.pessimist.Commitment.extension_signature":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
@@ -1522,23 +1280,15 @@ func (x *fastReflection_Commitment) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
-		l = len(x.ClientId)
+		l = len(x.ValidatorAddress)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		if x.Height != nil {
-			l = options.Size(x.Height)
+		if x.CanonicalVoteExtension != nil {
+			l = options.Size(x.CanonicalVoteExtension)
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		if x.Timestamp != nil {
-			l = options.Size(x.Timestamp)
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		l = len(x.ValidatorAddr)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		l = len(x.Signature)
+		l = len(x.ExtensionSignature)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -1571,36 +1321,15 @@ func (x *fastReflection_Commitment) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.Signature) > 0 {
-			i -= len(x.Signature)
-			copy(dAtA[i:], x.Signature)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Signature)))
-			i--
-			dAtA[i] = 0x2a
-		}
-		if len(x.ValidatorAddr) > 0 {
-			i -= len(x.ValidatorAddr)
-			copy(dAtA[i:], x.ValidatorAddr)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ValidatorAddr)))
-			i--
-			dAtA[i] = 0x22
-		}
-		if x.Timestamp != nil {
-			encoded, err := options.Marshal(x.Timestamp)
-			if err != nil {
-				return protoiface.MarshalOutput{
-					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-					Buf:               input.Buf,
-				}, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+		if len(x.ExtensionSignature) > 0 {
+			i -= len(x.ExtensionSignature)
+			copy(dAtA[i:], x.ExtensionSignature)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ExtensionSignature)))
 			i--
 			dAtA[i] = 0x1a
 		}
-		if x.Height != nil {
-			encoded, err := options.Marshal(x.Height)
+		if x.CanonicalVoteExtension != nil {
+			encoded, err := options.Marshal(x.CanonicalVoteExtension)
 			if err != nil {
 				return protoiface.MarshalOutput{
 					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1613,10 +1342,10 @@ func (x *fastReflection_Commitment) ProtoMethods() *protoiface.Methods {
 			i--
 			dAtA[i] = 0x12
 		}
-		if len(x.ClientId) > 0 {
-			i -= len(x.ClientId)
-			copy(dAtA[i:], x.ClientId)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ClientId)))
+		if len(x.ValidatorAddress) > 0 {
+			i -= len(x.ValidatorAddress)
+			copy(dAtA[i:], x.ValidatorAddress)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ValidatorAddress)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -1671,143 +1400,7 @@ func (x *fastReflection_Commitment) ProtoMethods() *protoiface.Methods {
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ClientId", wireType)
-				}
-				var stringLen uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + intStringLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.ClientId = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
-			case 2:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Height", wireType)
-				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if x.Height == nil {
-					x.Height = &Height{}
-				}
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Height); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
-			case 3:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
-				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if x.Timestamp == nil {
-					x.Timestamp = &timestamppb.Timestamp{}
-				}
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Timestamp); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
-			case 4:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddr", wireType)
-				}
-				var stringLen uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + intStringLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.ValidatorAddr = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
-			case 5:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
 				}
 				var byteLen int
 				for shift := uint(0); ; shift += 7 {
@@ -1834,9 +1427,79 @@ func (x *fastReflection_Commitment) ProtoMethods() *protoiface.Methods {
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Signature = append(x.Signature[:0], dAtA[iNdEx:postIndex]...)
-				if x.Signature == nil {
-					x.Signature = []byte{}
+				x.ValidatorAddress = append(x.ValidatorAddress[:0], dAtA[iNdEx:postIndex]...)
+				if x.ValidatorAddress == nil {
+					x.ValidatorAddress = []byte{}
+				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CanonicalVoteExtension", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.CanonicalVoteExtension == nil {
+					x.CanonicalVoteExtension = &CanonicalVoteExtension{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.CanonicalVoteExtension); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			case 3:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ExtensionSignature", wireType)
+				}
+				var byteLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					byteLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if byteLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + byteLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ExtensionSignature = append(x.ExtensionSignature[:0], dAtA[iNdEx:postIndex]...)
+				if x.ExtensionSignature == nil {
+					x.ExtensionSignature = []byte{}
 				}
 				iNdEx = postIndex
 			default:
@@ -1875,27 +1538,31 @@ func (x *fastReflection_Commitment) ProtoMethods() *protoiface.Methods {
 }
 
 var (
-	md_Height                 protoreflect.MessageDescriptor
-	fd_Height_revision_number protoreflect.FieldDescriptor
-	fd_Height_revision_height protoreflect.FieldDescriptor
+	md_CanonicalVoteExtension           protoreflect.MessageDescriptor
+	fd_CanonicalVoteExtension_extension protoreflect.FieldDescriptor
+	fd_CanonicalVoteExtension_height    protoreflect.FieldDescriptor
+	fd_CanonicalVoteExtension_round     protoreflect.FieldDescriptor
+	fd_CanonicalVoteExtension_chain_id  protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_hub_pessimist_pessimist_proto_init()
-	md_Height = File_hub_pessimist_pessimist_proto.Messages().ByName("Height")
-	fd_Height_revision_number = md_Height.Fields().ByName("revision_number")
-	fd_Height_revision_height = md_Height.Fields().ByName("revision_height")
+	md_CanonicalVoteExtension = File_hub_pessimist_pessimist_proto.Messages().ByName("CanonicalVoteExtension")
+	fd_CanonicalVoteExtension_extension = md_CanonicalVoteExtension.Fields().ByName("extension")
+	fd_CanonicalVoteExtension_height = md_CanonicalVoteExtension.Fields().ByName("height")
+	fd_CanonicalVoteExtension_round = md_CanonicalVoteExtension.Fields().ByName("round")
+	fd_CanonicalVoteExtension_chain_id = md_CanonicalVoteExtension.Fields().ByName("chain_id")
 }
 
-var _ protoreflect.Message = (*fastReflection_Height)(nil)
+var _ protoreflect.Message = (*fastReflection_CanonicalVoteExtension)(nil)
 
-type fastReflection_Height Height
+type fastReflection_CanonicalVoteExtension CanonicalVoteExtension
 
-func (x *Height) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_Height)(x)
+func (x *CanonicalVoteExtension) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_CanonicalVoteExtension)(x)
 }
 
-func (x *Height) slowProtoReflect() protoreflect.Message {
+func (x *CanonicalVoteExtension) slowProtoReflect() protoreflect.Message {
 	mi := &file_hub_pessimist_pessimist_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1907,43 +1574,43 @@ func (x *Height) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_Height_messageType fastReflection_Height_messageType
-var _ protoreflect.MessageType = fastReflection_Height_messageType{}
+var _fastReflection_CanonicalVoteExtension_messageType fastReflection_CanonicalVoteExtension_messageType
+var _ protoreflect.MessageType = fastReflection_CanonicalVoteExtension_messageType{}
 
-type fastReflection_Height_messageType struct{}
+type fastReflection_CanonicalVoteExtension_messageType struct{}
 
-func (x fastReflection_Height_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_Height)(nil)
+func (x fastReflection_CanonicalVoteExtension_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_CanonicalVoteExtension)(nil)
 }
-func (x fastReflection_Height_messageType) New() protoreflect.Message {
-	return new(fastReflection_Height)
+func (x fastReflection_CanonicalVoteExtension_messageType) New() protoreflect.Message {
+	return new(fastReflection_CanonicalVoteExtension)
 }
-func (x fastReflection_Height_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_Height
+func (x fastReflection_CanonicalVoteExtension_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_CanonicalVoteExtension
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_Height) Descriptor() protoreflect.MessageDescriptor {
-	return md_Height
+func (x *fastReflection_CanonicalVoteExtension) Descriptor() protoreflect.MessageDescriptor {
+	return md_CanonicalVoteExtension
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_Height) Type() protoreflect.MessageType {
-	return _fastReflection_Height_messageType
+func (x *fastReflection_CanonicalVoteExtension) Type() protoreflect.MessageType {
+	return _fastReflection_CanonicalVoteExtension_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_Height) New() protoreflect.Message {
-	return new(fastReflection_Height)
+func (x *fastReflection_CanonicalVoteExtension) New() protoreflect.Message {
+	return new(fastReflection_CanonicalVoteExtension)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_Height) Interface() protoreflect.ProtoMessage {
-	return (*Height)(x)
+func (x *fastReflection_CanonicalVoteExtension) Interface() protoreflect.ProtoMessage {
+	return (*CanonicalVoteExtension)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -1951,16 +1618,28 @@ func (x *fastReflection_Height) Interface() protoreflect.ProtoMessage {
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_Height) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.RevisionNumber != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.RevisionNumber)
-		if !f(fd_Height_revision_number, value) {
+func (x *fastReflection_CanonicalVoteExtension) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.Extension) != 0 {
+		value := protoreflect.ValueOfBytes(x.Extension)
+		if !f(fd_CanonicalVoteExtension_extension, value) {
 			return
 		}
 	}
-	if x.RevisionHeight != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.RevisionHeight)
-		if !f(fd_Height_revision_height, value) {
+	if x.Height != int64(0) {
+		value := protoreflect.ValueOfInt64(x.Height)
+		if !f(fd_CanonicalVoteExtension_height, value) {
+			return
+		}
+	}
+	if x.Round != int64(0) {
+		value := protoreflect.ValueOfInt64(x.Round)
+		if !f(fd_CanonicalVoteExtension_round, value) {
+			return
+		}
+	}
+	if x.ChainId != "" {
+		value := protoreflect.ValueOfString(x.ChainId)
+		if !f(fd_CanonicalVoteExtension_chain_id, value) {
 			return
 		}
 	}
@@ -1977,17 +1656,21 @@ func (x *fastReflection_Height) Range(f func(protoreflect.FieldDescriptor, proto
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_Height) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_CanonicalVoteExtension) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "hub.pessimist.Height.revision_number":
-		return x.RevisionNumber != uint64(0)
-	case "hub.pessimist.Height.revision_height":
-		return x.RevisionHeight != uint64(0)
+	case "hub.pessimist.CanonicalVoteExtension.extension":
+		return len(x.Extension) != 0
+	case "hub.pessimist.CanonicalVoteExtension.height":
+		return x.Height != int64(0)
+	case "hub.pessimist.CanonicalVoteExtension.round":
+		return x.Round != int64(0)
+	case "hub.pessimist.CanonicalVoteExtension.chain_id":
+		return x.ChainId != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Height"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CanonicalVoteExtension"))
 		}
-		panic(fmt.Errorf("message hub.pessimist.Height does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message hub.pessimist.CanonicalVoteExtension does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1997,17 +1680,21 @@ func (x *fastReflection_Height) Has(fd protoreflect.FieldDescriptor) bool {
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_Height) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_CanonicalVoteExtension) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "hub.pessimist.Height.revision_number":
-		x.RevisionNumber = uint64(0)
-	case "hub.pessimist.Height.revision_height":
-		x.RevisionHeight = uint64(0)
+	case "hub.pessimist.CanonicalVoteExtension.extension":
+		x.Extension = nil
+	case "hub.pessimist.CanonicalVoteExtension.height":
+		x.Height = int64(0)
+	case "hub.pessimist.CanonicalVoteExtension.round":
+		x.Round = int64(0)
+	case "hub.pessimist.CanonicalVoteExtension.chain_id":
+		x.ChainId = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Height"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CanonicalVoteExtension"))
 		}
-		panic(fmt.Errorf("message hub.pessimist.Height does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message hub.pessimist.CanonicalVoteExtension does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2017,19 +1704,25 @@ func (x *fastReflection_Height) Clear(fd protoreflect.FieldDescriptor) {
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_Height) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CanonicalVoteExtension) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "hub.pessimist.Height.revision_number":
-		value := x.RevisionNumber
-		return protoreflect.ValueOfUint64(value)
-	case "hub.pessimist.Height.revision_height":
-		value := x.RevisionHeight
-		return protoreflect.ValueOfUint64(value)
+	case "hub.pessimist.CanonicalVoteExtension.extension":
+		value := x.Extension
+		return protoreflect.ValueOfBytes(value)
+	case "hub.pessimist.CanonicalVoteExtension.height":
+		value := x.Height
+		return protoreflect.ValueOfInt64(value)
+	case "hub.pessimist.CanonicalVoteExtension.round":
+		value := x.Round
+		return protoreflect.ValueOfInt64(value)
+	case "hub.pessimist.CanonicalVoteExtension.chain_id":
+		value := x.ChainId
+		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Height"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CanonicalVoteExtension"))
 		}
-		panic(fmt.Errorf("message hub.pessimist.Height does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message hub.pessimist.CanonicalVoteExtension does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2043,17 +1736,21 @@ func (x *fastReflection_Height) Get(descriptor protoreflect.FieldDescriptor) pro
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_Height) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_CanonicalVoteExtension) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "hub.pessimist.Height.revision_number":
-		x.RevisionNumber = value.Uint()
-	case "hub.pessimist.Height.revision_height":
-		x.RevisionHeight = value.Uint()
+	case "hub.pessimist.CanonicalVoteExtension.extension":
+		x.Extension = value.Bytes()
+	case "hub.pessimist.CanonicalVoteExtension.height":
+		x.Height = value.Int()
+	case "hub.pessimist.CanonicalVoteExtension.round":
+		x.Round = value.Int()
+	case "hub.pessimist.CanonicalVoteExtension.chain_id":
+		x.ChainId = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Height"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CanonicalVoteExtension"))
 		}
-		panic(fmt.Errorf("message hub.pessimist.Height does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message hub.pessimist.CanonicalVoteExtension does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2067,44 +1764,52 @@ func (x *fastReflection_Height) Set(fd protoreflect.FieldDescriptor, value proto
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_Height) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CanonicalVoteExtension) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "hub.pessimist.Height.revision_number":
-		panic(fmt.Errorf("field revision_number of message hub.pessimist.Height is not mutable"))
-	case "hub.pessimist.Height.revision_height":
-		panic(fmt.Errorf("field revision_height of message hub.pessimist.Height is not mutable"))
+	case "hub.pessimist.CanonicalVoteExtension.extension":
+		panic(fmt.Errorf("field extension of message hub.pessimist.CanonicalVoteExtension is not mutable"))
+	case "hub.pessimist.CanonicalVoteExtension.height":
+		panic(fmt.Errorf("field height of message hub.pessimist.CanonicalVoteExtension is not mutable"))
+	case "hub.pessimist.CanonicalVoteExtension.round":
+		panic(fmt.Errorf("field round of message hub.pessimist.CanonicalVoteExtension is not mutable"))
+	case "hub.pessimist.CanonicalVoteExtension.chain_id":
+		panic(fmt.Errorf("field chain_id of message hub.pessimist.CanonicalVoteExtension is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Height"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CanonicalVoteExtension"))
 		}
-		panic(fmt.Errorf("message hub.pessimist.Height does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message hub.pessimist.CanonicalVoteExtension does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_Height) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_CanonicalVoteExtension) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "hub.pessimist.Height.revision_number":
-		return protoreflect.ValueOfUint64(uint64(0))
-	case "hub.pessimist.Height.revision_height":
-		return protoreflect.ValueOfUint64(uint64(0))
+	case "hub.pessimist.CanonicalVoteExtension.extension":
+		return protoreflect.ValueOfBytes(nil)
+	case "hub.pessimist.CanonicalVoteExtension.height":
+		return protoreflect.ValueOfInt64(int64(0))
+	case "hub.pessimist.CanonicalVoteExtension.round":
+		return protoreflect.ValueOfInt64(int64(0))
+	case "hub.pessimist.CanonicalVoteExtension.chain_id":
+		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.Height"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CanonicalVoteExtension"))
 		}
-		panic(fmt.Errorf("message hub.pessimist.Height does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message hub.pessimist.CanonicalVoteExtension does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_Height) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_CanonicalVoteExtension) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in hub.pessimist.Height", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in hub.pessimist.CanonicalVoteExtension", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2112,7 +1817,7 @@ func (x *fastReflection_Height) WhichOneof(d protoreflect.OneofDescriptor) proto
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_Height) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_CanonicalVoteExtension) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -2123,7 +1828,7 @@ func (x *fastReflection_Height) GetUnknown() protoreflect.RawFields {
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_Height) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_CanonicalVoteExtension) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -2135,7 +1840,7 @@ func (x *fastReflection_Height) SetUnknown(fields protoreflect.RawFields) {
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_Height) IsValid() bool {
+func (x *fastReflection_CanonicalVoteExtension) IsValid() bool {
 	return x != nil
 }
 
@@ -2145,9 +1850,9 @@ func (x *fastReflection_Height) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_Height) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_CanonicalVoteExtension) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*Height)
+		x := input.Message.Interface().(*CanonicalVoteExtension)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -2159,11 +1864,19 @@ func (x *fastReflection_Height) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
-		if x.RevisionNumber != 0 {
-			n += 1 + runtime.Sov(uint64(x.RevisionNumber))
+		l = len(x.Extension)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		if x.RevisionHeight != 0 {
-			n += 1 + runtime.Sov(uint64(x.RevisionHeight))
+		if x.Height != 0 {
+			n += 9
+		}
+		if x.Round != 0 {
+			n += 9
+		}
+		l = len(x.ChainId)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
 		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
@@ -2175,7 +1888,7 @@ func (x *fastReflection_Height) ProtoMethods() *protoiface.Methods {
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*Height)
+		x := input.Message.Interface().(*CanonicalVoteExtension)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -2194,15 +1907,31 @@ func (x *fastReflection_Height) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if x.RevisionHeight != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.RevisionHeight))
+		if len(x.ChainId) > 0 {
+			i -= len(x.ChainId)
+			copy(dAtA[i:], x.ChainId)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ChainId)))
 			i--
-			dAtA[i] = 0x10
+			dAtA[i] = 0x22
 		}
-		if x.RevisionNumber != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.RevisionNumber))
+		if x.Round != 0 {
+			i -= 8
+			binary.LittleEndian.PutUint64(dAtA[i:], uint64(x.Round))
 			i--
-			dAtA[i] = 0x8
+			dAtA[i] = 0x19
+		}
+		if x.Height != 0 {
+			i -= 8
+			binary.LittleEndian.PutUint64(dAtA[i:], uint64(x.Height))
+			i--
+			dAtA[i] = 0x11
+		}
+		if len(x.Extension) > 0 {
+			i -= len(x.Extension)
+			copy(dAtA[i:], x.Extension)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Extension)))
+			i--
+			dAtA[i] = 0xa
 		}
 		if input.Buf != nil {
 			input.Buf = append(input.Buf, dAtA...)
@@ -2215,7 +1944,7 @@ func (x *fastReflection_Height) ProtoMethods() *protoiface.Methods {
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*Height)
+		x := input.Message.Interface().(*CanonicalVoteExtension)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -2247,17 +1976,17 @@ func (x *fastReflection_Height) ProtoMethods() *protoiface.Methods {
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: Height: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CanonicalVoteExtension: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: Height: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CanonicalVoteExtension: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field RevisionNumber", wireType)
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Extension", wireType)
 				}
-				x.RevisionNumber = 0
+				var byteLen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -2267,16 +1996,51 @@ func (x *fastReflection_Height) ProtoMethods() *protoiface.Methods {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					x.RevisionNumber |= uint64(b&0x7F) << shift
+					byteLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
+				if byteLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + byteLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Extension = append(x.Extension[:0], dAtA[iNdEx:postIndex]...)
+				if x.Extension == nil {
+					x.Extension = []byte{}
+				}
+				iNdEx = postIndex
 			case 2:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field RevisionHeight", wireType)
+				if wireType != 1 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Height", wireType)
 				}
-				x.RevisionHeight = 0
+				x.Height = 0
+				if (iNdEx + 8) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Height = int64(binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+				iNdEx += 8
+			case 3:
+				if wireType != 1 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Round", wireType)
+				}
+				x.Round = 0
+				if (iNdEx + 8) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Round = int64(binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+				iNdEx += 8
+			case 4:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ChainId", wireType)
+				}
+				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -2286,11 +2050,1601 @@ func (x *fastReflection_Height) ProtoMethods() *protoiface.Methods {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					x.RevisionHeight |= uint64(b&0x7F) << shift
+					stringLen |= uint64(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ChainId = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var _ protoreflect.List = (*_VoteExtension_1_list)(nil)
+
+type _VoteExtension_1_list struct {
+	list *[]*ValidationVote
+}
+
+func (x *_VoteExtension_1_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_VoteExtension_1_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
+}
+
+func (x *_VoteExtension_1_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*ValidationVote)
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_VoteExtension_1_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.Message()
+	concreteValue := valueUnwrapped.Interface().(*ValidationVote)
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_VoteExtension_1_list) AppendMutable() protoreflect.Value {
+	v := new(ValidationVote)
+	*x.list = append(*x.list, v)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_VoteExtension_1_list) Truncate(n int) {
+	for i := n; i < len(*x.list); i++ {
+		(*x.list)[i] = nil
+	}
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_VoteExtension_1_list) NewElement() protoreflect.Value {
+	v := new(ValidationVote)
+	return protoreflect.ValueOfMessage(v.ProtoReflect())
+}
+
+func (x *_VoteExtension_1_list) IsValid() bool {
+	return x.list != nil
+}
+
+var (
+	md_VoteExtension                  protoreflect.MessageDescriptor
+	fd_VoteExtension_validation_votes protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_hub_pessimist_pessimist_proto_init()
+	md_VoteExtension = File_hub_pessimist_pessimist_proto.Messages().ByName("VoteExtension")
+	fd_VoteExtension_validation_votes = md_VoteExtension.Fields().ByName("validation_votes")
+}
+
+var _ protoreflect.Message = (*fastReflection_VoteExtension)(nil)
+
+type fastReflection_VoteExtension VoteExtension
+
+func (x *VoteExtension) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_VoteExtension)(x)
+}
+
+func (x *VoteExtension) slowProtoReflect() protoreflect.Message {
+	mi := &file_hub_pessimist_pessimist_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_VoteExtension_messageType fastReflection_VoteExtension_messageType
+var _ protoreflect.MessageType = fastReflection_VoteExtension_messageType{}
+
+type fastReflection_VoteExtension_messageType struct{}
+
+func (x fastReflection_VoteExtension_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_VoteExtension)(nil)
+}
+func (x fastReflection_VoteExtension_messageType) New() protoreflect.Message {
+	return new(fastReflection_VoteExtension)
+}
+func (x fastReflection_VoteExtension_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_VoteExtension
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_VoteExtension) Descriptor() protoreflect.MessageDescriptor {
+	return md_VoteExtension
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_VoteExtension) Type() protoreflect.MessageType {
+	return _fastReflection_VoteExtension_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_VoteExtension) New() protoreflect.Message {
+	return new(fastReflection_VoteExtension)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_VoteExtension) Interface() protoreflect.ProtoMessage {
+	return (*VoteExtension)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_VoteExtension) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if len(x.ValidationVotes) != 0 {
+		value := protoreflect.ValueOfList(&_VoteExtension_1_list{list: &x.ValidationVotes})
+		if !f(fd_VoteExtension_validation_votes, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_VoteExtension) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "hub.pessimist.VoteExtension.validation_votes":
+		return len(x.ValidationVotes) != 0
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.VoteExtension"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.VoteExtension does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_VoteExtension) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "hub.pessimist.VoteExtension.validation_votes":
+		x.ValidationVotes = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.VoteExtension"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.VoteExtension does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_VoteExtension) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "hub.pessimist.VoteExtension.validation_votes":
+		if len(x.ValidationVotes) == 0 {
+			return protoreflect.ValueOfList(&_VoteExtension_1_list{})
+		}
+		listValue := &_VoteExtension_1_list{list: &x.ValidationVotes}
+		return protoreflect.ValueOfList(listValue)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.VoteExtension"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.VoteExtension does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_VoteExtension) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "hub.pessimist.VoteExtension.validation_votes":
+		lv := value.List()
+		clv := lv.(*_VoteExtension_1_list)
+		x.ValidationVotes = *clv.list
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.VoteExtension"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.VoteExtension does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_VoteExtension) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "hub.pessimist.VoteExtension.validation_votes":
+		if x.ValidationVotes == nil {
+			x.ValidationVotes = []*ValidationVote{}
+		}
+		value := &_VoteExtension_1_list{list: &x.ValidationVotes}
+		return protoreflect.ValueOfList(value)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.VoteExtension"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.VoteExtension does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_VoteExtension) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "hub.pessimist.VoteExtension.validation_votes":
+		list := []*ValidationVote{}
+		return protoreflect.ValueOfList(&_VoteExtension_1_list{list: &list})
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.VoteExtension"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.VoteExtension does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_VoteExtension) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in hub.pessimist.VoteExtension", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_VoteExtension) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_VoteExtension) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_VoteExtension) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_VoteExtension) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*VoteExtension)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if len(x.ValidationVotes) > 0 {
+			for _, e := range x.ValidationVotes {
+				l = options.Size(e)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*VoteExtension)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.ValidationVotes) > 0 {
+			for iNdEx := len(x.ValidationVotes) - 1; iNdEx >= 0; iNdEx-- {
+				encoded, err := options.Marshal(x.ValidationVotes[iNdEx])
+				if err != nil {
+					return protoiface.MarshalOutput{
+						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+						Buf:               input.Buf,
+					}, err
+				}
+				i -= len(encoded)
+				copy(dAtA[i:], encoded)
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+				i--
+				dAtA[i] = 0xa
+			}
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*VoteExtension)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: VoteExtension: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: VoteExtension: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValidationVotes", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ValidationVotes = append(x.ValidationVotes, &ValidationVote{})
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.ValidationVotes[len(x.ValidationVotes)-1]); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_ValidationVote                       protoreflect.MessageDescriptor
+	fd_ValidationVote_client_id_to_validate protoreflect.FieldDescriptor
+	fd_ValidationVote_client_id_to_update   protoreflect.FieldDescriptor
+	fd_ValidationVote_height                protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_hub_pessimist_pessimist_proto_init()
+	md_ValidationVote = File_hub_pessimist_pessimist_proto.Messages().ByName("ValidationVote")
+	fd_ValidationVote_client_id_to_validate = md_ValidationVote.Fields().ByName("client_id_to_validate")
+	fd_ValidationVote_client_id_to_update = md_ValidationVote.Fields().ByName("client_id_to_update")
+	fd_ValidationVote_height = md_ValidationVote.Fields().ByName("height")
+}
+
+var _ protoreflect.Message = (*fastReflection_ValidationVote)(nil)
+
+type fastReflection_ValidationVote ValidationVote
+
+func (x *ValidationVote) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_ValidationVote)(x)
+}
+
+func (x *ValidationVote) slowProtoReflect() protoreflect.Message {
+	mi := &file_hub_pessimist_pessimist_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_ValidationVote_messageType fastReflection_ValidationVote_messageType
+var _ protoreflect.MessageType = fastReflection_ValidationVote_messageType{}
+
+type fastReflection_ValidationVote_messageType struct{}
+
+func (x fastReflection_ValidationVote_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_ValidationVote)(nil)
+}
+func (x fastReflection_ValidationVote_messageType) New() protoreflect.Message {
+	return new(fastReflection_ValidationVote)
+}
+func (x fastReflection_ValidationVote_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_ValidationVote
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_ValidationVote) Descriptor() protoreflect.MessageDescriptor {
+	return md_ValidationVote
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_ValidationVote) Type() protoreflect.MessageType {
+	return _fastReflection_ValidationVote_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_ValidationVote) New() protoreflect.Message {
+	return new(fastReflection_ValidationVote)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_ValidationVote) Interface() protoreflect.ProtoMessage {
+	return (*ValidationVote)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_ValidationVote) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.ClientIdToValidate != "" {
+		value := protoreflect.ValueOfString(x.ClientIdToValidate)
+		if !f(fd_ValidationVote_client_id_to_validate, value) {
+			return
+		}
+	}
+	if x.ClientIdToUpdate != "" {
+		value := protoreflect.ValueOfString(x.ClientIdToUpdate)
+		if !f(fd_ValidationVote_client_id_to_update, value) {
+			return
+		}
+	}
+	if x.Height != int64(0) {
+		value := protoreflect.ValueOfInt64(x.Height)
+		if !f(fd_ValidationVote_height, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_ValidationVote) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "hub.pessimist.ValidationVote.client_id_to_validate":
+		return x.ClientIdToValidate != ""
+	case "hub.pessimist.ValidationVote.client_id_to_update":
+		return x.ClientIdToUpdate != ""
+	case "hub.pessimist.ValidationVote.height":
+		return x.Height != int64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationVote"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.ValidationVote does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_ValidationVote) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "hub.pessimist.ValidationVote.client_id_to_validate":
+		x.ClientIdToValidate = ""
+	case "hub.pessimist.ValidationVote.client_id_to_update":
+		x.ClientIdToUpdate = ""
+	case "hub.pessimist.ValidationVote.height":
+		x.Height = int64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationVote"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.ValidationVote does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_ValidationVote) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "hub.pessimist.ValidationVote.client_id_to_validate":
+		value := x.ClientIdToValidate
+		return protoreflect.ValueOfString(value)
+	case "hub.pessimist.ValidationVote.client_id_to_update":
+		value := x.ClientIdToUpdate
+		return protoreflect.ValueOfString(value)
+	case "hub.pessimist.ValidationVote.height":
+		value := x.Height
+		return protoreflect.ValueOfInt64(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationVote"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.ValidationVote does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_ValidationVote) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "hub.pessimist.ValidationVote.client_id_to_validate":
+		x.ClientIdToValidate = value.Interface().(string)
+	case "hub.pessimist.ValidationVote.client_id_to_update":
+		x.ClientIdToUpdate = value.Interface().(string)
+	case "hub.pessimist.ValidationVote.height":
+		x.Height = value.Int()
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationVote"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.ValidationVote does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_ValidationVote) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "hub.pessimist.ValidationVote.client_id_to_validate":
+		panic(fmt.Errorf("field client_id_to_validate of message hub.pessimist.ValidationVote is not mutable"))
+	case "hub.pessimist.ValidationVote.client_id_to_update":
+		panic(fmt.Errorf("field client_id_to_update of message hub.pessimist.ValidationVote is not mutable"))
+	case "hub.pessimist.ValidationVote.height":
+		panic(fmt.Errorf("field height of message hub.pessimist.ValidationVote is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationVote"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.ValidationVote does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_ValidationVote) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "hub.pessimist.ValidationVote.client_id_to_validate":
+		return protoreflect.ValueOfString("")
+	case "hub.pessimist.ValidationVote.client_id_to_update":
+		return protoreflect.ValueOfString("")
+	case "hub.pessimist.ValidationVote.height":
+		return protoreflect.ValueOfInt64(int64(0))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.ValidationVote"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.ValidationVote does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_ValidationVote) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in hub.pessimist.ValidationVote", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_ValidationVote) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_ValidationVote) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_ValidationVote) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_ValidationVote) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*ValidationVote)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.ClientIdToValidate)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		l = len(x.ClientIdToUpdate)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.Height != 0 {
+			n += 9
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*ValidationVote)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Height != 0 {
+			i -= 8
+			binary.LittleEndian.PutUint64(dAtA[i:], uint64(x.Height))
+			i--
+			dAtA[i] = 0x19
+		}
+		if len(x.ClientIdToUpdate) > 0 {
+			i -= len(x.ClientIdToUpdate)
+			copy(dAtA[i:], x.ClientIdToUpdate)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ClientIdToUpdate)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if len(x.ClientIdToValidate) > 0 {
+			i -= len(x.ClientIdToValidate)
+			copy(dAtA[i:], x.ClientIdToValidate)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ClientIdToValidate)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*ValidationVote)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ValidationVote: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ValidationVote: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ClientIdToValidate", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ClientIdToValidate = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ClientIdToUpdate", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ClientIdToUpdate = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 3:
+				if wireType != 1 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Height", wireType)
+				}
+				x.Height = 0
+				if (iNdEx + 8) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Height = int64(binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+				iNdEx += 8
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var _ protoreflect.List = (*_CommitteeProposalSpecialTx_2_list)(nil)
+
+type _CommitteeProposalSpecialTx_2_list struct {
+	list *[]string
+}
+
+func (x *_CommitteeProposalSpecialTx_2_list) Len() int {
+	if x.list == nil {
+		return 0
+	}
+	return len(*x.list)
+}
+
+func (x *_CommitteeProposalSpecialTx_2_list) Get(i int) protoreflect.Value {
+	return protoreflect.ValueOfString((*x.list)[i])
+}
+
+func (x *_CommitteeProposalSpecialTx_2_list) Set(i int, value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	(*x.list)[i] = concreteValue
+}
+
+func (x *_CommitteeProposalSpecialTx_2_list) Append(value protoreflect.Value) {
+	valueUnwrapped := value.String()
+	concreteValue := valueUnwrapped
+	*x.list = append(*x.list, concreteValue)
+}
+
+func (x *_CommitteeProposalSpecialTx_2_list) AppendMutable() protoreflect.Value {
+	panic(fmt.Errorf("AppendMutable can not be called on message CommitteeProposalSpecialTx at list field ClientIdsToSendTo as it is not of Message kind"))
+}
+
+func (x *_CommitteeProposalSpecialTx_2_list) Truncate(n int) {
+	*x.list = (*x.list)[:n]
+}
+
+func (x *_CommitteeProposalSpecialTx_2_list) NewElement() protoreflect.Value {
+	v := ""
+	return protoreflect.ValueOfString(v)
+}
+
+func (x *_CommitteeProposalSpecialTx_2_list) IsValid() bool {
+	return x.list != nil
+}
+
+var (
+	md_CommitteeProposalSpecialTx                       protoreflect.MessageDescriptor
+	fd_CommitteeProposalSpecialTx_committee_proposal    protoreflect.FieldDescriptor
+	fd_CommitteeProposalSpecialTx_client_ids_to_send_to protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_hub_pessimist_pessimist_proto_init()
+	md_CommitteeProposalSpecialTx = File_hub_pessimist_pessimist_proto.Messages().ByName("CommitteeProposalSpecialTx")
+	fd_CommitteeProposalSpecialTx_committee_proposal = md_CommitteeProposalSpecialTx.Fields().ByName("committee_proposal")
+	fd_CommitteeProposalSpecialTx_client_ids_to_send_to = md_CommitteeProposalSpecialTx.Fields().ByName("client_ids_to_send_to")
+}
+
+var _ protoreflect.Message = (*fastReflection_CommitteeProposalSpecialTx)(nil)
+
+type fastReflection_CommitteeProposalSpecialTx CommitteeProposalSpecialTx
+
+func (x *CommitteeProposalSpecialTx) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_CommitteeProposalSpecialTx)(x)
+}
+
+func (x *CommitteeProposalSpecialTx) slowProtoReflect() protoreflect.Message {
+	mi := &file_hub_pessimist_pessimist_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_CommitteeProposalSpecialTx_messageType fastReflection_CommitteeProposalSpecialTx_messageType
+var _ protoreflect.MessageType = fastReflection_CommitteeProposalSpecialTx_messageType{}
+
+type fastReflection_CommitteeProposalSpecialTx_messageType struct{}
+
+func (x fastReflection_CommitteeProposalSpecialTx_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_CommitteeProposalSpecialTx)(nil)
+}
+func (x fastReflection_CommitteeProposalSpecialTx_messageType) New() protoreflect.Message {
+	return new(fastReflection_CommitteeProposalSpecialTx)
+}
+func (x fastReflection_CommitteeProposalSpecialTx_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_CommitteeProposalSpecialTx
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_CommitteeProposalSpecialTx) Descriptor() protoreflect.MessageDescriptor {
+	return md_CommitteeProposalSpecialTx
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_CommitteeProposalSpecialTx) Type() protoreflect.MessageType {
+	return _fastReflection_CommitteeProposalSpecialTx_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_CommitteeProposalSpecialTx) New() protoreflect.Message {
+	return new(fastReflection_CommitteeProposalSpecialTx)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_CommitteeProposalSpecialTx) Interface() protoreflect.ProtoMessage {
+	return (*CommitteeProposalSpecialTx)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_CommitteeProposalSpecialTx) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.CommitteeProposal != nil {
+		value := protoreflect.ValueOfMessage(x.CommitteeProposal.ProtoReflect())
+		if !f(fd_CommitteeProposalSpecialTx_committee_proposal, value) {
+			return
+		}
+	}
+	if len(x.ClientIdsToSendTo) != 0 {
+		value := protoreflect.ValueOfList(&_CommitteeProposalSpecialTx_2_list{list: &x.ClientIdsToSendTo})
+		if !f(fd_CommitteeProposalSpecialTx_client_ids_to_send_to, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_CommitteeProposalSpecialTx) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "hub.pessimist.CommitteeProposalSpecialTx.committee_proposal":
+		return x.CommitteeProposal != nil
+	case "hub.pessimist.CommitteeProposalSpecialTx.client_ids_to_send_to":
+		return len(x.ClientIdsToSendTo) != 0
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CommitteeProposalSpecialTx"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.CommitteeProposalSpecialTx does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_CommitteeProposalSpecialTx) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "hub.pessimist.CommitteeProposalSpecialTx.committee_proposal":
+		x.CommitteeProposal = nil
+	case "hub.pessimist.CommitteeProposalSpecialTx.client_ids_to_send_to":
+		x.ClientIdsToSendTo = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CommitteeProposalSpecialTx"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.CommitteeProposalSpecialTx does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_CommitteeProposalSpecialTx) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "hub.pessimist.CommitteeProposalSpecialTx.committee_proposal":
+		value := x.CommitteeProposal
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	case "hub.pessimist.CommitteeProposalSpecialTx.client_ids_to_send_to":
+		if len(x.ClientIdsToSendTo) == 0 {
+			return protoreflect.ValueOfList(&_CommitteeProposalSpecialTx_2_list{})
+		}
+		listValue := &_CommitteeProposalSpecialTx_2_list{list: &x.ClientIdsToSendTo}
+		return protoreflect.ValueOfList(listValue)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CommitteeProposalSpecialTx"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.CommitteeProposalSpecialTx does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_CommitteeProposalSpecialTx) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "hub.pessimist.CommitteeProposalSpecialTx.committee_proposal":
+		x.CommitteeProposal = value.Message().Interface().(*CommitteeProposal)
+	case "hub.pessimist.CommitteeProposalSpecialTx.client_ids_to_send_to":
+		lv := value.List()
+		clv := lv.(*_CommitteeProposalSpecialTx_2_list)
+		x.ClientIdsToSendTo = *clv.list
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CommitteeProposalSpecialTx"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.CommitteeProposalSpecialTx does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_CommitteeProposalSpecialTx) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "hub.pessimist.CommitteeProposalSpecialTx.committee_proposal":
+		if x.CommitteeProposal == nil {
+			x.CommitteeProposal = new(CommitteeProposal)
+		}
+		return protoreflect.ValueOfMessage(x.CommitteeProposal.ProtoReflect())
+	case "hub.pessimist.CommitteeProposalSpecialTx.client_ids_to_send_to":
+		if x.ClientIdsToSendTo == nil {
+			x.ClientIdsToSendTo = []string{}
+		}
+		value := &_CommitteeProposalSpecialTx_2_list{list: &x.ClientIdsToSendTo}
+		return protoreflect.ValueOfList(value)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CommitteeProposalSpecialTx"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.CommitteeProposalSpecialTx does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_CommitteeProposalSpecialTx) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "hub.pessimist.CommitteeProposalSpecialTx.committee_proposal":
+		m := new(CommitteeProposal)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	case "hub.pessimist.CommitteeProposalSpecialTx.client_ids_to_send_to":
+		list := []string{}
+		return protoreflect.ValueOfList(&_CommitteeProposalSpecialTx_2_list{list: &list})
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: hub.pessimist.CommitteeProposalSpecialTx"))
+		}
+		panic(fmt.Errorf("message hub.pessimist.CommitteeProposalSpecialTx does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_CommitteeProposalSpecialTx) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in hub.pessimist.CommitteeProposalSpecialTx", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_CommitteeProposalSpecialTx) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_CommitteeProposalSpecialTx) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_CommitteeProposalSpecialTx) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_CommitteeProposalSpecialTx) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*CommitteeProposalSpecialTx)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.CommitteeProposal != nil {
+			l = options.Size(x.CommitteeProposal)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if len(x.ClientIdsToSendTo) > 0 {
+			for _, s := range x.ClientIdsToSendTo {
+				l = len(s)
+				n += 1 + l + runtime.Sov(uint64(l))
+			}
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*CommitteeProposalSpecialTx)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.ClientIdsToSendTo) > 0 {
+			for iNdEx := len(x.ClientIdsToSendTo) - 1; iNdEx >= 0; iNdEx-- {
+				i -= len(x.ClientIdsToSendTo[iNdEx])
+				copy(dAtA[i:], x.ClientIdsToSendTo[iNdEx])
+				i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ClientIdsToSendTo[iNdEx])))
+				i--
+				dAtA[i] = 0x12
+			}
+		}
+		if x.CommitteeProposal != nil {
+			encoded, err := options.Marshal(x.CommitteeProposal)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*CommitteeProposalSpecialTx)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CommitteeProposalSpecialTx: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: CommitteeProposalSpecialTx: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CommitteeProposal", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.CommitteeProposal == nil {
+					x.CommitteeProposal = &CommitteeProposal{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.CommitteeProposal); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ClientIdsToSendTo", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ClientIdsToSendTo = append(x.ClientIdsToSendTo, string(dAtA[iNdEx:postIndex]))
+				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -2345,9 +3699,7 @@ type ClientState struct {
 	unknownFields protoimpl.UnknownFields
 
 	DependentClientId string `protobuf:"bytes,1,opt,name=dependent_client_id,json=dependentClientId,proto3" json:"dependent_client_id,omitempty"`
-	// ibc.core.client.v1.Height latest_height = 2 [(gogoproto.nullable) = false];
-	LatestHeight          *Height                `protobuf:"bytes,2,opt,name=latest_height,json=latestHeight,proto3" json:"latest_height,omitempty"`
-	LatestHeightTimestamp *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=latest_height_timestamp,json=latestHeightTimestamp,proto3" json:"latest_height_timestamp,omitempty"`
+	LatestHeight      int64  `protobuf:"fixed64,2,opt,name=latest_height,json=latestHeight,proto3" json:"latest_height,omitempty"`
 }
 
 func (x *ClientState) Reset() {
@@ -2377,28 +3729,20 @@ func (x *ClientState) GetDependentClientId() string {
 	return ""
 }
 
-func (x *ClientState) GetLatestHeight() *Height {
+func (x *ClientState) GetLatestHeight() int64 {
 	if x != nil {
 		return x.LatestHeight
 	}
-	return nil
+	return 0
 }
 
-func (x *ClientState) GetLatestHeightTimestamp() *timestamppb.Timestamp {
-	if x != nil {
-		return x.LatestHeightTimestamp
-	}
-	return nil
-}
-
-// TODO: Add app hash here too!
+// This is the client message
 type CommitteeProposal struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Height      *Height       `protobuf:"bytes,1,opt,name=height,proto3" json:"height,omitempty"`
-	Commitments []*Commitment `protobuf:"bytes,2,rep,name=commitments,proto3" json:"commitments,omitempty"`
+	Commitments []*Commitment `protobuf:"bytes,3,rep,name=commitments,proto3" json:"commitments,omitempty"`
 }
 
 func (x *CommitteeProposal) Reset() {
@@ -2421,13 +3765,6 @@ func (*CommitteeProposal) Descriptor() ([]byte, []int) {
 	return file_hub_pessimist_pessimist_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CommitteeProposal) GetHeight() *Height {
-	if x != nil {
-		return x.Height
-	}
-	return nil
-}
-
 func (x *CommitteeProposal) GetCommitments() []*Commitment {
 	if x != nil {
 		return x.Commitments
@@ -2435,16 +3772,15 @@ func (x *CommitteeProposal) GetCommitments() []*Commitment {
 	return nil
 }
 
+// Commitment is pretty much just a vote extension + signature and validator info
 type Commitment struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ClientId      string                 `protobuf:"bytes,1,opt,name=clientId,proto3" json:"clientId,omitempty"` // This is the dependent client id, essentially the client id which we are committing to the state of
-	Height        *Height                `protobuf:"bytes,2,opt,name=height,proto3" json:"height,omitempty"`
-	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	ValidatorAddr string                 `protobuf:"bytes,4,opt,name=validator_addr,json=validatorAddr,proto3" json:"validator_addr,omitempty"`
-	Signature     []byte                 `protobuf:"bytes,5,opt,name=signature,proto3" json:"signature,omitempty"`
+	ValidatorAddress       []byte                  `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	CanonicalVoteExtension *CanonicalVoteExtension `protobuf:"bytes,2,opt,name=canonical_vote_extension,json=canonicalVoteExtension,proto3" json:"canonical_vote_extension,omitempty"`
+	ExtensionSignature     []byte                  `protobuf:"bytes,3,opt,name=extension_signature,json=extensionSignature,proto3" json:"extension_signature,omitempty"`
 }
 
 func (x *Commitment) Reset() {
@@ -2467,55 +3803,41 @@ func (*Commitment) Descriptor() ([]byte, []int) {
 	return file_hub_pessimist_pessimist_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *Commitment) GetClientId() string {
+func (x *Commitment) GetValidatorAddress() []byte {
 	if x != nil {
-		return x.ClientId
-	}
-	return ""
-}
-
-func (x *Commitment) GetHeight() *Height {
-	if x != nil {
-		return x.Height
+		return x.ValidatorAddress
 	}
 	return nil
 }
 
-func (x *Commitment) GetTimestamp() *timestamppb.Timestamp {
+func (x *Commitment) GetCanonicalVoteExtension() *CanonicalVoteExtension {
 	if x != nil {
-		return x.Timestamp
+		return x.CanonicalVoteExtension
 	}
 	return nil
 }
 
-func (x *Commitment) GetValidatorAddr() string {
+func (x *Commitment) GetExtensionSignature() []byte {
 	if x != nil {
-		return x.ValidatorAddr
-	}
-	return ""
-}
-
-func (x *Commitment) GetSignature() []byte {
-	if x != nil {
-		return x.Signature
+		return x.ExtensionSignature
 	}
 	return nil
 }
 
-// Copied from IBC because it was hard to import and then ignite and pulsar to work together (and removing pulsar broke ignite)
-type Height struct {
+// Copied from comet just to make this work quickly
+type CanonicalVoteExtension struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// the revision that the client is currently on
-	RevisionNumber uint64 `protobuf:"varint,1,opt,name=revision_number,json=revisionNumber,proto3" json:"revision_number,omitempty"`
-	// the height within the given revision
-	RevisionHeight uint64 `protobuf:"varint,2,opt,name=revision_height,json=revisionHeight,proto3" json:"revision_height,omitempty"`
+	Extension []byte `protobuf:"bytes,1,opt,name=extension,proto3" json:"extension,omitempty"`
+	Height    int64  `protobuf:"fixed64,2,opt,name=height,proto3" json:"height,omitempty"`
+	Round     int64  `protobuf:"fixed64,3,opt,name=round,proto3" json:"round,omitempty"`
+	ChainId   string `protobuf:"bytes,4,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
 }
 
-func (x *Height) Reset() {
-	*x = Height{}
+func (x *CanonicalVoteExtension) Reset() {
+	*x = CanonicalVoteExtension{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_hub_pessimist_pessimist_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2523,29 +3845,173 @@ func (x *Height) Reset() {
 	}
 }
 
-func (x *Height) String() string {
+func (x *CanonicalVoteExtension) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Height) ProtoMessage() {}
+func (*CanonicalVoteExtension) ProtoMessage() {}
 
-// Deprecated: Use Height.ProtoReflect.Descriptor instead.
-func (*Height) Descriptor() ([]byte, []int) {
+// Deprecated: Use CanonicalVoteExtension.ProtoReflect.Descriptor instead.
+func (*CanonicalVoteExtension) Descriptor() ([]byte, []int) {
 	return file_hub_pessimist_pessimist_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *Height) GetRevisionNumber() uint64 {
+func (x *CanonicalVoteExtension) GetExtension() []byte {
 	if x != nil {
-		return x.RevisionNumber
+		return x.Extension
+	}
+	return nil
+}
+
+func (x *CanonicalVoteExtension) GetHeight() int64 {
+	if x != nil {
+		return x.Height
 	}
 	return 0
 }
 
-func (x *Height) GetRevisionHeight() uint64 {
+func (x *CanonicalVoteExtension) GetRound() int64 {
 	if x != nil {
-		return x.RevisionHeight
+		return x.Round
 	}
 	return 0
+}
+
+func (x *CanonicalVoteExtension) GetChainId() string {
+	if x != nil {
+		return x.ChainId
+	}
+	return ""
+}
+
+type VoteExtension struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ValidationVotes []*ValidationVote `protobuf:"bytes,1,rep,name=validation_votes,json=validationVotes,proto3" json:"validation_votes,omitempty"`
+}
+
+func (x *VoteExtension) Reset() {
+	*x = VoteExtension{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_hub_pessimist_pessimist_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *VoteExtension) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VoteExtension) ProtoMessage() {}
+
+// Deprecated: Use VoteExtension.ProtoReflect.Descriptor instead.
+func (*VoteExtension) Descriptor() ([]byte, []int) {
+	return file_hub_pessimist_pessimist_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *VoteExtension) GetValidationVotes() []*ValidationVote {
+	if x != nil {
+		return x.ValidationVotes
+	}
+	return nil
+}
+
+type ValidationVote struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientIdToValidate string `protobuf:"bytes,1,opt,name=client_id_to_validate,json=clientIdToValidate,proto3" json:"client_id_to_validate,omitempty"`
+	ClientIdToUpdate   string `protobuf:"bytes,2,opt,name=client_id_to_update,json=clientIdToUpdate,proto3" json:"client_id_to_update,omitempty"`
+	Height             int64  `protobuf:"fixed64,3,opt,name=height,proto3" json:"height,omitempty"`
+}
+
+func (x *ValidationVote) Reset() {
+	*x = ValidationVote{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_hub_pessimist_pessimist_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ValidationVote) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidationVote) ProtoMessage() {}
+
+// Deprecated: Use ValidationVote.ProtoReflect.Descriptor instead.
+func (*ValidationVote) Descriptor() ([]byte, []int) {
+	return file_hub_pessimist_pessimist_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ValidationVote) GetClientIdToValidate() string {
+	if x != nil {
+		return x.ClientIdToValidate
+	}
+	return ""
+}
+
+func (x *ValidationVote) GetClientIdToUpdate() string {
+	if x != nil {
+		return x.ClientIdToUpdate
+	}
+	return ""
+}
+
+func (x *ValidationVote) GetHeight() int64 {
+	if x != nil {
+		return x.Height
+	}
+	return 0
+}
+
+// This is just used to pass from prepareProposal to pre-blocker handler
+type CommitteeProposalSpecialTx struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CommitteeProposal *CommitteeProposal `protobuf:"bytes,1,opt,name=committee_proposal,json=committeeProposal,proto3" json:"committee_proposal,omitempty"`
+	ClientIdsToSendTo []string           `protobuf:"bytes,2,rep,name=client_ids_to_send_to,json=clientIdsToSendTo,proto3" json:"client_ids_to_send_to,omitempty"`
+}
+
+func (x *CommitteeProposalSpecialTx) Reset() {
+	*x = CommitteeProposalSpecialTx{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_hub_pessimist_pessimist_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CommitteeProposalSpecialTx) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommitteeProposalSpecialTx) ProtoMessage() {}
+
+// Deprecated: Use CommitteeProposalSpecialTx.ProtoReflect.Descriptor instead.
+func (*CommitteeProposalSpecialTx) Descriptor() ([]byte, []int) {
+	return file_hub_pessimist_pessimist_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CommitteeProposalSpecialTx) GetCommitteeProposal() *CommitteeProposal {
+	if x != nil {
+		return x.CommitteeProposal
+	}
+	return nil
+}
+
+func (x *CommitteeProposalSpecialTx) GetClientIdsToSendTo() []string {
+	if x != nil {
+		return x.ClientIdsToSendTo
+	}
+	return nil
 }
 
 var File_hub_pessimist_pessimist_proto protoreflect.FileDescriptor
@@ -2559,62 +4025,76 @@ var file_hub_pessimist_pessimist_proto_rawDesc = []byte{
 	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x2e,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5f, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x22, 0xe3, 0x01, 0x0a, 0x0b, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65,
-	0x12, 0x2e, 0x0a, 0x13, 0x64, 0x65, 0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x74, 0x5f, 0x63, 0x6c,
-	0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x64,
-	0x65, 0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x74, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64,
-	0x12, 0x40, 0x0a, 0x0d, 0x6c, 0x61, 0x74, 0x65, 0x73, 0x74, 0x5f, 0x68, 0x65, 0x69, 0x67, 0x68,
-	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65,
-	0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x2e, 0x48, 0x65, 0x69, 0x67, 0x68, 0x74, 0x42, 0x04,
-	0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0c, 0x6c, 0x61, 0x74, 0x65, 0x73, 0x74, 0x48, 0x65, 0x69, 0x67,
-	0x68, 0x74, 0x12, 0x5c, 0x0a, 0x17, 0x6c, 0x61, 0x74, 0x65, 0x73, 0x74, 0x5f, 0x68, 0x65, 0x69,
-	0x67, 0x68, 0x74, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x03, 0x20,
-	0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42,
-	0x08, 0xc8, 0xde, 0x1f, 0x00, 0x90, 0xdf, 0x1f, 0x01, 0x52, 0x15, 0x6c, 0x61, 0x74, 0x65, 0x73,
-	0x74, 0x48, 0x65, 0x69, 0x67, 0x68, 0x74, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70,
-	0x3a, 0x04, 0x88, 0xa0, 0x1f, 0x00, 0x22, 0x85, 0x01, 0x0a, 0x11, 0x43, 0x6f, 0x6d, 0x6d, 0x69,
-	0x74, 0x74, 0x65, 0x65, 0x50, 0x72, 0x6f, 0x70, 0x6f, 0x73, 0x61, 0x6c, 0x12, 0x33, 0x0a, 0x06,
-	0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x68,
-	0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x2e, 0x48, 0x65, 0x69,
-	0x67, 0x68, 0x74, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x68, 0x65, 0x69, 0x67, 0x68,
-	0x74, 0x12, 0x3b, 0x0a, 0x0b, 0x63, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e, 0x74, 0x73,
-	0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73,
-	0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e,
-	0x74, 0x52, 0x0b, 0x63, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x22, 0x89,
-	0x02, 0x0a, 0x0a, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e, 0x74, 0x12, 0x1a, 0x0a,
-	0x08, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x08, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x33, 0x0a, 0x06, 0x68, 0x65, 0x69,
-	0x67, 0x68, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x68, 0x75, 0x62, 0x2e,
-	0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x2e, 0x48, 0x65, 0x69, 0x67, 0x68, 0x74,
-	0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x12, 0x42,
-	0x0a, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x03, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42, 0x08, 0xc8,
-	0xde, 0x1f, 0x00, 0x90, 0xdf, 0x1f, 0x01, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61,
-	0x6d, 0x70, 0x12, 0x48, 0x0a, 0x0e, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5f,
-	0x61, 0x64, 0x64, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x42, 0x21, 0xd2, 0xb4, 0x2d, 0x1d,
-	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
-	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x0d, 0x76,
-	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x41, 0x64, 0x64, 0x72, 0x12, 0x1c, 0x0a, 0x09,
-	0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0c, 0x52,
-	0x09, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x22, 0x60, 0x0a, 0x06, 0x48, 0x65,
-	0x69, 0x67, 0x68, 0x74, 0x12, 0x27, 0x0a, 0x0f, 0x72, 0x65, 0x76, 0x69, 0x73, 0x69, 0x6f, 0x6e,
-	0x5f, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0e, 0x72,
-	0x65, 0x76, 0x69, 0x73, 0x69, 0x6f, 0x6e, 0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x27, 0x0a,
-	0x0f, 0x72, 0x65, 0x76, 0x69, 0x73, 0x69, 0x6f, 0x6e, 0x5f, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0e, 0x72, 0x65, 0x76, 0x69, 0x73, 0x69, 0x6f, 0x6e,
-	0x48, 0x65, 0x69, 0x67, 0x68, 0x74, 0x3a, 0x04, 0x88, 0xa0, 0x1f, 0x00, 0x42, 0x98, 0x01, 0x0a,
-	0x11, 0x63, 0x6f, 0x6d, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69,
-	0x73, 0x74, 0x42, 0x0e, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x50, 0x72, 0x6f,
-	0x74, 0x6f, 0x50, 0x01, 0x5a, 0x1e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e,
-	0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x68, 0x75, 0x62, 0x2f, 0x70, 0x65, 0x73, 0x73, 0x69,
-	0x6d, 0x69, 0x73, 0x74, 0xa2, 0x02, 0x03, 0x48, 0x50, 0x58, 0xaa, 0x02, 0x0d, 0x48, 0x75, 0x62,
-	0x2e, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0xca, 0x02, 0x0d, 0x48, 0x75, 0x62,
-	0x5c, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0xe2, 0x02, 0x19, 0x48, 0x75, 0x62,
-	0x5c, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65,
-	0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0e, 0x48, 0x75, 0x62, 0x3a, 0x3a, 0x50, 0x65,
-	0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x22, 0x68, 0x0a, 0x0b, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12,
+	0x2e, 0x0a, 0x13, 0x64, 0x65, 0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x74, 0x5f, 0x63, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x64, 0x65,
+	0x70, 0x65, 0x6e, 0x64, 0x65, 0x6e, 0x74, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x12,
+	0x23, 0x0a, 0x0d, 0x6c, 0x61, 0x74, 0x65, 0x73, 0x74, 0x5f, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x10, 0x52, 0x0c, 0x6c, 0x61, 0x74, 0x65, 0x73, 0x74, 0x48, 0x65,
+	0x69, 0x67, 0x68, 0x74, 0x3a, 0x04, 0x88, 0xa0, 0x1f, 0x00, 0x22, 0x56, 0x0a, 0x11, 0x43, 0x6f,
+	0x6d, 0x6d, 0x69, 0x74, 0x74, 0x65, 0x65, 0x50, 0x72, 0x6f, 0x70, 0x6f, 0x73, 0x61, 0x6c, 0x12,
+	0x41, 0x0a, 0x0b, 0x63, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x18, 0x03,
+	0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69,
+	0x6d, 0x69, 0x73, 0x74, 0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e, 0x74, 0x42,
+	0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0b, 0x63, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e,
+	0x74, 0x73, 0x22, 0xd1, 0x01, 0x0a, 0x0a, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e,
+	0x74, 0x12, 0x2b, 0x0a, 0x11, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x5f, 0x61,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x10, 0x76, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x65,
+	0x0a, 0x18, 0x63, 0x61, 0x6e, 0x6f, 0x6e, 0x69, 0x63, 0x61, 0x6c, 0x5f, 0x76, 0x6f, 0x74, 0x65,
+	0x5f, 0x65, 0x78, 0x74, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x25, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74,
+	0x2e, 0x43, 0x61, 0x6e, 0x6f, 0x6e, 0x69, 0x63, 0x61, 0x6c, 0x56, 0x6f, 0x74, 0x65, 0x45, 0x78,
+	0x74, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x16, 0x63,
+	0x61, 0x6e, 0x6f, 0x6e, 0x69, 0x63, 0x61, 0x6c, 0x56, 0x6f, 0x74, 0x65, 0x45, 0x78, 0x74, 0x65,
+	0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x2f, 0x0a, 0x13, 0x65, 0x78, 0x74, 0x65, 0x6e, 0x73, 0x69,
+	0x6f, 0x6e, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x0c, 0x52, 0x12, 0x65, 0x78, 0x74, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x53, 0x69, 0x67,
+	0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x22, 0x7f, 0x0a, 0x16, 0x43, 0x61, 0x6e, 0x6f, 0x6e, 0x69,
+	0x63, 0x61, 0x6c, 0x56, 0x6f, 0x74, 0x65, 0x45, 0x78, 0x74, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e,
+	0x12, 0x1c, 0x0a, 0x09, 0x65, 0x78, 0x74, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0c, 0x52, 0x09, 0x65, 0x78, 0x74, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x16,
+	0x0a, 0x06, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x10, 0x52, 0x06,
+	0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x72, 0x6f, 0x75, 0x6e, 0x64, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x10, 0x52, 0x05, 0x72, 0x6f, 0x75, 0x6e, 0x64, 0x12, 0x19, 0x0a, 0x08,
+	0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07,
+	0x63, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x22, 0x5f, 0x0a, 0x0d, 0x56, 0x6f, 0x74, 0x65, 0x45,
+	0x78, 0x74, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x4e, 0x0a, 0x10, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x76, 0x6f, 0x74, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x1d, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69,
+	0x73, 0x74, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x56, 0x6f, 0x74,
+	0x65, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x56, 0x6f, 0x74, 0x65, 0x73, 0x22, 0x8a, 0x01, 0x0a, 0x0e, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x56, 0x6f, 0x74, 0x65, 0x12, 0x31, 0x0a, 0x15, 0x63,
+	0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x5f, 0x74, 0x6f, 0x5f, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x12, 0x63, 0x6c, 0x69, 0x65,
+	0x6e, 0x74, 0x49, 0x64, 0x54, 0x6f, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x65, 0x12, 0x2d,
+	0x0a, 0x13, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x5f, 0x74, 0x6f, 0x5f, 0x75,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x10, 0x63, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x49, 0x64, 0x54, 0x6f, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x16, 0x0a,
+	0x06, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x10, 0x52, 0x06, 0x68,
+	0x65, 0x69, 0x67, 0x68, 0x74, 0x22, 0xab, 0x01, 0x0a, 0x1a, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74,
+	0x74, 0x65, 0x65, 0x50, 0x72, 0x6f, 0x70, 0x6f, 0x73, 0x61, 0x6c, 0x53, 0x70, 0x65, 0x63, 0x69,
+	0x61, 0x6c, 0x54, 0x78, 0x12, 0x55, 0x0a, 0x12, 0x63, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x74, 0x65,
+	0x65, 0x5f, 0x70, 0x72, 0x6f, 0x70, 0x6f, 0x73, 0x61, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x20, 0x2e, 0x68, 0x75, 0x62, 0x2e, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74,
+	0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x74, 0x65, 0x65, 0x50, 0x72, 0x6f, 0x70, 0x6f, 0x73,
+	0x61, 0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x11, 0x63, 0x6f, 0x6d, 0x6d, 0x69, 0x74,
+	0x74, 0x65, 0x65, 0x50, 0x72, 0x6f, 0x70, 0x6f, 0x73, 0x61, 0x6c, 0x12, 0x36, 0x0a, 0x15, 0x63,
+	0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x73, 0x5f, 0x74, 0x6f, 0x5f, 0x73, 0x65, 0x6e,
+	0x64, 0x5f, 0x74, 0x6f, 0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
+	0x52, 0x11, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x73, 0x54, 0x6f, 0x53, 0x65, 0x6e,
+	0x64, 0x54, 0x6f, 0x42, 0x98, 0x01, 0x0a, 0x11, 0x63, 0x6f, 0x6d, 0x2e, 0x68, 0x75, 0x62, 0x2e,
+	0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x42, 0x0e, 0x50, 0x65, 0x73, 0x73, 0x69,
+	0x6d, 0x69, 0x73, 0x74, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x1e, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x68, 0x75,
+	0x62, 0x2f, 0x70, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0xa2, 0x02, 0x03, 0x48, 0x50,
+	0x58, 0xaa, 0x02, 0x0d, 0x48, 0x75, 0x62, 0x2e, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73,
+	0x74, 0xca, 0x02, 0x0d, 0x48, 0x75, 0x62, 0x5c, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73,
+	0x74, 0xe2, 0x02, 0x19, 0x48, 0x75, 0x62, 0x5c, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73,
+	0x74, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0e,
+	0x48, 0x75, 0x62, 0x3a, 0x3a, 0x50, 0x65, 0x73, 0x73, 0x69, 0x6d, 0x69, 0x73, 0x74, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2629,26 +4109,26 @@ func file_hub_pessimist_pessimist_proto_rawDescGZIP() []byte {
 	return file_hub_pessimist_pessimist_proto_rawDescData
 }
 
-var file_hub_pessimist_pessimist_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_hub_pessimist_pessimist_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_hub_pessimist_pessimist_proto_goTypes = []interface{}{
-	(*ClientState)(nil),           // 0: hub.pessimist.ClientState
-	(*CommitteeProposal)(nil),     // 1: hub.pessimist.CommitteeProposal
-	(*Commitment)(nil),            // 2: hub.pessimist.Commitment
-	(*Height)(nil),                // 3: hub.pessimist.Height
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
+	(*ClientState)(nil),                // 0: hub.pessimist.ClientState
+	(*CommitteeProposal)(nil),          // 1: hub.pessimist.CommitteeProposal
+	(*Commitment)(nil),                 // 2: hub.pessimist.Commitment
+	(*CanonicalVoteExtension)(nil),     // 3: hub.pessimist.CanonicalVoteExtension
+	(*VoteExtension)(nil),              // 4: hub.pessimist.VoteExtension
+	(*ValidationVote)(nil),             // 5: hub.pessimist.ValidationVote
+	(*CommitteeProposalSpecialTx)(nil), // 6: hub.pessimist.CommitteeProposalSpecialTx
 }
 var file_hub_pessimist_pessimist_proto_depIdxs = []int32{
-	3, // 0: hub.pessimist.ClientState.latest_height:type_name -> hub.pessimist.Height
-	4, // 1: hub.pessimist.ClientState.latest_height_timestamp:type_name -> google.protobuf.Timestamp
-	3, // 2: hub.pessimist.CommitteeProposal.height:type_name -> hub.pessimist.Height
-	2, // 3: hub.pessimist.CommitteeProposal.commitments:type_name -> hub.pessimist.Commitment
-	3, // 4: hub.pessimist.Commitment.height:type_name -> hub.pessimist.Height
-	4, // 5: hub.pessimist.Commitment.timestamp:type_name -> google.protobuf.Timestamp
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	2, // 0: hub.pessimist.CommitteeProposal.commitments:type_name -> hub.pessimist.Commitment
+	3, // 1: hub.pessimist.Commitment.canonical_vote_extension:type_name -> hub.pessimist.CanonicalVoteExtension
+	5, // 2: hub.pessimist.VoteExtension.validation_votes:type_name -> hub.pessimist.ValidationVote
+	1, // 3: hub.pessimist.CommitteeProposalSpecialTx.committee_proposal:type_name -> hub.pessimist.CommitteeProposal
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_hub_pessimist_pessimist_proto_init() }
@@ -2694,7 +4174,43 @@ func file_hub_pessimist_pessimist_proto_init() {
 			}
 		}
 		file_hub_pessimist_pessimist_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Height); i {
+			switch v := v.(*CanonicalVoteExtension); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_hub_pessimist_pessimist_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*VoteExtension); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_hub_pessimist_pessimist_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ValidationVote); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_hub_pessimist_pessimist_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CommitteeProposalSpecialTx); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2712,7 +4228,7 @@ func file_hub_pessimist_pessimist_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_hub_pessimist_pessimist_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

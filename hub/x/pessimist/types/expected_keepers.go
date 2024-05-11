@@ -36,4 +36,5 @@ type ClientKeeper interface {
 	GetClientStatus(ctx sdk.Context, clientID string) exported.Status
 	CreateClient(ctx sdk.Context, clientType string, clientState, consensusState []byte) (string, error)
 	GetClientLatestHeight(ctx sdk.Context, clientID string) clienttypes.Height
+	Route(clientID string) (exported.LightClientModule, bool)
 }

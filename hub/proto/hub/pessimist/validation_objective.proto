@@ -1,6 +1,7 @@
 syntax = "proto3";
 package hub.pessimist;
 
+import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 import "google/protobuf/any.proto";
 
@@ -17,10 +18,11 @@ message ValidationObjective {
 
 message Validator {
   string validator_addr = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
-  google.protobuf.Any pub_key = 2 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
+  string cons_addr = 2 [(cosmos_proto.scalar) = "cosmos.ConsensusAddressString"];
+  google.protobuf.Any pub_key = 3 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
 }
 
 message ValidatorPower {
-  Validator validator = 1;
+  Validator validator = 1 [(gogoproto.nullable) = false];
   uint64 power = 2;
 }

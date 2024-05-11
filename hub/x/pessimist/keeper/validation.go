@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	"context"
 	errorsmod "cosmossdk.io/errors"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"hub/x/pessimist/types"
 
@@ -12,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (k Keeper) CreateNewValidationObjective(ctx context.Context, clientIDToValidate string, requiredPower uint64) error {
+func (k Keeper) CreateNewValidationObjective(ctx sdk.Context, clientIDToValidate string, requiredPower uint64) error {
 	objective := &types.ValidationObjective{
 		ClientIdToValidate: clientIDToValidate,
 		RequiredPower:      requiredPower,
@@ -25,7 +26,11 @@ func (k Keeper) CreateNewValidationObjective(ctx context.Context, clientIDToVali
 	if k.GetClientKeeper() == nil {
 		panic("client keeper is nil!!!")
 	}
-	clientStatus := k.GetClientKeeper().GetClientStatus(ctx.(sdk.Context), clientIDToValidate)
+	dependentClientModule, found := k.GetClientKeeper().Route(clientIDToValidate)
+	if !found {
+		return errorsmod.Wrap(clienttypes.ErrInvalidClientType, "dependent client not found")
+	}
+	clientStatus := dependentClientModule.Status(ctx, clientIDToValidate)
 	if clientStatus != exported.Active {
 		return errorsmod.Wrapf(types.ErrClientNotActive, "client %s is not active: %s", clientIDToValidate, clientStatus)
 	}
@@ -37,7 +42,7 @@ func (k Keeper) CreateNewValidationObjective(ctx context.Context, clientIDToVali
 	return nil
 }
 
-func (k Keeper) GetAllValidationObjectives(ctx context.Context) []types.ValidationObjective {
+func (k Keeper) GetAllValidationObjectives(ctx sdk.Context) []types.ValidationObjective {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.ValidatorObjectiveKeyPrefix))
 	iterator := store.Iterator(nil, nil)
@@ -53,7 +58,7 @@ func (k Keeper) GetAllValidationObjectives(ctx context.Context) []types.Validati
 	return objectives
 }
 
-func (k Keeper) GetValidationObjective(ctx context.Context, clientID string) (types.ValidationObjective, bool) {
+func (k Keeper) GetValidationObjective(ctx sdk.Context, clientID string) (types.ValidationObjective, bool) {
 	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.ValidatorObjectiveKeyPrefix))
 	validatorObjective := store.Get(types.ValidatorObjectiveKey(clientID))
@@ -66,7 +71,40 @@ func (k Keeper) GetValidationObjective(ctx context.Context, clientID string) (ty
 	return objective, true
 }
 
-func (k Keeper) GetValidatorPower(ctx context.Context, validators []*types.Validator) math.Int {
+func (k Keeper) GetValidatorForObjective(ctx sdk.Context, validatorAddress string, validationObjective types.ValidationObjective) (types.ValidatorPower, bool, error) {
+	for _, v := range validationObjective.Validators {
+		if v.ValidatorAddr == validatorAddress || v.ConsAddr == validatorAddress {
+			addr, err := sdk.ValAddressFromBech32(v.ValidatorAddr)
+			if err != nil {
+				return types.ValidatorPower{}, false, err
+			}
+			validator, err := k.stakingKeeper.Validator(ctx, addr)
+			if err != nil {
+				return types.ValidatorPower{}, false, err
+			}
+
+			consPubKey, err := validator.ConsPubKey()
+			if err != nil {
+				return types.ValidatorPower{}, false, err
+			}
+			var pkAny *codectypes.Any
+			if pkAny, err = codectypes.NewAnyWithValue(consPubKey); err != nil {
+				return types.ValidatorPower{}, false, err
+			}
+			return types.ValidatorPower{
+				Validator: types.Validator{
+					ValidatorAddr: validatorAddress,
+					PubKey:       pkAny,
+				},
+				Power:     validator.GetBondedTokens().Uint64(),
+			}, true, nil
+		}
+	}
+
+	return types.ValidatorPower{}, false, nil
+}
+
+func (k Keeper) GetValidatorPower(ctx sdk.Context, validators []*types.Validator) math.Int {
 	totalPower := math.ZeroInt()
 	for _, v := range validators {
 		addr, err := sdk.ValAddressFromBech32(v.ValidatorAddr)
@@ -84,7 +122,7 @@ func (k Keeper) GetValidatorPower(ctx context.Context, validators []*types.Valid
 	return totalPower
 }
 
-func (k Keeper) AddValidatorToObjective(ctx context.Context, clientID string, validator *types.Validator) error {
+func (k Keeper) AddValidatorToObjective(ctx sdk.Context, clientID string, validator *types.Validator) error {
 	objective, ok := k.GetValidationObjective(ctx, clientID)
 	if !ok {
 		return errorsmod.Wrapf(types.ErrObjectiveNotFound, "objective not found for client %s", clientID)
@@ -103,19 +141,19 @@ func (k Keeper) AddValidatorToObjective(ctx context.Context, clientID string, va
 	totalPower := k.GetValidatorPower(ctx, objective.Validators)
 	if totalPower.GTE(math.NewInt(int64(objective.RequiredPower))) {
 		objective.Activated = true
-		store.Set(types.ValidatorObjectiveKey(clientID), k.cdc.MustMarshal(&objective))
 
 		clientState := types.ClientState{
 			DependentClientId: objective.ClientIdToValidate,
-			LatestHeight:      types.Height{},
+			LatestHeight:      0,
 		}
 		clientStateBz := k.cdc.MustMarshal(&clientState)
-		newClientID, err := k.GetClientKeeper().CreateClient(ctx.(sdk.Context), types.ClientType, clientStateBz, nil)
+		newClientID, err := k.GetClientKeeper().CreateClient(ctx, types.ClientType, clientStateBz, nil)
 		if err != nil {
 			return err
 		}
 
 		objective.ClientIdToNotify = newClientID
+		store.Set(types.ValidatorObjectiveKey(clientID), k.cdc.MustMarshal(&objective))
 	}
 
 	return nil
