@@ -43,6 +43,9 @@ var (
 			Value: "1",
 		},
 	}
+
+	rollyChainID = "rolly"
+	hubChainID = "hub"
 )
 
 type E2ETestSuite struct {
@@ -81,7 +84,7 @@ func (s *E2ETestSuite) SetupSuite() {
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		ibc.CosmosRly,
 		zaptest.NewLogger(s.T()),
-		interchaintestrelayer.CustomDockerImage("ghcr.io/cosmos/relayer", "main", "100:1000"),
+		interchaintestrelayer.CustomDockerImage("ghcr.io/gjermundgaraba/relayer", "pessimistic-rollkit", "100:1000"),
 		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
 	r := rf.Build(s.T(), client, network)
@@ -129,7 +132,7 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 			ChainConfig: ibc.ChainConfig{
 				Type:    "cosmos",
 				Name:    "hub",
-				ChainID: "hub",
+				ChainID: hubChainID,
 				Images: []ibc.DockerImage{
 					{
 						Repository: "hub",
@@ -163,7 +166,7 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 			ChainConfig: ibc.ChainConfig{
 				Type:    "cosmos",
 				Name:    "rolly",
-				ChainID: "rolly",
+				ChainID: rollyChainID,
 				Images: []ibc.DockerImage{
 					{
 						Repository: "rolly",

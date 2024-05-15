@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package hub.pessimist;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "rolly/x/pessimist/types";
+
+message ClientState {
+  option (gogoproto.goproto_getters) = false;
+
+  string dependent_client_id = 1;
+  sfixed64 latest_height    = 2;
+}

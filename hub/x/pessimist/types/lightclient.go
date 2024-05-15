@@ -32,6 +32,10 @@ func (m *CommitteeProposal) ValidateBasic() error {
 	}
 
 	for _, commitment := range m.Commitments {
+		if commitment.Timestamp.IsZero() {
+			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "timestamp cannot be zero")
+		}
+
 		if commitment.ValidatorAddress == nil {
 			return errorsmod.Wrap(ErrInvalidCommitteeProposal, "validator address cannot be nil")
 		}

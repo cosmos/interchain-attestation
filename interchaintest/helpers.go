@@ -39,12 +39,15 @@ func (s *E2ETestSuite) SendTx(node *cosmos.ChainNode, keyName string, command ..
 func IBCTransferWorksTest(
 	t *testing.T,
 	ctx context.Context,
+	r ibc.Relayer,
+	eRep *testreporter.RelayerExecReporter,
+	path string,
 	srcChain *cosmos.CosmosChain,
 	dstChain *cosmos.CosmosChain,
 	srcUser ibc.Wallet,
 	dstUser ibc.Wallet,
-	r ibc.Relayer,
-	eRep *testreporter.RelayerExecReporter) {
+	srcChannel string,
+	dstChannel string) {
 	// Wait a few blocks for relayer to start and for user accounts to be created
 	err := testutil.WaitForBlocks(ctx, 5, srcChain, dstChain)
 	require.NoError(t, err)
@@ -64,24 +67,16 @@ func IBCTransferWorksTest(
 		Amount:  transferAmount,
 	}
 
-	channel, err := ibc.GetTransferChannel(ctx, r, eRep, srcChain.Config().ChainID, dstChain.Config().ChainID)
+	_, err = srcChain.SendIBCTransfer(ctx, srcChannel, srcUserAddr, transfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 
-	srcHeight, err := srcChain.Height(ctx)
-	require.NoError(t, err)
-
-	transferTx, err := srcChain.SendIBCTransfer(ctx, channel.ChannelID, srcUserAddr, transfer, ibc.TransferOptions{})
-	require.NoError(t, err)
-
-	// Poll for the ack to know the transfer was successful
-	_, err = testutil.PollForAck(ctx, srcChain, srcHeight, srcHeight+50, transferTx.Packet)
-	require.NoError(t, err)
-
-	err = testutil.WaitForBlocks(ctx, 10, srcChain)
-	require.NoError(t, err)
+	require.NoError(t, testutil.WaitForBlocks(ctx, 5, srcChain))
+	require.NoError(t, r.Flush(ctx, eRep, path, srcChannel))
+	require.NoError(t, r.Flush(ctx, eRep, path, dstChannel))
+	require.NoError(t, testutil.WaitForBlocks(ctx, 5, srcChain))
 
 	// Get the IBC denom for srcChain on dstChain
-	srcTokenDenom := transfertypes.GetPrefixedDenom(channel.Counterparty.PortID, channel.Counterparty.ChannelID, srcChain.Config().Denom)
+	srcTokenDenom := transfertypes.GetPrefixedDenom("transfer", dstChannel, srcChain.Config().Denom)
 	srcIBCDenom := transfertypes.ParseDenomTrace(srcTokenDenom).IBCDenom()
 
 	// Assert that the funds are no longer present in user acc on srcChain and are in the user acc on dstChain
@@ -100,15 +95,13 @@ func IBCTransferWorksTest(
 		Amount:  transferAmount,
 	}
 
-	dstHeight, err := dstChain.Height(ctx)
+	_, err = dstChain.SendIBCTransfer(ctx, dstChannel, dstUserAddr, transfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 
-	transferTx, err = dstChain.SendIBCTransfer(ctx, channel.Counterparty.ChannelID, dstUserAddr, transfer, ibc.TransferOptions{})
-	require.NoError(t, err)
-
-	// Poll for the ack to know the transfer was successful
-	_, err = testutil.PollForAck(ctx, dstChain, dstHeight, dstHeight+25, transferTx.Packet)
-	require.NoError(t, err)
+	require.NoError(t, testutil.WaitForBlocks(ctx, 5, srcChain))
+	require.NoError(t, r.Flush(ctx, eRep, path, srcChannel))
+	require.NoError(t, r.Flush(ctx, eRep, path, dstChannel))
+	require.NoError(t, testutil.WaitForBlocks(ctx, 5, srcChain))
 
 	// Assert that the funds are now back on srcChain and not on dstChain
 	srcUpdateBal, err = srcChain.GetBalance(ctx, srcUserAddr, srcChain.Config().Denom)

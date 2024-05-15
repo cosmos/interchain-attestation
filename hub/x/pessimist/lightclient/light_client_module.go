@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	tmclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	"hub/x/pessimist/keeper"
 	"hub/x/pessimist/types"
 )
@@ -42,20 +43,25 @@ func (l *LightClientModule) Initialize(ctx sdk.Context, clientID string, clientS
 	if err := l.cdc.Unmarshal(clientStateBz, &clientState); err != nil {
 		return err
 	}
-
 	if err := clientState.Validate(); err != nil {
+		return err
+	}
+
+	var consensusState tmclient.ConsensusState
+	if err := l.cdc.Unmarshal(consensusStateBz, &consensusState); err != nil {
 		return err
 	}
 
 	clientStore := l.storeProvider.ClientStore(ctx, clientID)
 	setClientState(clientStore, l.cdc, &clientState)
+	setConsensusState(clientStore, l.cdc, &consensusState, clienttypes.NewHeight(0, uint64(clientState.LatestHeight)))
 
 	return nil
 }
 
 // TODO: Test this
 func (l *LightClientModule) VerifyClientMessage(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) error {
-	if _, err := l.processClientMessage(ctx, clientID, clientMsg); err != nil {
+	if _, _, err := l.processClientMessage(ctx, clientID, clientMsg); err != nil {
 		return err
 	}
 
@@ -78,7 +84,7 @@ func (l *LightClientModule) UpdateState(ctx sdk.Context, clientID string, client
 		panic("client state not found") // Should not happen
 	}
 
-	height, err := l.processClientMessage(ctx, clientID, clientMsg)
+	height, consensusState, err := l.processClientMessage(ctx, clientID, clientMsg)
 	if err != nil {
 		panic(err) // Should not happen
 	}
@@ -89,6 +95,7 @@ func (l *LightClientModule) UpdateState(ctx sdk.Context, clientID string, client
 
 	clientState.LatestHeight = height
 	setClientState(clientStore, l.cdc, clientState)
+	setConsensusState(clientStore, l.cdc, &consensusState, ibcHeight)
 
 	return []exported.Height{ibcHeight}
 }
@@ -154,7 +161,7 @@ func (l *LightClientModule) LatestHeight(ctx sdk.Context, clientID string) expor
 		panic("client state not found") // Should not happen
 	}
 
-	return &clienttypes.Height{
+	return clienttypes.Height{
 		RevisionNumber: 0,
 		RevisionHeight: uint64(clientState.LatestHeight),
 	}
@@ -162,16 +169,12 @@ func (l *LightClientModule) LatestHeight(ctx sdk.Context, clientID string) expor
 
 func (l *LightClientModule) TimestampAtHeight(ctx sdk.Context, clientID string, height exported.Height) (uint64, error) {
 	clientStore := l.storeProvider.ClientStore(ctx, clientID)
-	clientState, found := getClientState(clientStore, l.cdc)
+	consensusState, found := getConsensusState(clientStore, l.cdc, height)
 	if !found {
-		return 0, errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
-	}
-	dependentClientModule, found := l.keeper.GetClientKeeper().Route(clientState.DependentClientId)
-	if !found {
-		return 0, errorsmod.Wrap(clienttypes.ErrInvalidClientType, "dependent client not found")
+		return 0, errorsmod.Wrap(clienttypes.ErrConsensusStateNotFound, "consensus state not found")
 	}
 
-	return dependentClientModule.TimestampAtHeight(ctx, clientState.DependentClientId, height)
+	return consensusState.GetTimestamp(), nil
 }
 
 func (l *LightClientModule) RecoverClient(ctx sdk.Context, clientID, substituteClientID string) error {

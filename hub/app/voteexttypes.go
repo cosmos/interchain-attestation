@@ -10,6 +10,38 @@ type PessimisticValidationConfig struct {
 	} `yaml:"chains_to_validate"`
 }
 
+type CometHeader struct {
+	Jsonrpc string `json:"jsonrpc"`
+	Id      int    `json:"id"`
+	Result  struct {
+		Header struct {
+			Version struct {
+				Block string `json:"block"`
+			} `json:"version"`
+			ChainId     string    `json:"chain_id"`
+			Height      string    `json:"height"`
+			Time        time.Time `json:"time"`
+			LastBlockId struct {
+				Hash  string `json:"hash"`
+				Parts struct {
+					Total int    `json:"total"`
+					Hash  string `json:"hash"`
+				} `json:"parts"`
+			} `json:"last_block_id"`
+			LastCommitHash     string `json:"last_commit_hash"`
+			DataHash           string `json:"data_hash"`
+			ValidatorsHash     string `json:"validators_hash"`
+			NextValidatorsHash string `json:"next_validators_hash"`
+			ConsensusHash      string `json:"consensus_hash"`
+			AppHash            string `json:"app_hash"`
+			LastResultsHash    string `json:"last_results_hash"`
+			EvidenceHash       string `json:"evidence_hash"`
+			ProposerAddress    string `json:"proposer_address"`
+		} `json:"header"`
+	} `json:"result"`
+}
+
+
 type Status struct {
 	Jsonrpc string `json:"jsonrpc"`
 	Result  struct {

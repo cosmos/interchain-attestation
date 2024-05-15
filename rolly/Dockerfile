@@ -1,4 +1,4 @@
-FROM ignitehq/cli:v28.3.0 AS builder
+FROM ghcr.io/gjermundgaraba/ignitecli:v28.3.0-go1.22 AS builder
 
 USER root
 

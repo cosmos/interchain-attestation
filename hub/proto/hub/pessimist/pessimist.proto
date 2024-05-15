@@ -25,6 +25,7 @@ message Commitment {
   bytes validator_address = 1;
   CanonicalVoteExtension canonical_vote_extension = 2 [(gogoproto.nullable) = false];
   bytes extension_signature = 3;
+  google.protobuf.Timestamp timestamp = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // Copied from comet just to make this work quickly
@@ -43,10 +44,20 @@ message ValidationVote {
   string client_id_to_validate = 1;
   string client_id_to_update = 2;
   sfixed64 height = 3;
+  google.protobuf.Timestamp timestamp = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  MerkleRoot merkle_root = 5 [(gogoproto.nullable) = false];
+  bytes next_validator_hash = 6;
 }
 
 // This is just used to pass from prepareProposal to pre-blocker handler
 message CommitteeProposalSpecialTx {
   CommitteeProposal committee_proposal = 1 [(gogoproto.nullable) = false];
   repeated string client_ids_to_send_to = 2 [(gogoproto.nullable) = false];
+}
+
+// copy from ibc
+message MerkleRoot {
+  option (gogoproto.goproto_getters) = false;
+
+  bytes hash = 1;
 }

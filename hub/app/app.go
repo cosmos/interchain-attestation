@@ -74,6 +74,7 @@ import (
 	_ "github.com/cosmos/ibc-go/v8/modules/apps/29-fee" // import for side-effects
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	"gopkg.in/yaml.v2"
 	"hub/x/pessimist/lightclient"
@@ -366,38 +367,92 @@ func New(
 					continue
 				}
 
-				resp, err := http.Get(fmt.Sprintf("%s/status", rpcAddr))
+				statusResp, err := http.Get(fmt.Sprintf("%s/status", rpcAddr))
 				if err != nil {
 					ctx.Logger().Error("failed to get status from rpc", "rpc", rpcAddr, "error", err)
 					continue
 				}
 
-				if resp.StatusCode != http.StatusOK {
-					ctx.Logger().Error("rpc status not ok", "rpc", rpcAddr, "status", resp.Status)
+				if statusResp.StatusCode != http.StatusOK {
+					ctx.Logger().Error("rpc status not ok", "rpc", rpcAddr, "status", statusResp.Status)
 					continue
 				}
 
-				body, err := io.ReadAll(resp.Body)
+				statusBody, err := io.ReadAll(statusResp.Body)
 				if err != nil {
 					ctx.Logger().Error("failed to read body", "error", err)
 					continue
 				}
 
 				var status Status
-				if err := json.Unmarshal(body, &status); err != nil {
-					ctx.Logger().Error("failed to unmarshal body", "error", err, "body", string(body), "endpoint", fmt.Sprintf("%s/status", rpcAddr))
+				if err := json.Unmarshal(statusBody, &status); err != nil {
+					ctx.Logger().Error("failed to unmarshal body", "error", err, "body", string(statusBody), "endpoint", fmt.Sprintf("%s/status", rpcAddr))
 					continue
 				}
-				heightInt, err := strconv.Atoi(status.Result.SyncInfo.LatestBlockHeight)
+
+				headerResp, err := http.Get(fmt.Sprintf("%s/header?height=%s", rpcAddr, status.Result.SyncInfo.LatestBlockHeight))
 				if err != nil {
-					ctx.Logger().Error("failed to parse height", "error", err)
+					ctx.Logger().Error("failed to get header from rpc", "rpc", rpcAddr, "error", err, "height", status.Result.SyncInfo.LatestBlockHeight)
+					continue
+				}
+
+				if headerResp.StatusCode != http.StatusOK {
+					ctx.Logger().Error("rpc status not ok", "rpc", rpcAddr, "status", headerResp.Status)
+					continue
+				}
+
+				body, err := io.ReadAll(headerResp.Body)
+				if err != nil {
+					ctx.Logger().Error("failed to read body", "error", err)
+					continue
+				}
+
+				var header CometHeader
+				if err := json.Unmarshal(body, &header); err != nil {
+					ctx.Logger().Error("failed to unmarshal body", "error", err, "body", string(body), "endpoint", fmt.Sprintf("%s/header", rpcAddr))
+					continue
+				}
+				heightInt, err := strconv.Atoi(header.Result.Header.Height)
+				if err != nil {
+					ctx.Logger().Error("failed to parse height", "error", err, "body", string(body), "endpoint", fmt.Sprintf("%s/header", rpcAddr))
+					continue
+				}
+
+				hashBytes, err := hex.DecodeString(header.Result.Header.AppHash)
+				if err != nil {
+					ctx.Logger().Error("failed to decode hash", "error", err)
+					continue
+				}
+				nextValHashBytes, err := hex.DecodeString(header.Result.Header.NextValidatorsHash)
+				if err != nil {
+					ctx.Logger().Error("failed to decode next validators hash", "error", err)
 					continue
 				}
 				validationVotes = append(validationVotes, pessimisttypes.ValidationVote{
 					ClientIdToValidate: objective.ClientIdToValidate,
 					ClientIdToUpdate:   objective.ClientIdToNotify,
 					Height:             int64(heightInt),
+					Timestamp:          header.Result.Header.Time,
+					MerkleRoot:         pessimisttypes.MerkleRoot{
+						Hash: hashBytes,
+					},
+					NextValidatorHash:  nextValHashBytes,
 				})
+
+				// Check for stuff to relay back
+				paths, _ := app.GetIBCKeeper().ConnectionKeeper.GetClientConnectionPaths(ctx, objective.ClientIdToValidate)
+				for _, path := range paths {
+					ctx.Logger().Info("path", "path", path)
+					connection, found := app.GetIBCKeeper().ConnectionKeeper.GetConnection(ctx, path)
+					if !found {
+						ctx.Logger().Error("connection not found", "path", path)
+						continue
+					}
+					if connection.State == connectiontypes.INIT {
+						ctx.Logger().Info("connection in init state, will try some relaying here", "path", path)
+						continue
+					}
+				}
 			}
 
 			voteExtension := pessimisttypes.VoteExtension{
@@ -446,6 +501,13 @@ func New(
 						Status: abci.ResponseVerifyVoteExtension_REJECT,
 					}, nil
 				}
+
+				if validationVote.Timestamp.IsZero() {
+					ctx.Logger().Error("invalid timestamp", "timestamp", validationVote.Timestamp)
+					return &abci.ResponseVerifyVoteExtension{
+						Status: abci.ResponseVerifyVoteExtension_REJECT,
+					}, nil
+				}
 			}
 
 			return &abci.ResponseVerifyVoteExtension{
@@ -481,6 +543,7 @@ func New(
 								ChainId:   "hub", // TODO get chain id
 							},
 							ExtensionSignature:     vote.ExtensionSignature,
+							Timestamp: validationVote.Timestamp,
 						})
 
 						clientIdsToUpdate[validationVote.ClientIdToUpdate] = true
@@ -519,8 +582,6 @@ func New(
 
 			if ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight > 0 && proposal.Height > ctx.ConsensusParams().Abci.VoteExtensionsEnableHeight {
 				ctx.Logger().Info("process proposal: vote extension enabled", "height", ctx.BlockHeight())
-
-				// TODO: DO VALIDATION STUFF ?
 			}
 
 			return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
@@ -543,7 +604,7 @@ func New(
 				for _, clientId := range specialTx.ClientIdsToSendTo {
 					if err := app.GetIBCKeeper().ClientKeeper.UpdateClient(ctx, clientId, &specialTx.CommitteeProposal); err != nil {
 						ctx.Logger().Error("failed to update client", "error", err, "client", clientId)
-						return res, nil // Dont want the chain to halt because of this
+						return res, nil // Don't want the chain to halt because of this
 					}
 				}
 			}

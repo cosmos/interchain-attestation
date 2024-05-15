@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	testifysuite "github.com/stretchr/testify/suite"
 	"gopkg.in/yaml.v3"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func TestE2ETestSuite(t *testing.T) {
@@ -40,7 +43,11 @@ func (s *E2ETestSuite) TestTheKitchenSink() {
 
 	s.NoError(testutil.WaitForBlocks(s.ctx, 5, s.rolly, s.hub))
 
-	IBCTransferWorksTest(s.T(), s.ctx, s.rolly, s.hub, rollyUser, hubUser, s.r, s.eRep)
+	// This works because we assume only 1 client, 1 connection, and 1 channel
+	initialChannel, err := ibc.GetTransferChannel(s.ctx, s.r, s.eRep, s.rolly.Config().ChainID, s.hub.Config().ChainID)
+	s.NoError(err)
+
+	IBCTransferWorksTest(s.T(), s.ctx, s.r, s.eRep, s.initialPath, s.rolly, s.hub, rollyUser, hubUser, initialChannel.ChannelID, initialChannel.Counterparty.ChannelID)
 
 	clients, err := s.r.GetClients(s.ctx, s.eRep, "hub")
 	s.NoError(err)
@@ -113,7 +120,58 @@ func (s *E2ETestSuite) TestTheKitchenSink() {
 
 	s.NoError(testutil.WaitForBlocks(s.ctx, 5, s.hub))
 
+	pessimisticPath := "pessimist"
+	s.NoError(s.r.GeneratePath(s.ctx, s.eRep, rollyChainID, hubChainID, pessimisticPath))
+	rollyTendermintClient := ""
+	hubPessimisticClient := "69-pessimist-1"
+	s.NoError(s.r.UpdatePath(s.ctx, s.eRep, pessimisticPath, ibc.PathUpdateOptions{
+		SrcClientID:   &rollyTendermintClient,
+		DstClientID:   &hubPessimisticClient,
+	}))
+	s.NoError(s.r.CreateConnections(s.ctx, s.eRep, pessimisticPath))
+	connections, err := s.r.GetConnections(s.ctx, s.eRep, hubChainID)
+	s.NoError(err)
+	s.Len(connections, 3)
+
+	var pessimistConnection *ibc.ConnectionOutput
+	for _, connection := range connections {
+		if connection.ClientID == "69-pessimist-1" {
+			pessimistConnection = connection
+			break
+		}
+	}
+	s.NotNil(pessimistConnection)
+	s.Equal("STATE_OPEN", pessimistConnection.State)
+
+	s.NoError(s.r.CreateChannel(s.ctx, s.eRep, pessimisticPath, ibc.CreateChannelOptions{
+		SourcePortName: transfertypes.PortID,
+		DestPortName:   transfertypes.PortID,
+		Order:          ibc.Unordered,
+		Version:        transfertypes.Version,
+	}))
+
+	channels, err := s.r.GetChannels(s.ctx, s.eRep, rollyChainID)
+	s.NoError(err)
+	s.Len(channels, 2)
+
+	var pessimistChannel *ibc.ChannelOutput
+	for _, channel := range channels {
+		if channel.ChannelID != initialChannel.ChannelID {
+			pessimistChannel = &channel
+			break
+		}
+	}
+	s.NotNil(pessimistChannel)
+	s.Equal("STATE_OPEN", pessimistChannel.State)
+
+	s.NoError(s.r.StopRelayer(s.ctx, s.eRep))
+	time.Sleep(5 * time.Second)
+	s.NoError(s.r.StartRelayer(s.ctx, s.eRep, pessimisticPath, s.initialPath))
+
+	IBCTransferWorksTest(s.T(), s.ctx, s.r, s.eRep, pessimisticPath, s.rolly, s.hub, rollyUser, hubUser, pessimistChannel.ChannelID, pessimistChannel.Counterparty.ChannelID)
+
 	s.NoError(testutil.WaitForBlocks(s.ctx, 5, s.hub))
+
 }
 
 

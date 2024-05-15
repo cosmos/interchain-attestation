@@ -2,15 +2,17 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-	"hub/x/pessimist/types"
-
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	tmclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	"hub/x/pessimist/types"
+	"time"
 )
 
 func (k Keeper) CreateNewValidationObjective(ctx sdk.Context, clientIDToValidate string, requiredPower uint64) error {
@@ -147,7 +149,14 @@ func (k Keeper) AddValidatorToObjective(ctx sdk.Context, clientID string, valida
 			LatestHeight:      0,
 		}
 		clientStateBz := k.cdc.MustMarshal(&clientState)
-		newClientID, err := k.GetClientKeeper().CreateClient(ctx, types.ClientType, clientStateBz, nil)
+
+		consensusState := tmclient.ConsensusState{
+			Timestamp:          time.Time{},
+			Root:               commitmenttypes.MerkleRoot{},
+			NextValidatorsHash: nil,
+		}
+		consensusStateBz := k.cdc.MustMarshal(&consensusState)
+		newClientID, err := k.GetClientKeeper().CreateClient(ctx, types.ClientType, clientStateBz, consensusStateBz)
 		if err != nil {
 			return err
 		}
