@@ -65,6 +65,11 @@ And some custom docker builds are used, which can be found here: https://github.
 
 In addition to the above we are also using a main-line commit of ibc-go that has the new LightClientModule interface (see hub go.mod).
 
+## Try it yourself
+The best way to really see it in action is to run the E2E tests in the `interchaintest` folder.
+
+You will need to build the docker images for the hub and rolly chains. You can do this by running `make build-docker` in the root of the repo.
+
 ### Shortcomings of the solution
 * The dependent light client could still be used to create channels and send packets, but would not have the same security guarantees as the pessimistic validation light client.
   * This could be solved by adding a simple IBC middleware that just implements the channel handshake callbacks to stop them from being created. Or just drop packets on that client.
