@@ -363,7 +363,7 @@ func New(
 				}
 				rpcAddr := pessimistConfig.ChainsToValidate[objective.ClientIdToValidate].RPC
 				if rpcAddr == "" {
-					ctx.Logger().Info("rpc address not found (this might be OK)", "client", objective.ClientIdToValidate)
+					ctx.Logger().Warn("rpc address not found (this might be OK)", "client", objective.ClientIdToValidate)
 					continue
 				}
 

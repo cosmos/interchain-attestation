@@ -1,9 +1,25 @@
 #!/bin/sh
 
 DA=$1
+DA_ADDRESS=$2
+DA_RPC_URL=$3
+
+if [ -z "$DA" ]; then
+  echo "DA not found (first arg should be celestia or mock). Exiting."
+  exit 1
+fi
+
+if [ -z "$DA_ADDRESS" ]; then
+  echo "DA_ADDRESS not found (second argument). Exiting."
+  exit 1
+fi
 
 if [ "$DA" = "celestia" ]; then
   echo "DA is Celestia"
+  if [ -z "$DA_RPC_URL" ]; then
+    echo "DA_RPC_URL not found (third argument). Exiting."
+    exit 1
+  fi
 elif [ "$DA" = "mock" ]; then
   echo "DA is mock"
 else
@@ -23,20 +39,16 @@ STAKING_AMOUNT="1000000000stake"
 RELAYER_NAME=relayer
 RELAYER_MNEMONIC="element achieve battle inject taxi hard purchase merit empower tower steak balance supreme purse assault lens chair dove together danger cat essence offer peace"
 
-# create a random Namespace ID for your rollup to post blocks to
-NAMESPACE_ID=$(openssl rand -hex 8)
-echo $NAMESPACE_ID
-
-if [ "$DA" = "celestia" ]; then
-  DA_BLOCK_HEIGHT=$(curl https://rpc.celestia-arabica-11.com/block | jq -r '.result.block.header.height')
-  echo -e "\n Your DA_BLOCK_HEIGHT is $DA_BLOCK_HEIGHT \n"
-
-  AUTH_TOKEN=$(celestia light auth write --p2p.network arabica)
-  echo -e "\n Your DA AUTH_TOKEN is $AUTH_TOKEN \n"
-fi
-
 # build the rolly chain with Rollkit
 ignite chain build
+
+if [ "$DA" = "celestia" ]; then
+  DA_BLOCK_HEIGHT=$(curl $DA_RPC_URL/block | jq -r '.result.block.header.height')
+  echo -e "\n Your DA_BLOCK_HEIGHT is $DA_BLOCK_HEIGHT \n"
+
+  AUTH_TOKEN=$(cat /root/shared-data/auth-token)
+  echo -e "\n Your DA AUTH_TOKEN is $AUTH_TOKEN \n"
+fi
 
 # reset any existing genesis/chain data
 #rollyd tendermint unsafe-reset-all
@@ -69,18 +81,13 @@ jq --argjson pubKey "$PUB_KEY" '.consensus["validators"]=[{"address": "'$ADDRESS
 sed -i '' 's/cors_allowed_origins = \[\]/cors_allowed_origins = ["*"]/g' ~/.rolly/config/config.toml
 
 # start the chain
+
 if [ "$DA" = "celestia" ]; then
   echo "Starting rollkit with Celestia DA..."
-  rollyd start --rollkit.aggregator true --rollkit.da_layer celestia --rollkit.da_config='{"base_url":"http://localhost:26659","timeout":60000000000,"fee":6000,"gas_limit":6000000}' --rollkit.namespace_id $NAMESPACE_ID --rollkit.da_start_height $DA_BLOCK_HEIGHT --api.enable --api.enabled-unsafe-cors
+  rollyd start --rollkit.aggregator true --minimum-gas-prices 0stake --rollkit.da_start_height $DA_BLOCK_HEIGHT --rollkit.da_address $DA_ADDRESS --rollkit.da_auth_token $AUTH_TOKEN --rollkit.da_namespace 00000000000000000000000000000000000000000008e5f679bf7116cb --rpc.laddr tcp://0.0.0.0:27657 --p2p.laddr tcp://0.0.0.0:27656 --api.enable --api.enabled-unsafe-cors
 elif [ "$DA" = "mock" ]; then
-  echo "Starting rollkit with Mock DA..."
-  rollyd start --rollkit.aggregator true --minimum-gas-prices 0stake --rollkit.da_address http://localhost:7980 --rpc.laddr tcp://127.0.0.1:27657 --p2p.laddr tcp://127.0.0.1:27656 --api.enable --api.enabled-unsafe-cors
+  rollyd start --rollkit.aggregator true --minimum-gas-prices 0stake --rollkit.da_address $DA_ADDRESS0 --rpc.laddr tcp://0.0.0.0:27657 --p2p.laddr tcp://0.0.0.0:27656 --api.enable --api.enabled-unsafe-cors
 else
   echo "SHOULD NOT HAPPEN! Exiting.."
   exit 1
 fi
-
-#rollyd start --rollkit.aggregator true --rollkit.da_layer celestia --rollkit.da_config='{"base_url":"http://localhost:26659","timeout":60000000000,"fee":6000,"gas_limit":6000000}' --rollkit.namespace_id $NAMESPACE_ID --rollkit.da_start_height $DA_BLOCK_HEIGHT --api.enable --api.enabled-unsafe-cors
-
-# uncomment the next command if you are using lazy aggregation
-# rollyd start --rollkit.aggregator true --rollkit.da_layer celestia --rollkit.da_config='{"base_url":"http://localhost:26659","timeout":60000000000,"fee":6000,"gas_limit":6000000}' --rollkit.namespace_id $NAMESPACE_ID --rollkit.da_start_height $DA_BLOCK_HEIGHT --rollkit.lazy_aggregator

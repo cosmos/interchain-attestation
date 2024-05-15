@@ -18,6 +18,8 @@ RUN cp build/rollyd /usr/bin/rollyd
 
 # TODO: Put it into a smaller image (alpine or whatever)
 
+RUN mkdir -p /root/shared-data && chown root:root /root/shared-data
+
 # rest server, tendermint p2p, tendermint rpc
 EXPOSE 1317 26656 26657
 

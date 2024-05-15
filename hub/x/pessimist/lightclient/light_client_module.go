@@ -93,8 +93,9 @@ func (l *LightClientModule) UpdateState(ctx sdk.Context, clientID string, client
 		RevisionHeight: uint64(height),
 	}
 
+	ctx.Logger().Info("Updating client state", "clientID", clientID, "height", height)
 	clientState.LatestHeight = height
-	setClientState(clientStore, l.cdc, clientState)
+	setClientState(clientStore, l.cdc, &clientState)
 	setConsensusState(clientStore, l.cdc, &consensusState, ibcHeight)
 
 	return []exported.Height{ibcHeight}

@@ -14,10 +14,10 @@ import (
 	"hub/x/pessimist/types"
 )
 
-func getClientState(store storetypes.KVStore, cdc codec.BinaryCodec) (*types.ClientState, bool) {
+func getClientState(store storetypes.KVStore, cdc codec.BinaryCodec) (types.ClientState, bool) {
 	bz := store.Get(host.ClientStateKey())
 	if len(bz) == 0 {
-		return nil, false
+		return types.ClientState{}, false
 	}
 
 	clientStateI := clienttypes.MustUnmarshalClientState(cdc, bz)
@@ -27,7 +27,7 @@ func getClientState(store storetypes.KVStore, cdc codec.BinaryCodec) (*types.Cli
 		panic(fmt.Errorf("cannot convert %T to %T", clientStateI, clientState))
 	}
 
-	return clientState, true
+	return *clientState, true
 }
 
 func getConsensusState(store storetypes.KVStore, cdc codec.BinaryCodec, height exported.Height) (*tmclient.ConsensusState, bool) {
@@ -48,7 +48,7 @@ func getConsensusState(store storetypes.KVStore, cdc codec.BinaryCodec, height e
 }
 
 // sets the client state to the store
-func setClientState(store storetypes.KVStore, cdc codec.BinaryCodec, clientState exported.ClientState) {
+func setClientState(store storetypes.KVStore, cdc codec.BinaryCodec, clientState *types.ClientState) {
 	bz := clienttypes.MustMarshalClientState(cdc, clientState)
 	store.Set(host.ClientStateKey(), bz)
 }
@@ -148,7 +148,6 @@ func (l *LightClientModule) processClientMessage(ctx sdk.Context, clientID strin
 	proposedConsensusState, ok := heightConsensus[proposedHeight]
 	if !ok{
 		return 0, tmclient.ConsensusState{}, errorsmod.Wrap(types.ErrInvalidCommitteeProposal, "proposed consensus state not found")
-
 	}
 
 	return proposedHeight, proposedConsensusState, nil
