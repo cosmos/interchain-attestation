@@ -92,7 +92,7 @@ If you want to spin up all the different pieces locally to really test it, you c
 7. Sign the validator up for the objective
     - `docker exec hub hubd tx pessimist sign-up-for-objective 07-tendermint-0 --chain-id hub --from alice --yes`
 8. Create the config on the validation node:
-    - `docker exec hub bash -c "printf 'chains_to_validate:\n    07-tendermint-0:\n        rpc: \"http://rolly:27657\"\n' > /root/pessimist.yaml"`
+    - `docker exec hub cp /code/pessimist_config_example.yaml /root/pessimist.yaml`
 9. Enable ABCI++ Vote Extensions (This is usually done with governance, but I hacked it in as a CLI command that can be done by a particular address)
     - Enable the ABCI++ Vote Extensions: `ENABLE_HEIGHT=$(($(docker exec hub hubd status | jq -r ".sync_info.latest_block_height")+15)); docker exec hub hubd tx consensus update-params --abci "{\"vote_extensions_enable_height\": \"$ENABLE_HEIGHT\"}" --block '{"max_bytes": "22020096", "max_gas": "-1"}' --evidence '{"max_age_num_blocks": "100000", "max_age_duration": "172800s", "max_bytes": "1048576"}' --validator '{ "pub_key_types": ["ed25519"] }' --from authority --chain-id hub --yes`
     - Wait for the block to pass and verify that the vote extensions are enabled: `docker exec hub hubd q consensus params --output json | jq ".params.abci"`
