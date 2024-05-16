@@ -112,13 +112,6 @@ If you want to spin up all the different pieces locally to really test it, you c
     - `docker exec rolly rollyd tx ibc-transfer transfer transfer channel-1 hub1uflxf8hvj0svrjhj9nkamrl2ze55r0ujxlcwkq 1337stake --from rolly-key --keyring-backend test --chain-id rolly --node tcp://localhost:27657 --yes`
     - See the balance on the hub chain: `docker exec hub hubd q bank balances hub1uflxf8hvj0svrjhj9nkamrl2ze55r0ujxlcwkq`
 
-
-
-
-
-
-
-
 ### Shortcomings of the solution
 * The dependent light client could still be used to create channels and send packets, but would not have the same security guarantees as the pessimistic validation light client.
   * This could be solved by adding a simple IBC middleware that just implements the channel handshake callbacks to stop them from being created. Or just drop packets on that client.
