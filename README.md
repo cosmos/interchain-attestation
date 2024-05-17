@@ -7,6 +7,8 @@ in an interchain context where token bridging over IBC is one of the main use ca
 
 This repo is a proof of concept for the second solution: pessimistic validation.
 
+This project was built for Celestia's Infinite Space Bazaar. The project page has some info and videos as well: https://dorahacks.io/buidl/12697
+
 ## Pessimistic Validation
 
 Pessimistic validation is where you validate all the blocks on the whole rollup chain, rather than optimistic trust or waiting for dispute periods.
