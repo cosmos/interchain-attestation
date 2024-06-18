@@ -5,9 +5,13 @@ Main goal: to allow optimistic rollups to IBC without having to wait for the dis
 The problem of bridging in reasonable time from optimistic rollups are required to be solved in order for them to be useful
 in an interchain context where token bridging over IBC is one of the main use cases.
 
-This repo is a proof of concept for the second solution: pessimistic validation.
+This project was orginally built for Celestia's Infinite Space Bazaar. The project page has some info and videos as well: https://dorahacks.io/buidl/12697
 
-This project was built for Celestia's Infinite Space Bazaar. The project page has some info and videos as well: https://dorahacks.io/buidl/12697
+The current status is that architectural decisions are in progress to nail down a production-ready design, and development is happening to test the ideas. Full proper development is due to start shortly.
+
+In other words: the project is happening.
+
+The documentation below might soon be slightly out of date. The main concept will stay the same, but the technical implementation is likely to be adjusted shortly. Follow ADR PRs coming up!
 
 ## Pessimistic Validation
 
