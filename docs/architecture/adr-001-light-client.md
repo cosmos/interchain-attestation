@@ -52,9 +52,39 @@ TODO: Move the chosen alternative down to decision.
 
 TODO: Add diagram
 
+A simpler solution to the problem (in terms of moving pieces at least) would be to not have any 
+new light clients, and instead use IBC Middleware to filter packets.
+
+IBC Middleware lives between the core IBC modules (client, channel, connection) and the application
+modules (ICS20, ICS721, etc). It allows you to manipulate or even block packets as they are coming in.
+
+If Pessimistic Validation was implemented as an IBC middleware, you could use existing light clients
+(such as 07-tendermint) without any modifications. The middleware would keep track of the validation 
+updates of the counterparty rollup, and only let through packets that are less than or equal to the
+latest height proven to be safe.
+
+An IBC middleware solution could implement a fee-taking system, where a small fee is redirected from ICS20 packets.
+
+While this solution is materially simpler than any that involves custom light clients, it also has some
+drawbacks that are important to note:
+
+TODO: Look more into IBC fees
+Potential issue that is not confirmed: it might be harder to force native IBC relaying fees. 
+
+Relayers and clients would not be able to check that a light client has been proven by the pessimistic validators,
+because all of that would happen in the middleware. If you simply queried the light client you would think
+that a packet can be proven.
+
+
 ### Conditional Tendermint Light Client
 
 TODO: Add diagram
+
+The solution with a conditional tendermint light client is based on a new feature that landed in ibc-go
+recently. It allows a light client to query another light client for 
+
+Using a conditional tendermint light client we can avoid most of the issues from the initial prototype:
+- 
 
 ## Decision
 
@@ -96,4 +126,4 @@ Not applicable, since Pessimistic Validation is not in production yet.
 
 ## References
 
-* {reference link}
+* [https://github.com/cosmos/ibc-go/issues/5112](Conditional clients ibc-go issue)
