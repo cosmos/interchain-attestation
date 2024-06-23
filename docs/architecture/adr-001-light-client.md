@@ -2,7 +2,7 @@
 
 ## Changelog
 
-* {date}: Initial draft
+* 23.06.24: Initial draft
 
 ## Status
 
@@ -10,11 +10,18 @@ DRAFT
 
 ## Abstract
 
-TODO: Write the abstract
+This ADR proposes a solution for verifying the behavior of optimistic rollups within the Cosmos ecosystem until 
+state proofs become widely available. 
+Optimistic rollups face challenges with interoperability due to a dispute window that delays state finality. 
 
-> "If you can't explain it simply, you don't understand it well enough." Provide
-> a simplified and layman-accessible explanation of the ADR.
-> A short (~200 word) description of the issue being addressed.
+The Pessimistic Rollup project addresses this by enabling Proof of Stake Cosmos SDK-based blockchains to verify rollup 
+states using validators who run full nodes of the rollup. The initial prototype used two light clients, 
+but it required adjustments for clarity and complexity reduction. 
+
+The chosen solution is a conditional light client with a prover light client, which maintains modularity, 
+leverages existing light client functionality, and aligns closely with IBC design. 
+This approach avoids confusion, simplifies relayer adjustments, 
+and allows future extensibility for different proving mechanisms.
 
 ## Context
 
@@ -51,6 +58,8 @@ would require more complexity for integrators and the protocol itself.
 This is the solution outlined in the initial prototype. The custom light client would contain the
 pessimistic validation, and depend on a standard light client to provide inclusion proofs.
 
+![Initial solution diagram](initial-solution.png)
+
 The main benefits of this solution are:
 - A lot of the logic is already written for this
 - It requires no modification to existing light clients (i.e. you can use 07-tendermint as is)
@@ -61,10 +70,10 @@ The main drawbacks of this solution are:
 
 ### IBC Middleware
 
-TODO: Add diagram
-
 A simpler solution to the problem (in terms of moving pieces at least) would be to not have any 
 new light clients, and instead use IBC Middleware to filter packets.
+
+![IBC Middleware solution diagram](ibc-middleware-solution.png)
 
 IBC Middleware lives between the core IBC modules (client, channel, connection) and the application
 modules (ICS20, ICS721, etc). It allows you to manipulate or even block packets as they are coming in.
@@ -103,8 +112,6 @@ to new types of light clients and proving mechanisms.
 
 ### Conditional Light Client with a prover light client
 
-TODO: Add diagram
-
 The solution with a conditional light client is based on a concept discussed in
 [https://github.com/cosmos/ibc-go/issues/5112](ibc-go issue 5112). The idea is to have a light client
 that queries another light client for some verification it cannot do itself. In the issue the main topic
@@ -120,6 +127,8 @@ In the future, this could be extended to provide other proving mechanisms, such 
 The prover light clients are updated by the validators of the chain it is running on, and would not use relayers
 for client state updates. This would happen through another mechanism which will be described in another ADR.
 
+![Conditional Light Client with prover solution diagram](conditional-light-client-with-prover-solution.png)TODO: Add diagram
+
 Using a conditional light client we can avoid most of the issues from the initial prototype, and get some added benefits:
 - The standard light client can be used as normal by users and relayers, and there is no confusion about what the current validated height and state is (as you can query it directly)
 - Relayers would not need to make any adjusments as long as they support the normal light client (e.g. 07-tendermint)
@@ -133,12 +142,23 @@ The main drawbacks of this solution are:
 
 ## Consequences
 
-TODO: Summary of consequences for chains, relayers, and users
+For Pessimistic Validation
+* The solution is modular and can be extended with different proving mechanisms
+* Some complexity in having two light clients, but the standard light client is a fork with minimal changes
+* Clean implementation that follows IBC design closely
 
-> This section describes the resulting context, after applying the decision. All
-> consequences should be listed here, not just the "positive" ones. A particular
-> decision may have positive, negative, and neutral consequences, but all of them
-> affect the team and project in the future.
+For Chains
+* Receiver chains will have to integrate and allow two new light clients to run on their chain
+* No adjustments/implementation needed for rollup chains
+* Keeps flow of IBC packets simple and clear
+
+For Relayers
+* No additional adjustments needed
+* Can use the standard light client as is
+* Can query and get the validated height and state directly from standard light clients
+
+For Users
+* Can query light clients as before with no added confusion or complexity
 
 ### Backwards Compatibility
 
