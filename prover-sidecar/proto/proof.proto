@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/proversidecar/proof";
+
+package proof;
+
+service ProofService {
+  rpc GetProof(ProofRequest) returns (ProofResponse) {}
+}
+
+message ProofRequest {
+  string clientID = 1;
+}
+
+message ProofResponse {
+  string proof = 1; // TODO: Change to proper types - just for initial prototyping
+}
