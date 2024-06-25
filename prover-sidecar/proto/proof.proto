@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-option go_package = "github.com/gjermundgaraba/pessimistic-validation/proversidecar/proof";
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/proversidecar/server";
 
 package proof;
 
-service ProofService {
+service Proof {
   rpc GetProof(ProofRequest) returns (ProofResponse) {}
 }
 

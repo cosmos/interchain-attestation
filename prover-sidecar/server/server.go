@@ -6,11 +6,10 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	"proversidecar/proof"
 )
 
 type Server struct {
-	proof.UnimplementedProofServiceServer
+	UnimplementedProofServer
 }
 
 func (s *Server) Serve(port int) error {
@@ -20,7 +19,7 @@ func (s *Server) Serve(port int) error {
 	}
 
 	server := grpc.NewServer()
-	proof.RegisterProofServiceServer(server, s)
+	RegisterProofServer(server, s)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := server.Serve(lis); err != nil {
 		return err
@@ -29,10 +28,10 @@ func (s *Server) Serve(port int) error {
 	return nil
 }
 
-func (s *Server) GetProof(ctx context.Context, request *proof.ProofRequest) (*proof.ProofResponse, error) {
-	return &proof.ProofResponse{
+func (s *Server) GetProof(ctx context.Context, request *ProofRequest) (*ProofResponse, error) {
+	return &ProofResponse{
 		Proof: fmt.Sprintf("hello proof! (clientID: %s)", request.ClientID),
 	}, nil
 }
 
-var _ proof.ProofServiceServer = &Server{}
+var _ ProofServer = &Server{}
