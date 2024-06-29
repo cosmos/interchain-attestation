@@ -13,10 +13,10 @@ type Server struct {
 	UnimplementedProofServer
 }
 
-func (s *Server) Serve(port int) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+func (s *Server) Serve(listenAddr string) error {
+	lis, err := net.Listen("tcp", listenAddr)
 	if err != nil {
-		return errors.Wrapf(err, "failed to listen on port %d", port)
+		return errors.Wrapf(err, "failed to listen on %s", listenAddr)
 	}
 
 	server := grpc.NewServer()

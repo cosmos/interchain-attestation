@@ -1,11 +1,13 @@
 package main
 
-import "proversidecar/cmd"
+import (
+	"proversidecar/cmd"
+)
 
 func main() {
 	rootCmd := cmd.RootCmd()
 
 	if err := rootCmd.Execute(); err != nil {
-		panic(err)
+		rootCmd.PrintErrf("error: %#+v", err)
 	}
 }

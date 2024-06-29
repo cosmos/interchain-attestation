@@ -5,5 +5,8 @@ proto:
         proto/proof.proto
 	mv proto/*.pb.go server/
 
+install:
+	go install ./...
+	echo "Installed proversidecar binary"
 
 .PHONY: proto
