@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/pelletier/go-toml/v2"
+	"gitlab.com/tozd/go/errors"
 	"os"
 	"path"
 )
@@ -15,6 +16,30 @@ type Config struct {
 type CometBFTChain struct {
 	ChainID string `toml:"chain_id"`
 	RPC    string `toml:"rpc"`
+}
+
+func (c Config) Validate() error {
+	if len(c.CometBFTChains) == 0 {
+		return errors.New("at least one chain must be defined in the config")
+	}
+
+	seenChainIDs := make(map[string]bool)
+	for _, chain := range c.CometBFTChains {
+		if chain.ChainID == "" {
+			return errors.New("chain id cannot be empty")
+		}
+
+		if chain.RPC == "" {
+			return errors.New("rpc address cannot be empty")
+		}
+
+		if _, ok := seenChainIDs[chain.ChainID]; ok {
+			return errors.New("duplicate chain id")
+		}
+		seenChainIDs[chain.ChainID] = true
+	}
+
+	return nil
 }
 
 func ReadConfig(homedir string) (Config, bool, error) {

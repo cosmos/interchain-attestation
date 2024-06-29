@@ -55,6 +55,10 @@ func RootCmd() *cobra.Command {
 				return errors.New("config.toml was not found, example config.toml created")
 			}
 
+			if err := config.Validate(); err != nil {
+				return err
+			}
+
 			cmd.SetContext(context.WithValue(cmd.Context(), ContextKeyConfig, config))
 
 			return nil

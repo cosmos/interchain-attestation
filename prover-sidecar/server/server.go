@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"gitlab.com/tozd/go/errors"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -15,7 +16,7 @@ type Server struct {
 func (s *Server) Serve(port int) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed to listen on port %d", port)
 	}
 
 	server := grpc.NewServer()
