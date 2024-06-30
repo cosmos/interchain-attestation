@@ -1,36 +1,44 @@
-package server
+package config
 
 import (
 	"github.com/pelletier/go-toml/v2"
 	"gitlab.com/tozd/go/errors"
+	"go.uber.org/zap"
 	"os"
 	"path"
 )
 
-const configFileName = "config.toml"
+const (
+	configFileName = "config.toml"
+)
 
 type Config struct {
-	CometBFTChains []CometBFTChain `toml:"comet_bft_chains"`
+	CosmosChains []CosmosChainConfig `toml:"cosmos_chain"`
 }
 
-type CometBFTChain struct {
+type CosmosChainConfig struct {
 	ChainID string `toml:"chain_id"`
 	RPC    string `toml:"rpc"`
+	ClientID string `toml:"client_id"`
 }
 
 func (c Config) Validate() error {
-	if len(c.CometBFTChains) == 0 {
+	if len(c.CosmosChains) == 0 {
 		return errors.New("at least one chain must be defined in the config")
 	}
 
 	seenChainIDs := make(map[string]bool)
-	for _, chain := range c.CometBFTChains {
+	for _, chain := range c.CosmosChains {
 		if chain.ChainID == "" {
 			return errors.New("chain id cannot be empty")
 		}
 
 		if chain.RPC == "" {
 			return errors.New("rpc address cannot be empty")
+		}
+
+		if chain.ClientID == "" {
+			return errors.New("client id cannot be empty")
 		}
 
 		if _, ok := seenChainIDs[chain.ChainID]; ok {
@@ -66,18 +74,28 @@ func ReadConfig(homedir string) (Config, bool, error) {
 	return config, true, nil
 }
 
-func InitConfig(homedir string) error {
+func InitConfig(logger *zap.Logger, homedir string, force bool) error {
+	configFilePath := getConfigFilePath(homedir)
+
+	if !force {
+		_, err := os.Stat(configFilePath)
+		if !os.IsNotExist(err) {
+			return errors.Errorf("config file already exists at %s", configFilePath)
+		}
+	}
+
+	logger.Debug("InitConfig", zap.String("configFilePath", configFilePath))
+
 	if err := os.MkdirAll(homedir, os.ModePerm); err != nil {
 		return err
 	}
 
-	configFilePath := getConfigFilePath(homedir)
-
 	config := Config{
-		CometBFTChains: []CometBFTChain{
+		CosmosChains: []CosmosChainConfig{
 			{
 				ChainID: "example-1",
 				RPC:    "http://localhost:26657",
+				ClientID: "example-1-client",
 			},
 		},
 	}
