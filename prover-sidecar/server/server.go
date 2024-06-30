@@ -7,17 +7,20 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"net"
+	"proversidecar/provers"
 )
 
 type Server struct {
 	UnimplementedProofServer
 
 	logger *zap.Logger
+	coordinator *provers.Coordinator
 }
 
-func NewServer(logger *zap.Logger) *Server {
+func NewServer(logger *zap.Logger, coordinator *provers.Coordinator) *Server {
 	return &Server{
 		logger: logger,
+		coordinator: coordinator,
 	}
 }
 
@@ -40,8 +43,12 @@ func (s *Server) Serve(listenAddr string) error {
 }
 
 func (s *Server) GetProof(ctx context.Context, request *ProofRequest) (*ProofResponse, error) {
+	s.logger.Debug("server.GetProof", zap.String("chainId", request.ChainId))
+
+	chainProver := s.coordinator.GetChainProver(request.ChainId)
+	proof := chainProver.GetProof()
 	return &ProofResponse{
-		Proof: fmt.Sprintf("hello proof! (clientID: %s)", request.ClientID),
+		Proof: fmt.Sprintf("proof: %s (clientID: %s)", string(proof), request.ChainId),
 	}, nil
 }
 

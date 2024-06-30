@@ -1,11 +1,11 @@
-package coordinator
+package provers
 
 import (
 	"context"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"proversidecar/config"
-	"proversidecar/provers"
+	"proversidecar/provers/chainprover"
 	"proversidecar/provers/cosmos"
 	"time"
 )
@@ -17,23 +17,27 @@ const (
 type Coordinator struct {
 	logger *zap.Logger
 
-	chainProvers []provers.ChainProver
+	chainProvers map[string]chainprover.ChainProver
 }
 
 func NewCoordinator(logger *zap.Logger, sidecarConfig config.Config) (*Coordinator, error) {
-	var chainProvers []provers.ChainProver
+	chainProvers := make(map[string]chainprover.ChainProver)
 	for _, cosmosConfig := range sidecarConfig.CosmosChains {
 		prover, err := cosmos.NewCosmosProver(logger, cosmosConfig.ChainID, cosmosConfig.RPC, cosmosConfig.ClientID)
 		if err != nil {
 			return nil, err
 		}
-		chainProvers = append(chainProvers, prover)
+		chainProvers[cosmosConfig.ChainID] = prover
 	}
 
 	return &Coordinator{
 		logger:       logger,
 		chainProvers: chainProvers,
 	}, nil
+}
+
+func (c *Coordinator) GetChainProver(chainID string) chainprover.ChainProver {
+	return c.chainProvers[chainID]
 }
 
 func (c *Coordinator) Run(ctx context.Context) error {
@@ -57,7 +61,7 @@ func (c *Coordinator) Run(ctx context.Context) error {
 	return err
 }
 
-func (c *Coordinator) chainProverLoop(ctx context.Context, chainProver provers.ChainProver) error {
+func (c *Coordinator) chainProverLoop(ctx context.Context, chainProver chainprover.ChainProver) error {
 	ticker := time.NewTicker(defaultMinQueryLoopDuration) // TODO: Make this configurable per chain
 	defer ticker.Stop()
 

@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"proversidecar/coordinator"
+	"proversidecar/provers"
 	"proversidecar/server"
 )
 
@@ -22,12 +22,12 @@ func StartCmd() *cobra.Command {
 			sidecarConfig := GetConfig(cmd)
 			logger := GetLogger(cmd)
 
-			coord, err := coordinator.NewCoordinator(logger, sidecarConfig)
+			coordinator, err := provers.NewCoordinator(logger, sidecarConfig)
 			if err != nil {
 				return err
 			}
 
-			s := server.NewServer(logger)
+			s := server.NewServer(logger, coordinator)
 
 			var eg errgroup.Group
 
@@ -41,7 +41,7 @@ func StartCmd() *cobra.Command {
 			})
 			
 			eg.Go(func() error {
-				if err := coord.Run(cmd.Context()); err != nil {
+				if err := coordinator.Run(cmd.Context()); err != nil {
 					logger.Error("coordinator.Run crashed", zap.Error(err))
 					return err
 				}

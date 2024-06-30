@@ -9,7 +9,7 @@ service Proof {
 }
 
 message ProofRequest {
-  string clientID = 1;
+  string chain_id = 1;
 }
 
 message ProofResponse {

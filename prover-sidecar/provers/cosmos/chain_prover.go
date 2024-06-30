@@ -3,12 +3,11 @@ package cosmos
 import (
 	clientwrapper "github.com/strangelove-ventures/cometbft-client/client"
 	"go.uber.org/zap"
+	"proversidecar/provers/chainprover"
 	"time"
-
-	"proversidecar/provers"
 )
 
-var _ provers.ChainProver = &CosmosProver{}
+var _ chainprover.ChainProver = &CosmosProver{}
 
 type CosmosProver struct {
 	logger *zap.Logger
@@ -20,6 +19,10 @@ type CosmosProver struct {
 	rpcAddr string
 
 	clientID string
+}
+
+func (c *CosmosProver) GetProof() []byte {
+	return []byte("hello proof!")
 }
 
 func NewCosmosProver(logger *zap.Logger, chainID, rpcAddr, clientID string) (*CosmosProver, error) {
