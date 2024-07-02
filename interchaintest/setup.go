@@ -155,6 +155,22 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 				Env: []string{
 					"PESSIMIST_CONFIG_PATH=/var/cosmos-chain/hub/config/pessimist.yaml",
 				},
+				SidecarConfigs: []ibc.SidecarConfig{
+					{
+						ProcessName:      "proversidecar",
+						Image:            ibc.DockerImage{
+							Repository: "proversidecar",
+							Version:    "local",
+							UidGid:     "1025:1025",
+						},
+						HomeDir:          "",
+						Ports:            []string{"6969/tcp"},
+						StartCmd:         []string{"/usr/bin/proversidecar", "start", "--home", "/home/sidecar", "--listen-addr", "0.0.0.0:6969"},
+						Env:              nil,
+						PreStart:         false,
+						ValidatorProcess: true,
+					},
+				},
 			},
 			NumValidators: &hubVals,
 			NumFullNodes:  &hubFull,

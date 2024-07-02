@@ -19,10 +19,12 @@ type CosmosProver struct {
 	rpcAddr string
 
 	clientID string
+
+	tmpProof string // TODO: REMOVE ONCE ACTUAL PROOF IS IMPLEMENTED
 }
 
 func (c *CosmosProver) GetProof() []byte {
-	return []byte("hello proof!")
+	return []byte(c.tmpProof)
 }
 
 func NewCosmosProver(logger *zap.Logger, chainID, rpcAddr, clientID string) (*CosmosProver, error) {
