@@ -12,9 +12,11 @@ import (
 
 type Server struct {
 	UnimplementedProofServer
+	listener net.Listener
 
 	logger *zap.Logger
 	coordinator *provers.Coordinator
+	grpcServer *grpc.Server
 }
 
 func NewServer(logger *zap.Logger, coordinator *provers.Coordinator) *Server {
@@ -32,14 +34,20 @@ func (s *Server) Serve(listenAddr string) error {
 		return errors.Wrapf(err, "failed to listen on %s", listenAddr)
 	}
 
-	server := grpc.NewServer()
-	RegisterProofServer(server, s)
+	s.grpcServer = grpc.NewServer()
+	RegisterProofServer(s.grpcServer, s)
 	s.logger.Info("server listening", zap.String("addr", lis.Addr().String()))
-	if err := server.Serve(lis); err != nil {
+	if err := s.grpcServer.Serve(lis); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (s *Server) Stop() {
+	s.logger.Debug("server.Stop")
+
+	s.grpcServer.GracefulStop()
 }
 
 func (s *Server) GetProof(ctx context.Context, request *ProofRequest) (*ProofResponse, error) {
