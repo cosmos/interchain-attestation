@@ -5,6 +5,7 @@ package simapp
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation"
 	"io"
 	"os"
 
@@ -108,6 +109,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	pessimistickeeper "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/keeper"
+	pessimistictypes "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/types"
 )
 
 const appName = "SimApp"
@@ -165,6 +169,8 @@ type SimApp struct {
 	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	CircuitKeeper         circuitkeeper.Keeper
+
+	PessimisticKeeper pessimistickeeper.Keeper
 
 	// the module manager
 	ModuleManager      *module.Manager
@@ -374,7 +380,7 @@ func NewSimApp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// register the governance hooks
+			// register the governance hooks
 		),
 	)
 
@@ -386,6 +392,9 @@ func NewSimApp(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
+
+	pessimisticKeeper := pessimistickeeper.NewKeeper(runtime.NewKVStoreService(keys[pessimistictypes.StoreKey]), appCodec, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	app.PessimisticKeeper = pessimisticKeeper
 
 	/****  Module Options ****/
 
@@ -418,6 +427,7 @@ func NewSimApp(
 		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		circuit.NewAppModule(appCodec, app.CircuitKeeper),
+		pessimisticvalidation.NewAppModule(appCodec, app.PessimisticKeeper),
 	)
 
 	// BasicModuleManager defines the module BasicManager is in charge of setting up basic,
@@ -471,7 +481,7 @@ func NewSimApp(
 		distrtypes.ModuleName, stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName,
 		minttypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
 		feegrant.ModuleName, nft.ModuleName, group.ModuleName, paramstypes.ModuleName, upgradetypes.ModuleName,
-		vestingtypes.ModuleName, consensusparamtypes.ModuleName, circuittypes.ModuleName,
+		vestingtypes.ModuleName, consensusparamtypes.ModuleName, circuittypes.ModuleName, pessimistictypes.ModuleName,
 	}
 	app.ModuleManager.SetOrderInitGenesis(genesisModuleOrder...)
 	app.ModuleManager.SetOrderExportGenesis(genesisModuleOrder...)

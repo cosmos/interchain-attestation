@@ -2,6 +2,8 @@ module github.com/gjermundgaraba/pessimistic-validation/simapp
 
 go 1.22
 
+replace github.com/gjermundgaraba/pessimistic-validation => ../module
+
 require (
 	cosmossdk.io/api v0.7.5
 	cosmossdk.io/client/v2 v2.0.0-beta.2.0.20240625194835-17173894fea9 // TODO(@julienrbrt): tag client/v2
@@ -19,8 +21,9 @@ require (
 	cosmossdk.io/x/upgrade v0.1.4-0.20240625194835-17173894fea9 // TODO(@julienrbrt): tag upgrade
 	github.com/cometbft/cometbft v0.38.9
 	github.com/cosmos/cosmos-db v1.0.2
-	github.com/cosmos/cosmos-sdk v0.50.6
+	github.com/cosmos/cosmos-sdk v0.50.7
 	github.com/cosmos/gogoproto v1.5.0
+	github.com/gjermundgaraba/pessimistic-validation v0.0.0
 	github.com/golang/mock v1.6.0
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.0

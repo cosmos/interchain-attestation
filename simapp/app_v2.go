@@ -3,6 +3,7 @@
 package simapp
 
 import (
+	pessimistickeeper "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/keeper"
 	"io"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -82,6 +83,8 @@ type SimApp struct {
 	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	CircuitBreakerKeeper  circuitkeeper.Keeper
+
+	PessimisticKeeper pessimistickeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -183,6 +186,7 @@ func NewSimApp(
 		&app.NFTKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.CircuitBreakerKeeper,
+		&app.PessimisticKeeper,
 	); err != nil {
 		panic(err)
 	}

@@ -1,6 +1,7 @@
 package simapp
 
 import (
+	pessimistictypes "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/types"
 	"time"
 
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -72,6 +73,9 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	pessimisticmodulev1 "github.com/gjermundgaraba/pessimistic-validation/api/pessimisticvalidation/module/v1"
+	_ "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation" // import for side effects
 )
 
 var (
@@ -156,6 +160,7 @@ var (
 						upgradetypes.ModuleName,
 						vestingtypes.ModuleName,
 						circuittypes.ModuleName,
+						pessimistictypes.ModuleName,
 					},
 					// When ExportGenesis is not specified, the export genesis module order
 					// is equal to the init genesis order
@@ -259,6 +264,10 @@ var (
 			{
 				Name:   circuittypes.ModuleName,
 				Config: appconfig.WrapAny(&circuitmodulev1.Module{}),
+			},
+			{
+				Name:   pessimistictypes.ModuleName,
+				Config: appconfig.WrapAny(&pessimisticmodulev1.Module{}),
 			},
 		},
 	}),
