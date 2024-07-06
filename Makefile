@@ -1,5 +1,8 @@
 
-build-docker: build-hub-docker build-rolly-docker build-mock-da-docker
+build-docker: build-hub-docker build-rolly-docker build-mock-da-docker build-simapp-docker
+
+build-simapp-docker:
+	@docker build -t simapp:local .
 
 build-hub-docker:
 	@cd hub && ignite chain build --skip-proto --output build && docker build -t hub:local .
