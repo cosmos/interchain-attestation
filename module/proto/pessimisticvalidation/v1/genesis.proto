@@ -1,0 +1,12 @@
+syntax = "proto3";
+package pessimisticvalidation.v1;
+
+import "pessimisticvalidation/v1/params.proto";
+
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/types";
+
+// GenesisState defines the pessimisticvalidation module's genesis state.
+message GenesisState {
+  // params defines all the paramaters of x/pessimisticvalidation module.
+  Params params = 1;
+}
