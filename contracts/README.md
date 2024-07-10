@@ -1,3 +1,7 @@
+# Solidity Contracts for Testing Pessimistic Validation
+
+This directory contains Solidity contracts used to test pessimistic validation for EVM.
+
 ## Foundry
 
 **Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
