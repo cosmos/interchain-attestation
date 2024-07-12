@@ -3,16 +3,18 @@ package pessimisticinterchaintest
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/ethereum"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	interchaintestrelayer "github.com/strangelove-ventures/interchaintest/v8/relayer"
 	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
 	testifysuite "github.com/stretchr/testify/suite"
 	"go.uber.org/zap/zaptest"
-	"strings"
 )
 
 // Not const because we need to give them as pointers later
@@ -45,21 +47,22 @@ var (
 	}
 
 	rollyChainID = "rolly"
-	hubChainID = "hub"
+	hubChainID   = "hub"
 )
 
 type E2ETestSuite struct {
 	testifysuite.Suite
 
-	ctx     context.Context
-	ic      *interchaintest.Interchain
-	network string
-	r 	 	ibc.Relayer
-	eRep   	*testreporter.RelayerExecReporter
+	ctx         context.Context
+	ic          *interchaintest.Interchain
+	network     string
+	r           ibc.Relayer
+	eRep        *testreporter.RelayerExecReporter
 	initialPath string
 
-	hub     *cosmos.CosmosChain
-	rolly   *cosmos.CosmosChain
+	hub   *cosmos.CosmosChain
+	rolly *cosmos.CosmosChain
+	eth   *ethereum.EthereumChain
 }
 
 func (s *E2ETestSuite) SetupSuite() {
@@ -70,10 +73,9 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.ic = ic
 	cf := s.getChainFactory()
 	chains, err := cf.Chains(s.T().Name())
-	hub, rolly := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 	s.NoError(err)
-	s.hub = hub
-	s.rolly = rolly
+
+	s.hub, s.rolly, s.eth = chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain), chains[2].(*ethereum.EthereumChain)
 
 	for _, chain := range chains {
 		ic.AddChain(chain)
@@ -93,8 +95,8 @@ func (s *E2ETestSuite) SetupSuite() {
 	ic.AddRelayer(r, "relayer")
 	s.initialPath = "ibc-path"
 	ic.AddLink(interchaintest.InterchainLink{
-		Chain1:  hub,
-		Chain2:  rolly,
+		Chain1:  s.hub,
+		Chain2:  s.rolly,
 		Relayer: r,
 		Path:    s.initialPath,
 	})
@@ -157,8 +159,8 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 				},
 				SidecarConfigs: []ibc.SidecarConfig{
 					{
-						ProcessName:      "proversidecar",
-						Image:            ibc.DockerImage{
+						ProcessName: "proversidecar",
+						Image: ibc.DockerImage{
 							Repository: "proversidecar",
 							Version:    "local",
 							UidGid:     "1025:1025",
@@ -260,6 +262,8 @@ da_address = \"http://%s:%s\"" >> /var/cosmos-chain/rolly/config/config.toml`, n
 			NumValidators: &rollyVals,
 			NumFullNodes:  &rollyFull,
 		},
+		// -- ETH --
+		{ChainConfig: ethereum.DefaultEthereumAnvilChainConfig("ethereum")},
 	})
 }
 
