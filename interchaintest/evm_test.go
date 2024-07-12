@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"pessimisticinterchaintest/types/counter"
 	"regexp"
 
 	"cosmossdk.io/math"
@@ -37,11 +38,11 @@ func (s *E2ETestSuite) TestDeployContract() {
 		s.Require().NotEmpty(contractAddress)
 		s.Require().True(ethcommon.IsHexAddress(contractAddress))
 
-		_, err = ethclient.Dial(s.eth.GetHostRPCAddress())
+		client, err := ethclient.Dial(s.eth.GetHostRPCAddress())
 		s.Require().NoError(err)
 
-		// s.contract, err = sp1ics07tendermint.NewContract(ethcommon.HexToAddress(contractAddress), client)
-		// s.Require().NoError(err)
+		_, err = counter.NewContract(ethcommon.HexToAddress(contractAddress), client)
+		s.Require().NoError(err)
 	}))
 }
 
