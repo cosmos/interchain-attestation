@@ -19,12 +19,12 @@ func (s *E2ETestSuite) TestDeployContract() {
 	ctx := context.Background()
 	s.NotNil(s.ic)
 
-	var userFunds = math.NewInt(10_000_000_000)
-	users := interchaintest.GetAndFundTestUsers(s.T(), s.ctx, s.T().Name(), userFunds, s.eth)
+	startingEthBalance := math.NewInt(2 * ethereum.ETHER)
+	users := interchaintest.GetAndFundTestUsers(s.T(), s.ctx, s.T().Name(), startingEthBalance, s.eth)
 	ethUser := users[0]
 
 	s.Require().True(s.Run("Deploy contracts", func() {
-		s.Require().NoError(os.Chdir("../.."))
+		s.Require().NoError(os.Chdir(".."))
 
 		stdout, _, err := s.eth.ForgeScript(ctx, ethUser.KeyName(), ethereum.ForgeScriptOpts{
 			ContractRootDir:  "contracts",
