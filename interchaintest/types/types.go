@@ -1,4 +1,4 @@
-package pessimisticinterchaintest
+package types
 
 import (
 	"time"
@@ -81,7 +81,8 @@ type TxResponse struct {
 }
 
 type PessimisticValidationConfig struct {
-	ChainsToValidate map[string]struct{
+	ChainsToValidate map[string]struct {
 		RPC string `yaml:"rpc"`
 	} `yaml:"chains_to_validate"`
 }
+

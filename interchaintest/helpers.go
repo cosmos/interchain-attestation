@@ -2,16 +2,20 @@ package pessimisticinterchaintest
 
 import (
 	"context"
-	"cosmossdk.io/math"
 	"encoding/json"
 	"fmt"
+	"testing"
+
+	"pessimisticinterchaintest/types"
+
+	"cosmossdk.io/math"
+
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func (s *E2ETestSuite) SendTx(node *cosmos.ChainNode, keyName string, command ...string) error {
@@ -26,7 +30,7 @@ func (s *E2ETestSuite) SendTx(node *cosmos.ChainNode, keyName string, command ..
 		return err
 	}
 	fmt.Println("tx resp", string(txRespBz))
-	var txResp TxResponse
+	var txResp types.TxResponse
 	if err := json.Unmarshal(txRespBz, &txResp); err != nil {
 		return err
 	}
@@ -112,4 +116,3 @@ func IBCTransferWorksTest(
 	require.NoError(t, err)
 	require.Equal(t, int64(0), dstUpdateBal.Int64())
 }
-
