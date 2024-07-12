@@ -3,6 +3,7 @@
 ## Changelog
 
 * 23.06.24: Initial draft
+* 12.07.24: Update with Custom light client using IBC packet commitment proofs instead of full state proofs solution
 
 ## Status
 
@@ -45,7 +46,7 @@ The initial prototype, developed during the Celestia Infinite Space Bazaar hacka
 two light clients (standard tendermint + a custom light client updated with ABCI++ Vote Extensions)
 and a custom Cosmos SDK module to achieve Pessimistic Validation for a rollup. The design was
 functional, but had some downsides that makes adjustments necessary. In particular, the design
-required a standard tendermint light client to be running, which could be used directly by anyone.
+required a standard tendermint light client to be running and kept alive, which could be used directly by anyone.
 While the denoms coming across a connection with that light client would not be canonical, it was
 an unnecessary confusing to have an operational light client that should not be used. It could
 have been solved by requiring an IBC middleware to stop packets or channel creation, but this
@@ -102,14 +103,6 @@ drawbacks that are important to note:
   because all of that would happen in the middleware. If you simply queried the light client you would think that a packet can be proven.
 - If even possible, it would be hacky and a counterintuitive flow
 
-## Decision
-
-The chosen solution is to use a conditional light client with a prover light client. Even though the IBC Middleware solution
-can potentially be more flexible in some ways, it has some fundamental issues that would make it hard to implement and maintain.
-
-The conditional light client solution is more modular and follows the design of IBC more closely. It can easily be extended
-to new types of light clients and proving mechanisms.
-
 ### Conditional Light Client with a prover light client
 
 The solution with a conditional light client is based on a concept discussed in
@@ -127,7 +120,7 @@ In the future, this could be extended to provide other proving mechanisms, such 
 The prover light clients are updated by the validators of the chain it is running on, and would not use relayers
 for client state updates. This would happen through another mechanism which will be described in another ADR.
 
-![Conditional Light Client with prover solution diagram](conditional-light-client-with-prover-solution.png)TODO: Add diagram
+![Conditional Light Client with prover solution diagram](conditional-light-client-with-prover-solution.png)
 
 Using a conditional light client we can avoid most of the issues from the initial prototype, and get some added benefits:
 - The standard light client can be used as normal by users and relayers, and there is no confusion about what the current validated height and state is (as you can query it directly)
@@ -138,27 +131,51 @@ Using a conditional light client we can avoid most of the issues from the initia
 
 The main drawbacks of this solution are:
 - Up to two custom light clients (even though the standard light client is a fork with minimal changes)
-- No ability to filter packets or apply other middleware-like mechanisms (e.g. eIBC)
+- No ability to filter packets directly or apply other middleware-like mechanisms (e.g. eIBC)
+- Every new type of chain requires a new light client and potentially a new prover light client as well
+
+### Custom light client using IBC packet commitment proofs instead of full state proofs
+
+This solution would be to have a custom light client that uses IBC packet commitment proofs to verify the state of the rollup.
+It would be able to support any chain that can implement IBC, including EVM chains.
+
+For updating the light client, the validators would provide signed IBC Packet Commitments that would be saved in ConsensusState.
+
+![Updating Light Client with IBC Packet Commitments diagram](update-light-client-packet-commitments.png)
+
+Next, when receiving a packet, the light client would verify that the packet commitment is included in the ConsensusState.
+
+![Receiving packets in Light Client with IBC Packet Commitments diagram](receive-msg-light-client-packet-commitments.png)
+
+The security assumptions of this solution are the same as for the other solutions because the IBC Packet Commitments are
+still signed by the validators.
+
+The main benefits of this solution are:
+- It is more general and can be used for any chain that can implement IBC
+- It only requires a single custom light client for all chains
+- It is simpler to both integrate and maintain
+
+The main drawbacks of this solution are:
+- It is a custom light client that most likely requires some relayer adjustments
+- No ability to filter packets directly or apply other middleware-like mechanisms (e.g. eIBC)
+
+## Decision
+
+Decision pending...
 
 ## Consequences
 
 For Pessimistic Validation
-* The solution is modular and can be extended with different proving mechanisms
-* Some complexity in having two light clients, but the standard light client is a fork with minimal changes
-* Clean implementation that follows IBC design closely
+* 
 
 For Chains
-* Receiver chains will have to integrate and allow two new light clients to run on their chain
-* No adjustments/implementation needed for rollup chains
-* Keeps flow of IBC packets simple and clear
+* 
 
 For Relayers
-* No additional adjustments needed
-* Can use the standard light client as is
-* Can query and get the validated height and state directly from standard light clients
+* 
 
 For Users
-* Can query light clients as before with no added confusion or complexity
+* 
 
 ### Backwards Compatibility
 
