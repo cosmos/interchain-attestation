@@ -8,6 +8,8 @@ const (
 
 	// StoreKey is the store key string for pessimisticvalidation
 	StoreKey = ModuleName
+
+	ClientType = "42-pessimist"
 )
 
 var (
