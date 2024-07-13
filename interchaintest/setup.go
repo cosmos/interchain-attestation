@@ -17,10 +17,10 @@ import (
 
 // Not const because we need to give them as pointers later
 var (
-	hubVals   = 4
-	hubFull   = 0
-	rollyVals = 1
-	rollyFull = 0
+	simappVals = 4
+	simappFullNodes = 0
+	rollupsimappVals = 1
+	rollupsimappFullNodes = 0
 
 	votingPeriod     = "15s"
 	maxDepositPeriod = "10s"
@@ -44,8 +44,8 @@ var (
 		},
 	}
 
-	rollyChainID = "rolly"
-	hubChainID = "hub"
+	simappChainID = "simapp-1"
+	rollupsimappChainID = "rollupsimapp-1"
 )
 
 type E2ETestSuite struct {
@@ -56,10 +56,11 @@ type E2ETestSuite struct {
 	network string
 	r 	 	ibc.Relayer
 	eRep   	*testreporter.RelayerExecReporter
-	initialPath string
 
-	hub     *cosmos.CosmosChain
-	rolly   *cosmos.CosmosChain
+	ibcPath string
+
+	simapp *cosmos.CosmosChain
+	rollupsimapp *cosmos.CosmosChain
 }
 
 func (s *E2ETestSuite) SetupSuite() {
@@ -70,10 +71,10 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.ic = ic
 	cf := s.getChainFactory()
 	chains, err := cf.Chains(s.T().Name())
-	hub, rolly := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
+	simapp, rollupsimapp := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 	s.NoError(err)
-	s.hub = hub
-	s.rolly = rolly
+	s.simapp = simapp
+	s.rollupsimapp = rollupsimapp
 
 	for _, chain := range chains {
 		ic.AddChain(chain)
@@ -91,12 +92,12 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.r = r
 
 	ic.AddRelayer(r, "relayer")
-	s.initialPath = "ibc-path"
+	s.ibcPath = "ibc-path"
 	ic.AddLink(interchaintest.InterchainLink{
-		Chain1:  hub,
-		Chain2:  rolly,
+		Chain1:  simapp,
+		Chain2:  rollupsimapp,
 		Relayer: r,
-		Path:    s.initialPath,
+		Path:    s.ibcPath,
 	})
 
 	rep := testreporter.NewNopReporter()
@@ -126,22 +127,22 @@ func (s *E2ETestSuite) TearDownSuite() {
 func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 	return interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(s.T()), []*interchaintest.ChainSpec{
 		{
-			Name:      "hub",
-			ChainName: "hub",
+			Name:      "simapp",
+			ChainName: "simapp",
 			Version:   "local",
 			ChainConfig: ibc.ChainConfig{
 				Type:    "cosmos",
-				Name:    "hub",
-				ChainID: hubChainID,
+				Name:    "simapp",
+				ChainID: simappChainID,
 				Images: []ibc.DockerImage{
 					{
-						Repository: "hub",
+						Repository: "simapp",
 						Version:    "local",
 						UidGid:     "1025:1025",
 					},
 				},
-				Bin:                 "hubd",
-				Bech32Prefix:        "hub",
+				Bin:                 "simappd",
+				Bech32Prefix:        "simapp",
 				Denom:               "stake",
 				CoinType:            "118",
 				GasPrices:           "0stake",
@@ -172,26 +173,26 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 					},
 				},
 			},
-			NumValidators: &hubVals,
-			NumFullNodes:  &hubFull,
+			NumValidators: &simappVals,
+			NumFullNodes:  &simappFullNodes,
 		},
 		{
-			Name:      "rolly",
-			ChainName: "rolly",
+			Name:      "rollupsimapp",
+			ChainName: "rollupsimapp",
 			Version:   "local",
 			ChainConfig: ibc.ChainConfig{
 				Type:    "cosmos",
-				Name:    "rolly",
-				ChainID: rollyChainID,
+				Name:    "rollupsimapp",
+				ChainID: rollupsimappChainID,
 				Images: []ibc.DockerImage{
 					{
-						Repository: "rolly",
+						Repository: "rollupsimapp",
 						Version:    "local",
 						UidGid:     "1025:1025",
 					},
 				},
-				Bin:                 "rollyd",
-				Bech32Prefix:        "rolly",
+				Bin:                 "rollupsimappd",
+				Bech32Prefix:        "rollup",
 				Denom:               "stake",
 				CoinType:            "118",
 				GasPrices:           "0stake",
@@ -204,35 +205,54 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 					return sdk.NewInt64Coin("stake", 10_000_000_000_000), sdk.NewInt64Coin("stake", 1_000_000_000)
 				},
 				ModifyGenesis: func(config ibc.ChainConfig, bytes []byte) ([]byte, error) {
-					addressBz, _, err := s.rolly.Validators[0].Exec(s.ctx, []string{"jq", "-r", ".address", "/var/cosmos-chain/rolly/config/priv_validator_key.json"}, []string{})
+					addressBz, _, err := s.rollupsimapp.Validators[0].Exec(s.ctx, []string{"jq", "-r", ".address", "/var/cosmos-chain/rollupsimapp/config/priv_validator_key.json"}, []string{})
 					if err != nil {
 						return nil, err
 					}
 					address := strings.TrimSuffix(string(addressBz), "\n")
-					pubKeyBz, _, err := s.rolly.Validators[0].Exec(s.ctx, []string{"jq", "-r", ".pub_key.value", "/var/cosmos-chain/rolly/config/priv_validator_key.json"}, []string{})
+					pubKeyBz, _, err := s.rollupsimapp.Validators[0].Exec(s.ctx, []string{"jq", "-r", ".pub_key.value", "/var/cosmos-chain/rollupsimapp/config/priv_validator_key.json"}, []string{})
 					if err != nil {
 						return nil, err
 					}
 					pubKey := strings.TrimSuffix(string(pubKeyBz), "\n")
+					pubKeyValueBz, _, err := s.rollupsimapp.Validators[0].Exec(s.ctx, []string{"jq", "-r", ".pub_key .value", "/var/cosmos-chain/rollupsimapp/config/priv_validator_key.json"}, []string{})
+					if err != nil {
+						return nil, err
+					}
+					pubKeyValue := strings.TrimSuffix(string(pubKeyValueBz), "\n")
 
-					newGenesis := append(genesis, cosmos.GenesisKV{
-						Key: "consensus.validators",
-						Value: []map[string]interface{}{
-							{
-								"address": address,
-								"pub_key": map[string]interface{}{
-									"type":  "tendermint/PubKeyEd25519",
-									"value": pubKey,
+					newGenesis := []cosmos.GenesisKV{
+						{
+							Key: "consensus.validators",
+							Value: []map[string]interface{}{
+								{
+									"address": address,
+									"pub_key": map[string]interface{}{
+										"type":  "tendermint/PubKeyEd25519",
+										"value": pubKey,
+									},
+									"power": "1",
+									"name":  "Rollkit Sequencer",
 								},
-								"power": "1000",
-								"name":  "Rollkit Sequencer",
 							},
 						},
-					})
+						{
+							Key: "app_state.sequencer.sequencers",
+							Value: []map[string]interface{}{
+								{
+									"name": "test-1",
+									"consensus_pubkey": map[string]interface{}{
+										"@type": "/cosmos.crypto.ed25519.PubKey",
+										"key":   pubKeyValue,
+									},
+								},
+							},
+						},
+					}
 
-					name := s.rolly.Sidecars[0].HostName()
-					_, _, err = s.rolly.Validators[0].Exec(s.ctx, []string{"bash", "-c", fmt.Sprintf(`echo "[rollkit]
-da_address = \"http://%s:%s\"" >> /var/cosmos-chain/rolly/config/config.toml`, name, "7980")}, []string{})
+					name := s.rollupsimapp.Sidecars[0].HostName()
+					_, _, err = s.rollupsimapp.Validators[0].Exec(s.ctx, []string{"sh", "-c", fmt.Sprintf(`echo "[rollkit]
+da_address = \"http://%s:%s\""`+" >> /var/cosmos-chain/rollupsimapp/config/config.toml", name, "7980")}, []string{})
 					if err != nil {
 						return nil, err
 					}
@@ -257,8 +277,8 @@ da_address = \"http://%s:%s\"" >> /var/cosmos-chain/rolly/config/config.toml`, n
 					},
 				},
 			},
-			NumValidators: &rollyVals,
-			NumFullNodes:  &rollyFull,
+			NumValidators: &rollupsimappVals,
+			NumFullNodes:  &rollupsimappFullNodes,
 		},
 	})
 }

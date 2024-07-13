@@ -1,14 +1,55 @@
+###############################################################################
+###                                 Build                                   ###
+###############################################################################
 
-build-docker: build-hub-docker build-rolly-docker build-mock-da-docker build-simapp-docker
+install-simapps:
+	@echo "===========     Installing simapp     ============"
+	@cd simapp && make install
+	@echo "===========     Installing rollupsimapp     ============"
+	@cd rollupsimapp && make install
+	# TODO: Install sidecar
 
-build-simapp-docker:
-	@docker build -t simapp:local .
+###############################################################################
+###                                 Docker                                  ###
+###############################################################################
 
-build-hub-docker:
+docker-images: simapp-image rollupsimapp-image prover-sidecar-image mock-da-image
+
+simapp-image:
+	@echo "Building simapp:local docker image"
+	docker build -t simapp:local -f simapp.Dockerfile .
+
+rollupsimapp-image:
+	@echo "Building rollupsimapp:local docker image"
+	docker build -t rollupsimapp:local -f rollupsimapp.Dockerfile .
+
+proversidecar-image:
+	@echo "Building proversidecar:local docker image"
+	docker build -t proversidecar:local -f proversidecar.Dockerfile .
+
+mock-da-image:
+	@echo "Building mock-da:local docker image"
+	docker build -t mock-da:local -f mock-da.Dockerfile .
+
+# TODO: REMOVE
+hub-docker:
 	@cd hub && ignite chain build --skip-proto --output build && docker build -t hub:local .
 
-build-rolly-docker:
+# TODO: REMOVE
+rolly-docker:
 	@cd rolly && ignite chain build --skip-proto --output build && docker build -t rolly:local .
 
-build-mock-da-docker:
-	@cd mock-da && docker build -t mock-da:local .
+###############################################################################
+###                                  Serve                                  ###
+###############################################################################
+
+serve: kill-all
+	@echo "===========     Serve     ============"
+	./scripts/serve-simapp.sh
+	./scripts/serve-rollupsimapp.sh
+
+kill-all:
+	@echo "Killing simappd"
+	-@pkill simappd 2>/dev/null
+	@echo "Killing rollupsimappd"
+	-@pkill rollupsimappd 2>/dev/null

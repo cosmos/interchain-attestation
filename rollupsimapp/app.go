@@ -1,9 +1,10 @@
-//go:build !app_v1
-
-package simapp
+package rollupsimapp
 
 import (
-	pessimistickeeper "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/keeper"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	"io"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -13,9 +14,7 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	circuitkeeper "cosmossdk.io/x/circuit/keeper"
-	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
-	nftkeeper "cosmossdk.io/x/nft/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -39,26 +38,24 @@ import (
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
-	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	sequencerkeeper "github.com/decentrio/rollkit-sdk/x/sequencer/keeper"
+	rollkitstakingkeeper "github.com/decentrio/rollkit-sdk/x/staking/keeper"
 )
 
 // DefaultNodeHome default home directories for the application daemon
 var DefaultNodeHome string
 
 var (
-	_ runtime.AppI            = (*SimApp)(nil)
-	_ servertypes.Application = (*SimApp)(nil)
+	_ runtime.AppI            = (*RollupSimApp)(nil)
+	_ servertypes.Application = (*RollupSimApp)(nil)
 )
 
-// SimApp extends an ABCI application, but with most of its parameters exported.
+// RollupSimApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type SimApp struct {
+type RollupSimApp struct {
 	*runtime.App
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -68,23 +65,29 @@ type SimApp struct {
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
-	StakingKeeper         *stakingkeeper.Keeper
-	SlashingKeeper        slashingkeeper.Keeper
-	MintKeeper            mintkeeper.Keeper
 	DistrKeeper           distrkeeper.Keeper
 	GovKeeper             *govkeeper.Keeper
-	CrisisKeeper          *crisiskeeper.Keeper
-	UpgradeKeeper         *upgradekeeper.Keeper
-	ParamsKeeper          paramskeeper.Keeper
-	AuthzKeeper           authzkeeper.Keeper
-	EvidenceKeeper        evidencekeeper.Keeper
-	FeeGrantKeeper        feegrantkeeper.Keeper
-	GroupKeeper           groupkeeper.Keeper
-	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
-	CircuitBreakerKeeper  circuitkeeper.Keeper
+	CrisisKeeper         *crisiskeeper.Keeper
+	UpgradeKeeper        *upgradekeeper.Keeper
+	ParamsKeeper         paramskeeper.Keeper
+	AuthzKeeper          authzkeeper.Keeper
+	FeeGrantKeeper       feegrantkeeper.Keeper
+	CircuitBreakerKeeper circuitkeeper.Keeper
 
-	PessimisticKeeper pessimistickeeper.Keeper
+	// IBC
+	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	CapabilityKeeper *capabilitykeeper.Keeper
+	IBCFeeKeeper     ibcfeekeeper.Keeper
+	TransferKeeper   ibctransferkeeper.Keeper
+
+	// Scoped IBC
+	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
+	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
+
+	// Rollkit keepers
+	StakingKeeper         *rollkitstakingkeeper.Keeper
+	SequencerKeeper sequencerkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -92,23 +95,23 @@ type SimApp struct {
 
 func init() {
 	var err error
-	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory(".simapp")
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory(".rollupsimapp")
 	if err != nil {
 		panic(err)
 	}
 }
 
-// NewSimApp returns a reference to an initialized SimApp.
-func NewSimApp(
+// NewRollupSimApp returns a reference to an initialized RollupSimApp.
+func NewRollupSimApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *SimApp {
+) *RollupSimApp {
 	var (
-		app        = &SimApp{}
+		app        = &RollupSimApp{}
 		appBuilder *runtime.AppBuilder
 
 		// merge the AppConfig and other configuration in one config
@@ -172,21 +175,16 @@ func NewSimApp(
 		&app.AccountKeeper,
 		&app.BankKeeper,
 		&app.StakingKeeper,
-		&app.SlashingKeeper,
-		&app.MintKeeper,
 		&app.DistrKeeper,
 		&app.GovKeeper,
+		&app.ConsensusParamsKeeper,
 		&app.CrisisKeeper,
 		&app.UpgradeKeeper,
 		&app.ParamsKeeper,
 		&app.AuthzKeeper,
-		&app.EvidenceKeeper,
 		&app.FeeGrantKeeper,
-		&app.GroupKeeper,
-		&app.NFTKeeper,
-		&app.ConsensusParamsKeeper,
 		&app.CircuitBreakerKeeper,
-		&app.PessimisticKeeper,
+		&app.SequencerKeeper,
 	); err != nil {
 		panic(err)
 	}
@@ -225,6 +223,11 @@ func NewSimApp(
 	baseAppOptions = append(baseAppOptions, voteExtOp, baseapp.SetOptimisticExecution())
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
+
+	// Register legacy modules
+	if err := app.registerIBCModules(appOpts); err != nil {
+		panic(err)
+	}
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
@@ -270,36 +273,36 @@ func NewSimApp(
 	return app
 }
 
-// LegacyAmino returns SimApp's amino codec.
+// LegacyAmino returns RollupSimApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *SimApp) LegacyAmino() *codec.LegacyAmino {
+func (app *RollupSimApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
-// AppCodec returns SimApp's app codec.
+// AppCodec returns RollupSimApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *SimApp) AppCodec() codec.Codec {
+func (app *RollupSimApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns SimApp's InterfaceRegistry.
-func (app *SimApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+// InterfaceRegistry returns RollupSimApp's InterfaceRegistry.
+func (app *RollupSimApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// TxConfig returns SimApp's TxConfig
-func (app *SimApp) TxConfig() client.TxConfig {
+// TxConfig returns RollupSimApp's TxConfig
+func (app *RollupSimApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *RollupSimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	sk := app.UnsafeFindStoreKey(storeKey)
 	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
 	if !ok {
@@ -308,7 +311,7 @@ func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
-func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
+func (app *RollupSimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
 		if kv, ok := k.(*storetypes.KVStoreKey); ok {
@@ -322,19 +325,19 @@ func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *SimApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *RollupSimApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *SimApp) SimulationManager() *module.SimulationManager {
+func (app *RollupSimApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *RollupSimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
@@ -352,6 +355,16 @@ func GetMaccPerms() map[string][]string {
 	}
 
 	return dup
+}
+
+// GetMemKey returns the MemoryStoreKey for the provided store key.
+func (app *RollupSimApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+	key, ok := app.UnsafeFindStoreKey(storeKey).(*storetypes.MemoryStoreKey)
+	if !ok {
+		return nil
+	}
+
+	return key
 }
 
 // BlockedAddresses returns all the app's blocked account addresses.

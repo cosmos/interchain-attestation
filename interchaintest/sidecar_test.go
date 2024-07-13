@@ -16,8 +16,8 @@ func (s *E2ETestSuite) TestSidecar() {
 	sidecarConfig := config.Config{
 		CosmosChains: []config.CosmosChainConfig{
 			{
-				ChainID:  rollyChainID,
-				RPC:      s.rolly.GetRPCAddress(),
+				ChainID:  rollupsimappChainID,
+				RPC:      s.rollupsimapp.GetRPCAddress(),
 				ClientID: "07-tendermint-0",
 			},
 		},
@@ -27,7 +27,7 @@ func (s *E2ETestSuite) TestSidecar() {
 	s.NoError(err)
 	sidecarConfigBz := byteWriter.Bytes()
 
-	for _, val := range s.hub.Validators {
+	for _, val := range s.simapp.Validators {
 		s.Len(val.Sidecars, 1)
 
 		sidecar := val.Sidecars[0]
@@ -52,7 +52,7 @@ func (s *E2ETestSuite) TestSidecar() {
 		defer client.Close()
 
 		proofClient := server.NewProofClient(client)
-		proof, err := proofClient.GetProof(s.ctx, &server.ProofRequest{ChainId: rollyChainID})
+		proof, err := proofClient.GetProof(s.ctx, &server.ProofRequest{ChainId: rollupsimappChainID})
 		s.NoError(err)
 		s.NotNil(proof)
 		s.NotEmpty(proof.Proof)

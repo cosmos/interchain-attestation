@@ -1,5 +1,3 @@
-//go:build !app_v1
-
 package cmd
 
 import (
@@ -10,7 +8,7 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"github.com/gjermundgaraba/pessimistic-validation/simapp"
+	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -23,7 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-// NewRootCmd creates a new root command for simd. It is called once in the main function.
+// NewRootCmd creates a new root command for rollupsimappd. It is called once in the main function.
 func NewRootCmd() *cobra.Command {
 	var (
 		autoCliOpts        autocli.AppOptions
@@ -32,7 +30,7 @@ func NewRootCmd() *cobra.Command {
 	)
 
 	if err := depinject.Inject(
-		depinject.Configs(simapp.AppConfig,
+		depinject.Configs(rollupsimapp.AppConfig,
 			depinject.Supply(
 				log.NewNopLogger(),
 			),
@@ -48,8 +46,8 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	rootCmd := &cobra.Command{
-		Use:           "simd",
-		Short:         "simulation app",
+		Use:           "rollupsimappd",
+		Short:         "rollup simulation app",
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
@@ -78,6 +76,15 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	// Since the IBC modules don't support dependency injection, we need to
+	// manually register the modules on the client side.
+	// This needs to be removed after IBC supports App Wiring.
+	ibcModules := rollupsimapp.RegisterIBC(clientCtx.InterfaceRegistry)
+	for name, mod := range ibcModules {
+		moduleBasicManager[name] = module.CoreAppModuleBasicAdaptor(name, mod)
+		autoCliOpts.Modules[name] = mod
+	}
+
 	initRootCmd(rootCmd, clientCtx.TxConfig, moduleBasicManager)
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
@@ -99,8 +106,8 @@ func ProvideClientContext(
 		WithLegacyAmino(legacyAmino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithHomeDir(simapp.DefaultNodeHome).
-		WithViper("") // In simapp, we don't use any prefix for env variables.
+		WithHomeDir(rollupsimapp.DefaultNodeHome).
+		WithViper("") // In rollupsimapp, we don't use any prefix for env variables.
 
 	clientCtx, _ = config.ReadFromClientConfig(clientCtx)
 

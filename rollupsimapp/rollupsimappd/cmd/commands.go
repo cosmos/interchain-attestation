@@ -6,11 +6,12 @@ import (
 
 	cmtcfg "github.com/cometbft/cometbft/config"
 	dbm "github.com/cosmos/cosmos-db"
+	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
+	rollconf "github.com/rollkit/rollkit/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"cosmossdk.io/log"
-	"github.com/gjermundgaraba/pessimistic-validation/simapp"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -22,12 +23,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+
+	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp"
 )
 
 // initCometBFTConfig helps to override default CometBFT Config values.
@@ -75,7 +77,7 @@ func initAppConfig() (string, interface{}) {
 	// - if you set srvCfg.MinGasPrices non-empty, validators CAN tweak their
 	//   own app.toml to override, or use this default value.
 	//
-	// In simapp, we set the min gas prices to 0.
+	// In rollupsimapp, we set the min gas prices to 0.
 	srvCfg.MinGasPrices = "0stake"
 	// srvCfg.BaseConfig.IAVLDisableFastNode = true // disable fastnode by default
 
@@ -104,23 +106,26 @@ func initRootCmd(
 	txConfig client.TxConfig,
 	basicManager module.BasicManager,
 ) {
-	cfg := sdk.GetConfig()
-	cfg.Seal()
-
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
+		genutilcli.InitCmd(basicManager, rollupsimapp.DefaultNodeHome),
 		NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
-		pruning.Cmd(newApp, simapp.DefaultNodeHome),
+		pruning.Cmd(newApp, rollupsimapp.DefaultNodeHome),
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommandsWithStartCmdOptions(rootCmd, simapp.DefaultNodeHome, newApp, appExport, server.StartCmdOptions{
-		AddFlags: func(startCmd *cobra.Command) {
-			crisis.AddModuleInitFlags(startCmd)
-		},
-	})
+	server.AddCommandsWithStartCmdOptions(
+		rootCmd,
+		rollupsimapp.DefaultNodeHome,
+		newApp, appExport,
+		server.StartCmdOptions{
+			AddFlags: func(cmd *cobra.Command) {
+				rollconf.AddFlags(cmd)
+				crisis.AddModuleInitFlags(cmd)
+			},
+			StartCommandHandler: rollserv.StartHandler[servertypes.Application],
+		})
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -132,9 +137,9 @@ func initRootCmd(
 	)
 }
 
-// genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
+// genesisCommand builds genesis-related `rollupsimappd genesis` command. Users may provide application specific commands as a parameter
 func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.Commands(txConfig, basicManager, simapp.DefaultNodeHome)
+	cmd := genutilcli.Commands(txConfig, basicManager, rollupsimapp.DefaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
@@ -196,14 +201,14 @@ func newApp(
 	appOpts servertypes.AppOptions,
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
-	return simapp.NewSimApp(
+	return rollupsimapp.NewRollupSimApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
 	)
 }
 
-// appExport creates a new simapp (optionally at a given height) and exports state.
+// appExport creates a new rollupsimapp (optionally at a given height) and exports state.
 func appExport(
 	logger log.Logger,
 	db dbm.DB,
@@ -223,15 +228,15 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var simApp *simapp.SimApp
+	var simApp *rollupsimapp.RollupSimApp
 	if height != -1 {
-		simApp = simapp.NewSimApp(logger, db, traceStore, false, appOpts)
+		simApp = rollupsimapp.NewRollupSimApp(logger, db, traceStore, false, appOpts)
 
 		if err := simApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		simApp = simapp.NewSimApp(logger, db, traceStore, true, appOpts)
+		simApp = rollupsimapp.NewRollupSimApp(logger, db, traceStore, true, appOpts)
 	}
 
 	return simApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

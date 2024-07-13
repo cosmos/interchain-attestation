@@ -4,13 +4,13 @@ WORKDIR /code
 
 RUN apk add --no-cache build-base
 
-ADD go.mod go.sum ./
+ADD prover-sidecar/go.mod prover-sidecar/go.sum ./
 
-RUN go mod download
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod go mod download
 
-COPY . .
+COPY ./prover-sidecar .
 
-RUN make build
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod make build
 
 FROM alpine:3.16
 COPY --from=builder /code/build/proversidecar /usr/bin/proversidecar

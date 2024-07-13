@@ -1,16 +1,6 @@
-package simapp
+package rollupsimapp
 
 import (
-	"fmt"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	pessimistictypes "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/types"
-	"time"
-
-	"google.golang.org/protobuf/types/known/durationpb"
-
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
@@ -20,15 +10,10 @@ import (
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
 	crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
 	distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
-	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
 	govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
-	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
-	mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
-	nftmodulev1 "cosmossdk.io/api/cosmos/nft/module/v1"
 	paramsmodulev1 "cosmossdk.io/api/cosmos/params/module/v1"
-	slashingmodulev1 "cosmossdk.io/api/cosmos/slashing/module/v1"
 	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
@@ -37,14 +22,14 @@ import (
 	"cosmossdk.io/depinject"
 	_ "cosmossdk.io/x/circuit" // import for side-effects
 	circuittypes "cosmossdk.io/x/circuit/types"
-	_ "cosmossdk.io/x/evidence" // import for side-effects
-	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	_ "cosmossdk.io/x/feegrant/module" // import for side-effects
-	"cosmossdk.io/x/nft"
-	_ "cosmossdk.io/x/nft/module" // import for side-effects
-	_ "cosmossdk.io/x/upgrade"    // import for side-effects
+	_ "cosmossdk.io/x/upgrade"         // import for side-effects
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	"fmt"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	_ "github.com/decentrio/rollkit-sdk/x/sequencer" // import for side-effects
+	_ "github.com/decentrio/rollkit-sdk/x/staking"   // import for side-effects
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -67,34 +52,29 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/cosmos-sdk/x/group"
-	_ "github.com/cosmos/cosmos-sdk/x/group/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/mint"         // import for side-effects
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	_ "github.com/cosmos/cosmos-sdk/x/params" // import for side-effects
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	_ "github.com/cosmos/cosmos-sdk/x/slashing" // import for side-effects
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	pessimisticmodulev1 "github.com/gjermundgaraba/pessimistic-validation/api/pessimisticvalidation/module/v1"
-	_ "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation" // import for side effects
+	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	sequencerv1 "github.com/decentrio/rollkit-sdk/api/rollkitsdk/sequencer/module"
+	sequencertypes "github.com/decentrio/rollkit-sdk/x/sequencer/types"
 )
 
-const AccountAddressPrefix = "simapp"
+const AccountAddressPrefix = "rollup"
 
 var (
 	// module account permissions
 	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
 		{Account: authtypes.FeeCollectorName},
 		{Account: distrtypes.ModuleName},
-		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
-		{Account: nft.ModuleName},
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 		{Account: ibcfeetypes.ModuleName},
 	}
@@ -103,10 +83,8 @@ var (
 	blockAccAddrs = []string{
 		authtypes.FeeCollectorName,
 		distrtypes.ModuleName,
-		minttypes.ModuleName,
 		stakingtypes.BondedPoolName,
 		stakingtypes.NotBondedPoolName,
-		nft.ModuleName,
 		// We allow the following module accounts to receive funds:
 		// govtypes.ModuleName
 	}
@@ -117,20 +95,15 @@ var (
 			{
 				Name: runtime.ModuleName,
 				Config: appconfig.WrapAny(&runtimev1alpha1.Module{
-					AppName: "SimApp",
+					AppName: "RollupSimApp",
 					// NOTE: upgrade module is required to be prioritized
 					PreBlockers: []string{
 						upgradetypes.ModuleName,
 					},
-					// During begin block slashing happens after distr.BeginBlocker so that
-					// there is nothing left over in the validator fee pool, so as to keep the
-					// CanWithdrawInvariant invariant.
 					// NOTE: staking module is required if HistoricalEntries param > 0
 					BeginBlockers: []string{
-						minttypes.ModuleName,
+						// cosmos sdk modules
 						distrtypes.ModuleName,
-						slashingtypes.ModuleName,
-						evidencetypes.ModuleName,
 						stakingtypes.ModuleName,
 						authz.ModuleName,
 						genutiltypes.ModuleName,
@@ -141,11 +114,12 @@ var (
 						ibcfeetypes.ModuleName,
 					},
 					EndBlockers: []string{
+						// cosmos sdk modules
 						crisistypes.ModuleName,
 						govtypes.ModuleName,
+						sequencertypes.ModuleName,
 						stakingtypes.ModuleName,
 						feegrant.ModuleName,
-						group.ModuleName,
 						genutiltypes.ModuleName,
 						// ibc modules
 						ibcexported.ModuleName,
@@ -167,25 +141,21 @@ var (
 						authtypes.ModuleName,
 						banktypes.ModuleName,
 						distrtypes.ModuleName,
+						sequencertypes.ModuleName,
 						stakingtypes.ModuleName,
-						slashingtypes.ModuleName,
 						govtypes.ModuleName,
-						minttypes.ModuleName,
 						crisistypes.ModuleName,
 						ibcexported.ModuleName,
 						genutiltypes.ModuleName,
-						evidencetypes.ModuleName,
 						authz.ModuleName,
 						ibctransfertypes.ModuleName,
 						ibcfeetypes.ModuleName,
 						feegrant.ModuleName,
-						nft.ModuleName,
-						group.ModuleName,
 						paramstypes.ModuleName,
 						upgradetypes.ModuleName,
 						vestingtypes.ModuleName,
+						consensustypes.ModuleName,
 						circuittypes.ModuleName,
-						pessimistictypes.ModuleName,
 					},
 					// When ExportGenesis is not specified, the export genesis module order
 					// is equal to the init genesis order
@@ -224,10 +194,6 @@ var (
 				}),
 			},
 			{
-				Name:   slashingtypes.ModuleName,
-				Config: appconfig.WrapAny(&slashingmodulev1.Module{}),
-			},
-			{
 				Name:   paramstypes.ModuleName,
 				Config: appconfig.WrapAny(&paramsmodulev1.Module{}),
 			},
@@ -252,25 +218,6 @@ var (
 				Config: appconfig.WrapAny(&distrmodulev1.Module{}),
 			},
 			{
-				Name:   evidencetypes.ModuleName,
-				Config: appconfig.WrapAny(&evidencemodulev1.Module{}),
-			},
-			{
-				Name:   minttypes.ModuleName,
-				Config: appconfig.WrapAny(&mintmodulev1.Module{}),
-			},
-			{
-				Name: group.ModuleName,
-				Config: appconfig.WrapAny(&groupmodulev1.Module{
-					MaxExecutionPeriod: durationpb.New(time.Second * 1209600),
-					MaxMetadataLen:     255,
-				}),
-			},
-			{
-				Name:   nft.ModuleName,
-				Config: appconfig.WrapAny(&nftmodulev1.Module{}),
-			},
-			{
 				Name:   feegrant.ModuleName,
 				Config: appconfig.WrapAny(&feegrantmodulev1.Module{}),
 			},
@@ -291,8 +238,8 @@ var (
 				Config: appconfig.WrapAny(&circuitmodulev1.Module{}),
 			},
 			{
-				Name:   pessimistictypes.ModuleName,
-				Config: appconfig.WrapAny(&pessimisticmodulev1.Module{}),
+				Name:   sequencertypes.ModuleName,
+				Config: appconfig.WrapAny(&sequencerv1.Module{}),
 			},
 		},
 	}),

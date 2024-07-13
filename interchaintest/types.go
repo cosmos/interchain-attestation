@@ -5,7 +5,7 @@ import (
 )
 
 // Copying in stuff here because we can't depend on hub (different IBC versions)
-
+// TODO: REMOVE
 type ValidationObjective struct {
 	ValidationObjective struct {
 		ClientIdToValidate string `json:"client_id_to_validate"`

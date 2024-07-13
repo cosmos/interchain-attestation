@@ -17,9 +17,4 @@ install:
 	@go install ./...
 	@echo "Installed proversidecar binary"
 
-docker:
-	@echo "Building docker image"
-	@docker build -t proversidecar:local .
-	@echo "Built proversidecar:local docker image"
-
 .PHONY: *
