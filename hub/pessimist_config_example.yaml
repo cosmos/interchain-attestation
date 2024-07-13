@@ -1,3 +1,0 @@
-chains_to_validate:
-  07-tendermint-0:
-    rpc: "http://rolly:27657"
