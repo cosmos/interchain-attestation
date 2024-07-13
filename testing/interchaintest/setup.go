@@ -3,16 +3,18 @@ package pessimisticinterchaintest
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/ethereum"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	interchaintestrelayer "github.com/strangelove-ventures/interchaintest/v8/relayer"
 	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
 	testifysuite "github.com/stretchr/testify/suite"
 	"go.uber.org/zap/zaptest"
-	"strings"
 )
 
 // Not const because we need to give them as pointers later
@@ -61,6 +63,7 @@ type E2ETestSuite struct {
 
 	simapp *cosmos.CosmosChain
 	rollupsimapp *cosmos.CosmosChain
+	eth   *ethereum.EthereumChain
 }
 
 func (s *E2ETestSuite) SetupSuite() {
@@ -71,10 +74,9 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.ic = ic
 	cf := s.getChainFactory()
 	chains, err := cf.Chains(s.T().Name())
-	simapp, rollupsimapp := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 	s.NoError(err)
-	s.simapp = simapp
-	s.rollupsimapp = rollupsimapp
+	s.simapp, s.rollupsimapp, s.eth = chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain), chains[2].(*ethereum.EthereumChain)
+
 
 	for _, chain := range chains {
 		ic.AddChain(chain)
@@ -94,8 +96,8 @@ func (s *E2ETestSuite) SetupSuite() {
 	ic.AddRelayer(r, "relayer")
 	s.ibcPath = "ibc-path"
 	ic.AddLink(interchaintest.InterchainLink{
-		Chain1:  simapp,
-		Chain2:  rollupsimapp,
+		Chain1:  s.simapp,
+		Chain2:  s.rollupsimapp,
 		Relayer: r,
 		Path:    s.ibcPath,
 	})
@@ -158,8 +160,8 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 				},
 				SidecarConfigs: []ibc.SidecarConfig{
 					{
-						ProcessName:      "proversidecar",
-						Image:            ibc.DockerImage{
+						ProcessName: "proversidecar",
+						Image: ibc.DockerImage{
 							Repository: "proversidecar",
 							Version:    "local",
 							UidGid:     "1025:1025",
@@ -279,6 +281,10 @@ da_address = \"http://%s:%s\""`+" >> /var/cosmos-chain/rollupsimapp/config/confi
 			},
 			NumValidators: &rollupsimappVals,
 			NumFullNodes:  &rollupsimappFullNodes,
+		},
+		// -- ETH --
+		{
+			ChainConfig: ethereum.DefaultEthereumAnvilChainConfig("ethereum"),
 		},
 	})
 }

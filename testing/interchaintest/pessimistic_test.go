@@ -63,7 +63,7 @@ func TestE2ETestSuite(t *testing.T) {
 
 	objectiveBz, _, err := s.hub.GetNode().ExecQuery(s.ctx, "pessimist", "validation-objective", tendermintClient)
 	s.NoError(err)
-	var objectiveResp ValidationObjective
+	var objectiveResp types.ValidationObjective
 	s.NoError(json.Unmarshal(objectiveBz, &objectiveResp))
 	s.False(objectiveResp.ValidationObjective.Activated)
 	s.Len(objectiveResp.ValidationObjective.Validators, 2)
@@ -73,14 +73,14 @@ func TestE2ETestSuite(t *testing.T) {
 
 	objectiveBzAfter, _, err := s.hub.GetNode().ExecQuery(s.ctx, "pessimist", "validation-objective", tendermintClient)
 	s.NoError(err)
-	var objectiveRespAfter ValidationObjective
+	var objectiveRespAfter types.ValidationObjective
 	s.NoError(json.Unmarshal(objectiveBzAfter, &objectiveRespAfter))
 	s.True(objectiveRespAfter.ValidationObjective.Activated)
 	s.Len(objectiveRespAfter.ValidationObjective.Validators, 3)
 	s.Equal(strconv.FormatInt(requiredSecurity.Int64(), 10), objectiveRespAfter.ValidationObjective.RequiredPower)
 
 	rollyHostName := s.rolly.GetNode().HostName()
-	config := PessimisticValidationConfig{
+	config := types.PessimisticValidationConfig{
 		ChainsToValidate: map[string]struct {
 			RPC string `yaml:"rpc"`
 		}{
@@ -115,8 +115,8 @@ func TestE2ETestSuite(t *testing.T) {
 	rollyTendermintClient := ""
 	hubPessimisticClient := "69-pessimist-1"
 	s.NoError(s.r.UpdatePath(s.ctx, s.eRep, pessimisticPath, ibc.PathUpdateOptions{
-		SrcClientID:   &rollyTendermintClient,
-		DstClientID:   &hubPessimisticClient,
+		SrcClientID: &rollyTendermintClient,
+		DstClientID: &hubPessimisticClient,
 	}))
 	s.NoError(s.r.CreateConnections(s.ctx, s.eRep, pessimisticPath))
 	connections, err := s.r.GetConnections(s.ctx, s.eRep, hubChainID)
@@ -163,6 +163,3 @@ func TestE2ETestSuite(t *testing.T) {
 	s.NoError(testutil.WaitForBlocks(s.ctx, 5, s.hub))
 
 }*/
-
-
-
