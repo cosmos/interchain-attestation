@@ -1,9 +1,16 @@
 package pessimisticinterchaintest
 
 import (
-	"cosmossdk.io/math"
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"testing"
+	"time"
+
+	"pessimisticinterchaintest/types"
+
+	"cosmossdk.io/math"
+
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/strangelove-ventures/interchaintest/v8"
@@ -11,9 +18,6 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	testifysuite "github.com/stretchr/testify/suite"
 	"gopkg.in/yaml.v3"
-	"strconv"
-	"testing"
-	"time"
 )
 
 func TestE2ETestSuite(t *testing.T) {
@@ -73,7 +77,7 @@ func (s *E2ETestSuite) TestTheKitchenSink() {
 
 	objectiveBz, _, err := s.hub.GetNode().ExecQuery(s.ctx, "pessimist", "validation-objective", tendermintClient)
 	s.NoError(err)
-	var objectiveResp ValidationObjective
+	var objectiveResp types.ValidationObjective
 	s.NoError(json.Unmarshal(objectiveBz, &objectiveResp))
 	s.False(objectiveResp.ValidationObjective.Activated)
 	s.Len(objectiveResp.ValidationObjective.Validators, 2)
@@ -83,14 +87,14 @@ func (s *E2ETestSuite) TestTheKitchenSink() {
 
 	objectiveBzAfter, _, err := s.hub.GetNode().ExecQuery(s.ctx, "pessimist", "validation-objective", tendermintClient)
 	s.NoError(err)
-	var objectiveRespAfter ValidationObjective
+	var objectiveRespAfter types.ValidationObjective
 	s.NoError(json.Unmarshal(objectiveBzAfter, &objectiveRespAfter))
 	s.True(objectiveRespAfter.ValidationObjective.Activated)
 	s.Len(objectiveRespAfter.ValidationObjective.Validators, 3)
 	s.Equal(strconv.FormatInt(requiredSecurity.Int64(), 10), objectiveRespAfter.ValidationObjective.RequiredPower)
 
 	rollyHostName := s.rolly.GetNode().HostName()
-	config := PessimisticValidationConfig{
+	config := types.PessimisticValidationConfig{
 		ChainsToValidate: map[string]struct {
 			RPC string `yaml:"rpc"`
 		}{
@@ -125,8 +129,8 @@ func (s *E2ETestSuite) TestTheKitchenSink() {
 	rollyTendermintClient := ""
 	hubPessimisticClient := "69-pessimist-1"
 	s.NoError(s.r.UpdatePath(s.ctx, s.eRep, pessimisticPath, ibc.PathUpdateOptions{
-		SrcClientID:   &rollyTendermintClient,
-		DstClientID:   &hubPessimisticClient,
+		SrcClientID: &rollyTendermintClient,
+		DstClientID: &hubPessimisticClient,
 	}))
 	s.NoError(s.r.CreateConnections(s.ctx, s.eRep, pessimisticPath))
 	connections, err := s.r.GetConnections(s.ctx, s.eRep, hubChainID)
@@ -173,6 +177,3 @@ func (s *E2ETestSuite) TestTheKitchenSink() {
 	s.NoError(testutil.WaitForBlocks(s.ctx, 5, s.hub))
 
 }
-
-
-
