@@ -2,7 +2,10 @@ module github.com/gjermundgaraba/pessimistic-validation/simapp
 
 go 1.22.2
 
-replace github.com/gjermundgaraba/pessimistic-validation => ../../module
+replace (
+	github.com/gjermundgaraba/pessimistic-validation => ../../module
+	github.com/gjermundgaraba/pessimistic-validation/lightclient => ../../light-client
+)
 
 require (
 	cosmossdk.io/api v0.7.5
@@ -26,6 +29,7 @@ require (
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
 	github.com/cosmos/ibc-go/v8 v8.0.0-beta.1.0.20240709183926-ecbf479f8075 // TODO: Update to v9 when available
 	github.com/gjermundgaraba/pessimistic-validation v0.0.0
+	github.com/gjermundgaraba/pessimistic-validation/lightclient v0.0.0
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/cobra v1.8.1

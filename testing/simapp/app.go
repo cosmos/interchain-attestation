@@ -7,8 +7,8 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	"github.com/gjermundgaraba/pessimistic-validation/lightclient"
 	pessimistickeeper "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/keeper"
-	"github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/lightclient"
 	"io"
 
 	dbm "github.com/cosmos/cosmos-db"

@@ -1,0 +1,46 @@
+syntax = "proto3";
+package pessimisticvalidation.lightclient.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "google/protobuf/timestamp.proto";
+import "ibc/core/client/v1/client.proto";
+
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/lightclient";
+
+// ClientState tracks the validation setup required for a light client
+message ClientState {
+  option (gogoproto.goproto_getters) = false;
+
+  // chain_id is the chain-id of the chain this light client is tracking
+  string chain_id = 1;
+  // required_token_power is the minimum number of tokens this client needs to
+  // have signed over state updates to accept them
+
+  string required_token_power = 2 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // Block height when the client was frozen due to a misbehaviour
+  ibc.core.client.v1.Height frozen_height = 3 [ (gogoproto.nullable) = false ];
+  // Latest height the client was updated to
+  ibc.core.client.v1.Height latest_height = 4 [ (gogoproto.nullable) = false ];
+}
+
+// ConsensusState tracks the state of the counterparty chain
+message ConsensusState {
+  option (gogoproto.goproto_getters) = false;
+
+  // timestamp that corresponds to the block height in which the ConsensusState
+  // was stored
+  google.protobuf.Timestamp timestamp = 1
+      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+
+  // TODO: Look into how we can store the packet commitments in a more efficient
+  // way (if we need to store for each height updated)
+  // packet_commitments is the list of ibc packet commitments that exist on the
+  // counterparty chain
+  repeated bytes packet_commitments = 2;
+}

@@ -1,6 +1,6 @@
 # NOTE: This needs to be run from the root context of the repo
 
-FROM golang:1.22-alpine3.20 as builder
+FROM golang:1.22-alpine3.20 AS builder
 
 RUN set -eux; apk add --no-cache git libusb-dev linux-headers gcc musl-dev make;
 
@@ -12,8 +12,10 @@ ENV GOMODCACHE="/go/pkg/mod"
 # files are not copied before go mod download.
 COPY testing/simapp testing/simapp
 COPY module module
+COPY light-client light-client
 
 RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd module && go mod download
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd light-client && go mod download
 RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd testing/simapp && go mod download
 
 RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd testing/simapp && make build

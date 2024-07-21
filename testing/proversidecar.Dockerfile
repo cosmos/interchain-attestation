@@ -1,6 +1,6 @@
 # NOTE: This needs to be run from the root context of the repo
 
-FROM golang:1.22-alpine as builder
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /code
 

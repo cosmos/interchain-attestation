@@ -10,26 +10,50 @@ import (
 
 var _ exported.LightClientModule = (*LightClientModule)(nil)
 
+// LightClientModule implements the core IBC api.LightClientModule interface.
 type LightClientModule struct {
 	cdc           codec.BinaryCodec
 	storeProvider exported.ClientStoreProvider
 }
 
+// NewLightClientModule creates and returns a new pessimistic LightClientModule.
 func NewLightClientModule(cdc codec.BinaryCodec) LightClientModule {
 	return LightClientModule{
 		cdc:    cdc,
 	}
 }
 
+// RegisterStoreProvider is called by core IBC when a LightClientModule is added to the router.
+// It allows the LightClientModule to set a ClientStoreProvider which supplies isolated prefix client stores
+// to IBC light client instances.
 func (l *LightClientModule) RegisterStoreProvider(storeProvider exported.ClientStoreProvider) {
 	l.storeProvider = storeProvider
 }
 
-// TODO: implement this
-// TODO: test this
-// TODO: godoc
+// Initialize unmarshals the provided client and consensus states and performs basic validation.
+// It then initializes the client state with the provided consensus state (and stores it in the client store).A
+//
+// CONTRACT: clientID is validated in 02-client router, thus clientID is assumed here to have the correct format.
 func (l *LightClientModule) Initialize(ctx sdk.Context, clientID string, clientStateBz, consensusStateBz []byte) error {
-	return nil
+	var clientState ClientState
+	if err := l.cdc.Unmarshal(clientStateBz, &clientState); err != nil {
+		return err
+	}
+	if err := clientState.Validate(); err != nil {
+		return err
+	}
+
+	var consensusState ConsensusState
+	if err := l.cdc.Unmarshal(consensusStateBz, &consensusState); err != nil {
+		return err
+	}
+	if err := consensusState.ValidateBasic(); err != nil {
+		return err
+	}
+
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+
+	return clientState.Initialize(ctx, l.cdc, clientStore, &consensusState)
 }
 
 // TODO: implement this

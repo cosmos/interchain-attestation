@@ -18,7 +18,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	modulev1 "github.com/gjermundgaraba/pessimistic-validation/api/pessimisticvalidation/module/v1"
 	"github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/keeper"
-	"github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/lightclient"
 	"github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/types"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
@@ -168,7 +167,6 @@ type ModuleOutputs struct {
 
 	Keeper keeper.Keeper
 	Module            appmodule.AppModule
-	LightClientModule lightclient.LightClientModule
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -183,12 +181,10 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.Cdc,
 		k,
 	)
-	l := lightclient.NewLightClientModule(in.Cdc)
 
 	return ModuleOutputs{
 		Keeper: k,
 		Module: m,
-		LightClientModule: l,
 	}
 }
 
