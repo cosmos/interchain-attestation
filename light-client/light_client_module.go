@@ -1,6 +1,7 @@
 package lightclient
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,14 +13,16 @@ var _ exported.LightClientModule = (*LightClientModule)(nil)
 
 // LightClientModule implements the core IBC api.LightClientModule interface.
 type LightClientModule struct {
-	cdc           codec.BinaryCodec
-	storeProvider exported.ClientStoreProvider
+	cdc                codec.BinaryCodec
+	storeProvider      exported.ClientStoreProvider
+	attestatorsHandler AttestatorsHandler
 }
 
 // NewLightClientModule creates and returns a new pessimistic LightClientModule.
-func NewLightClientModule(cdc codec.BinaryCodec) LightClientModule {
+func NewLightClientModule(cdc codec.BinaryCodec, attestatorsHandler AttestatorsHandler) LightClientModule {
 	return LightClientModule{
-		cdc:    cdc,
+		cdc:                cdc,
+		attestatorsHandler: attestatorsHandler,
 	}
 }
 
@@ -56,11 +59,19 @@ func (l *LightClientModule) Initialize(ctx sdk.Context, clientID string, clientS
 	return clientState.Initialize(ctx, l.cdc, clientStore, &consensusState)
 }
 
+// VerifyClientMessage obtains the client state associated with the client identifier and calls into the clientState.VerifyClientMessage method.
+//
+// CONTRACT: clientID is validated in 02-client router, thus clientID is assumed here to have the format 07-tendermint-{n}.
 // TODO: implement this
 // TODO: test this
-// TODO: godoc
 func (l *LightClientModule) VerifyClientMessage(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) error {
-	return nil
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		return errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
+	}
+
+	return clientState.VerifyClientMessage(ctx, l.attestatorsHandler, clientMsg)
 }
 
 // TODO: implement this
@@ -73,7 +84,8 @@ func (l *LightClientModule) CheckForMisbehaviour(ctx sdk.Context, clientID strin
 // TODO: implement this
 // TODO: test this
 // TODO: godoc
-func (l *LightClientModule) UpdateStateOnMisbehaviour(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) {}
+func (l *LightClientModule) UpdateStateOnMisbehaviour(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) {
+}
 
 // TODO: implement this
 // TODO: test this

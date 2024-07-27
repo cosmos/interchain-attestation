@@ -7,18 +7,21 @@ import "ibc/core/client/v1/client.proto";
 option go_package = "github.com/gjermundgaraba/pessimistic-validation/lightclient";
 
 // PessimisticClaims is the clientMsg that is sent to the light client to update
-// the consensus state
-// TODO: Document more
+// the consensus state All the claims need to be for the same height and have
+// the same packet_commitments
 message PessimisticClaims {
-  repeated PacketCommitmentsClaim claims = 1 [ (gogoproto.nullable) = false ];
+  repeated SignedPacketCommitmentsClaim claims = 1
+      [ (gogoproto.nullable) = false ];
 }
 
-// TODO: Document more
-// TODO: Check if we need more information in the claim like height, app hash,
-// etc
-message PacketCommitmentsClaim {
-  bytes validator_address = 1;
-  repeated bytes packet_commitments = 2;
+message SignedPacketCommitmentsClaim {
+  bytes attestator_id = 1;
+  PacketCommitmentsClaim packet_commitments_claim = 2
+      [ (gogoproto.nullable) = false ];
   bytes signature = 3;
-  ibc.core.client.v1.Height height = 4 [ (gogoproto.nullable) = false ];
+}
+
+message PacketCommitmentsClaim {
+  ibc.core.client.v1.Height height = 1 [ (gogoproto.nullable) = false ];
+  repeated bytes packet_commitments = 2;
 }

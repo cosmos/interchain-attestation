@@ -2,13 +2,10 @@ package lightclient
 
 import (
 	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/core/store"
-	"cosmossdk.io/depinject"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	modulev1 "github.com/gjermundgaraba/pessimistic-validation/lightclient/api/pessimisticvalidation/lightclient/module/v1"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
 
@@ -51,39 +48,3 @@ func (AppModuleBasic) IsAppModule() {}
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
 func (AppModuleBasic) IsOnePerModuleType() {}
-
-// ----------------------------------------------------------------------------
-// App Wiring Setup
-// ----------------------------------------------------------------------------
-
-func init() {
-	appmodule.Register(
-		&modulev1.Module{},
-		appmodule.Provide(ProvideModule),
-	)
-}
-
-type ModuleInputs struct {
-	depinject.In
-
-	Config       *modulev1.Module
-	Cdc          codec.Codec
-	StoreService store.KVStoreService
-}
-
-type ModuleOutputs struct {
-	depinject.Out
-
-	Module            appmodule.AppModule
-	LightClientModule LightClientModule
-}
-
-func ProvideModule(in ModuleInputs) ModuleOutputs {
-	lightClientModule := NewLightClientModule(in.Cdc)
-	m := NewAppModule(lightClientModule)
-
-	return ModuleOutputs{
-		Module: m,
-		LightClientModule: lightClientModule,
-	}
-}

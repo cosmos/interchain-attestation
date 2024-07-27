@@ -28,5 +28,3 @@ cp -r github.com/gjermundgaraba/pessimistic-validation/lightclient/* ./
 rm -rf github.com
 
 go mod tidy
-
-./scripts/protocgen-pulsar.sh

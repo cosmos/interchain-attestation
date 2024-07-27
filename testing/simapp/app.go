@@ -7,7 +7,6 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-	"github.com/gjermundgaraba/pessimistic-validation/lightclient"
 	pessimistickeeper "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/keeper"
 	"io"
 
@@ -100,7 +99,6 @@ type SimApp struct {
 	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
 
 	PessimisticKeeper pessimistickeeper.Keeper
-	PessimisticLightClientModule lightclient.LightClientModule
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -203,7 +201,6 @@ func NewSimApp(
 		&app.ConsensusParamsKeeper,
 		&app.CircuitBreakerKeeper,
 		&app.PessimisticKeeper,
-		&app.PessimisticLightClientModule,
 	); err != nil {
 		panic(err)
 	}

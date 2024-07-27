@@ -25,10 +25,10 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // PessimisticClaims is the clientMsg that is sent to the light client to update
-// the consensus state
-// TODO: Document more
+// the consensus state All the claims need to be for the same height and have
+// the same packet_commitments
 type PessimisticClaims struct {
-	Claims []PacketCommitmentsClaim `protobuf:"bytes,1,rep,name=claims,proto3" json:"claims"`
+	Claims []SignedPacketCommitmentsClaim `protobuf:"bytes,1,rep,name=claims,proto3" json:"claims"`
 }
 
 func (m *PessimisticClaims) Reset()         { *m = PessimisticClaims{} }
@@ -64,28 +64,83 @@ func (m *PessimisticClaims) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_PessimisticClaims proto.InternalMessageInfo
 
-func (m *PessimisticClaims) GetClaims() []PacketCommitmentsClaim {
+func (m *PessimisticClaims) GetClaims() []SignedPacketCommitmentsClaim {
 	if m != nil {
 		return m.Claims
 	}
 	return nil
 }
 
-// TODO: Document more
-// TODO: Check if we need more information in the claim like height, app hash,
-// etc
+type SignedPacketCommitmentsClaim struct {
+	AttestatorId           []byte                 `protobuf:"bytes,1,opt,name=attestator_id,json=attestatorId,proto3" json:"attestator_id,omitempty"`
+	PacketCommitmentsClaim PacketCommitmentsClaim `protobuf:"bytes,2,opt,name=packet_commitments_claim,json=packetCommitmentsClaim,proto3" json:"packet_commitments_claim"`
+	Signature              []byte                 `protobuf:"bytes,3,opt,name=signature,proto3" json:"signature,omitempty"`
+}
+
+func (m *SignedPacketCommitmentsClaim) Reset()         { *m = SignedPacketCommitmentsClaim{} }
+func (m *SignedPacketCommitmentsClaim) String() string { return proto.CompactTextString(m) }
+func (*SignedPacketCommitmentsClaim) ProtoMessage()    {}
+func (*SignedPacketCommitmentsClaim) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ad4b3d4b72c7f07d, []int{1}
+}
+func (m *SignedPacketCommitmentsClaim) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SignedPacketCommitmentsClaim) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SignedPacketCommitmentsClaim.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SignedPacketCommitmentsClaim) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SignedPacketCommitmentsClaim.Merge(m, src)
+}
+func (m *SignedPacketCommitmentsClaim) XXX_Size() int {
+	return m.Size()
+}
+func (m *SignedPacketCommitmentsClaim) XXX_DiscardUnknown() {
+	xxx_messageInfo_SignedPacketCommitmentsClaim.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SignedPacketCommitmentsClaim proto.InternalMessageInfo
+
+func (m *SignedPacketCommitmentsClaim) GetAttestatorId() []byte {
+	if m != nil {
+		return m.AttestatorId
+	}
+	return nil
+}
+
+func (m *SignedPacketCommitmentsClaim) GetPacketCommitmentsClaim() PacketCommitmentsClaim {
+	if m != nil {
+		return m.PacketCommitmentsClaim
+	}
+	return PacketCommitmentsClaim{}
+}
+
+func (m *SignedPacketCommitmentsClaim) GetSignature() []byte {
+	if m != nil {
+		return m.Signature
+	}
+	return nil
+}
+
 type PacketCommitmentsClaim struct {
-	ValidatorAddress  []byte       `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	Height            types.Height `protobuf:"bytes,1,opt,name=height,proto3" json:"height"`
 	PacketCommitments [][]byte     `protobuf:"bytes,2,rep,name=packet_commitments,json=packetCommitments,proto3" json:"packet_commitments,omitempty"`
-	Signature         []byte       `protobuf:"bytes,3,opt,name=signature,proto3" json:"signature,omitempty"`
-	Height            types.Height `protobuf:"bytes,4,opt,name=height,proto3" json:"height"`
 }
 
 func (m *PacketCommitmentsClaim) Reset()         { *m = PacketCommitmentsClaim{} }
 func (m *PacketCommitmentsClaim) String() string { return proto.CompactTextString(m) }
 func (*PacketCommitmentsClaim) ProtoMessage()    {}
 func (*PacketCommitmentsClaim) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad4b3d4b72c7f07d, []int{1}
+	return fileDescriptor_ad4b3d4b72c7f07d, []int{2}
 }
 func (m *PacketCommitmentsClaim) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -114,11 +169,11 @@ func (m *PacketCommitmentsClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_PacketCommitmentsClaim proto.InternalMessageInfo
 
-func (m *PacketCommitmentsClaim) GetValidatorAddress() []byte {
+func (m *PacketCommitmentsClaim) GetHeight() types.Height {
 	if m != nil {
-		return m.ValidatorAddress
+		return m.Height
 	}
-	return nil
+	return types.Height{}
 }
 
 func (m *PacketCommitmentsClaim) GetPacketCommitments() [][]byte {
@@ -128,22 +183,9 @@ func (m *PacketCommitmentsClaim) GetPacketCommitments() [][]byte {
 	return nil
 }
 
-func (m *PacketCommitmentsClaim) GetSignature() []byte {
-	if m != nil {
-		return m.Signature
-	}
-	return nil
-}
-
-func (m *PacketCommitmentsClaim) GetHeight() types.Height {
-	if m != nil {
-		return m.Height
-	}
-	return types.Height{}
-}
-
 func init() {
 	proto.RegisterType((*PessimisticClaims)(nil), "pessimisticvalidation.lightclient.v1.PessimisticClaims")
+	proto.RegisterType((*SignedPacketCommitmentsClaim)(nil), "pessimisticvalidation.lightclient.v1.SignedPacketCommitmentsClaim")
 	proto.RegisterType((*PacketCommitmentsClaim)(nil), "pessimisticvalidation.lightclient.v1.PacketCommitmentsClaim")
 }
 
@@ -152,29 +194,31 @@ func init() {
 }
 
 var fileDescriptor_ad4b3d4b72c7f07d = []byte{
-	// 343 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xb1, 0x6e, 0xea, 0x30,
-	0x14, 0x86, 0x93, 0x0b, 0x42, 0xba, 0x86, 0xe1, 0x62, 0x5d, 0x5d, 0x45, 0xe8, 0x2a, 0x20, 0xd4,
-	0x21, 0x52, 0x85, 0x2d, 0x68, 0x87, 0x0e, 0x2c, 0x85, 0xa5, 0x23, 0x62, 0xe8, 0xc0, 0x82, 0x1c,
-	0xc7, 0x32, 0x6e, 0xe3, 0x38, 0xb2, 0x0d, 0xcf, 0xd1, 0xc7, 0x62, 0xe8, 0xc0, 0xd8, 0xa9, 0xaa,
-	0xe0, 0x45, 0xaa, 0x38, 0xb4, 0x41, 0x88, 0xa1, 0xdb, 0xd1, 0xf1, 0xff, 0x7f, 0x3e, 0xff, 0xb1,
-	0xc1, 0x6d, 0xce, 0x8c, 0x11, 0x52, 0x18, 0x2b, 0xe8, 0x86, 0xa4, 0x22, 0x21, 0x56, 0xa8, 0x0c,
-	0xa7, 0x82, 0xaf, 0x2c, 0x4d, 0x05, 0xcb, 0x2c, 0xde, 0x0c, 0x71, 0x59, 0x49, 0xc3, 0x51, 0xae,
-	0x95, 0x55, 0xf0, 0xea, 0xa2, 0x0b, 0x9d, 0xb8, 0xd0, 0x66, 0xd8, 0xf9, 0xcb, 0x15, 0x57, 0xce,
-	0x80, 0x8b, 0xaa, 0xf4, 0x76, 0xba, 0x22, 0xa6, 0x98, 0x2a, 0xcd, 0xf0, 0x39, 0xbf, 0x14, 0xf4,
-	0x15, 0x68, 0xcf, 0x2a, 0xfc, 0x34, 0x25, 0x42, 0x1a, 0xb8, 0x00, 0x0d, 0xea, 0xaa, 0xc0, 0xef,
-	0xd5, 0xa2, 0xe6, 0x68, 0x8c, 0x7e, 0x32, 0x02, 0x9a, 0x11, 0xfa, 0xcc, 0xec, 0x54, 0x49, 0x29,
-	0xac, 0x64, 0x99, 0x35, 0x0e, 0x37, 0xa9, 0x6f, 0xdf, 0xbb, 0xde, 0xfc, 0x48, 0xec, 0xbf, 0xfa,
-	0xe0, 0xdf, 0x65, 0x21, 0xbc, 0x06, 0xed, 0x23, 0x5c, 0xe9, 0x25, 0x49, 0x12, 0xcd, 0x4c, 0x31,
-	0x81, 0x1f, 0xb5, 0xe6, 0x7f, 0xbe, 0x0f, 0xee, 0xcb, 0x3e, 0x1c, 0x00, 0x98, 0x3b, 0xcc, 0x92,
-	0x56, 0x9c, 0xe0, 0x57, 0xaf, 0x16, 0xb5, 0xe6, 0xed, 0xfc, 0xfc, 0x02, 0xf8, 0x1f, 0xfc, 0x36,
-	0x82, 0x67, 0xc4, 0xae, 0x35, 0x0b, 0x6a, 0x8e, 0x59, 0x35, 0xe0, 0x1d, 0x68, 0xac, 0x58, 0x11,
-	0x26, 0xa8, 0xf7, 0xfc, 0xa8, 0x39, 0xea, 0x20, 0x11, 0x53, 0x54, 0xec, 0x0d, 0x55, 0xf1, 0x1e,
-	0x9c, 0xe2, 0x2b, 0x4e, 0xa9, 0x9f, 0x3c, 0x6e, 0xf7, 0xa1, 0xbf, 0xdb, 0x87, 0xfe, 0xc7, 0x3e,
-	0xf4, 0x5f, 0x0e, 0xa1, 0xb7, 0x3b, 0x84, 0xde, 0xdb, 0x21, 0xf4, 0x16, 0x63, 0x2e, 0xec, 0x6a,
-	0x1d, 0x23, 0xaa, 0x24, 0xe6, 0x4f, 0x4c, 0xcb, 0x75, 0x96, 0x70, 0xa2, 0x49, 0x4c, 0xf0, 0xc9,
-	0x36, 0x07, 0x97, 0xff, 0x41, 0xdc, 0x70, 0xcf, 0x73, 0xf3, 0x19, 0x00, 0x00, 0xff, 0xff, 0xa0,
-	0xdb, 0x93, 0xa5, 0x33, 0x02, 0x00, 0x00,
+	// 376 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x31, 0x8f, 0xda, 0x30,
+	0x14, 0xc7, 0x63, 0xa8, 0x90, 0x6a, 0xe8, 0x40, 0x54, 0xa1, 0x08, 0xa1, 0x10, 0xd1, 0x0e, 0x59,
+	0xb0, 0x05, 0xed, 0xd0, 0x81, 0x09, 0x96, 0x76, 0x43, 0x54, 0xea, 0xd0, 0x85, 0x3a, 0x8e, 0x65,
+	0xdc, 0xc6, 0x71, 0x14, 0x3b, 0x4c, 0x5d, 0xee, 0x1b, 0xdc, 0xc7, 0x62, 0x64, 0xbc, 0xe9, 0xee,
+	0x04, 0x5f, 0xe4, 0x84, 0x73, 0xa7, 0xa0, 0x83, 0x43, 0x6c, 0x4f, 0x4f, 0xff, 0xff, 0xdf, 0xbf,
+	0xf7, 0xfc, 0xe0, 0xd7, 0x8c, 0x69, 0x2d, 0xa4, 0xd0, 0x46, 0xd0, 0x35, 0x49, 0x44, 0x4c, 0x8c,
+	0x50, 0x29, 0x4e, 0x04, 0x5f, 0x19, 0x9a, 0x08, 0x96, 0x1a, 0xbc, 0x1e, 0xe1, 0xb2, 0x92, 0x9a,
+	0xa3, 0x2c, 0x57, 0x46, 0xb9, 0x9f, 0xcf, 0xba, 0xd0, 0x91, 0x0b, 0xad, 0x47, 0xdd, 0x8f, 0x5c,
+	0x71, 0x65, 0x0d, 0xf8, 0x50, 0x95, 0xde, 0x6e, 0x5f, 0x44, 0x14, 0x53, 0x95, 0x33, 0xfc, 0x3a,
+	0xbf, 0x14, 0x0c, 0x0a, 0xd8, 0x9e, 0x57, 0xf1, 0xb3, 0x84, 0x08, 0xa9, 0xdd, 0x3f, 0xb0, 0x41,
+	0x6d, 0xe5, 0x81, 0xa0, 0x1e, 0x36, 0xc7, 0x53, 0x74, 0x0d, 0x02, 0xfa, 0x29, 0x78, 0xca, 0xe2,
+	0x39, 0xa1, 0xff, 0x98, 0x99, 0x29, 0x29, 0x85, 0x91, 0x2c, 0x35, 0xda, 0x86, 0x4e, 0xdf, 0x6d,
+	0xee, 0xfb, 0xce, 0xe2, 0x39, 0x77, 0xf0, 0x00, 0x60, 0xef, 0x92, 0xdc, 0xfd, 0x04, 0x3f, 0x10,
+	0x63, 0x98, 0x36, 0xc4, 0xa8, 0x7c, 0x29, 0x62, 0x0f, 0x04, 0x20, 0x6c, 0x2d, 0x5a, 0x55, 0xf3,
+	0x47, 0xec, 0xfe, 0x87, 0x5e, 0x66, 0xed, 0x4b, 0x5a, 0xf9, 0x97, 0xf6, 0x09, 0xaf, 0x16, 0x80,
+	0xb0, 0x39, 0x9e, 0x5c, 0x47, 0x7e, 0x91, 0xb9, 0x93, 0x9d, 0x47, 0xec, 0xc1, 0xf7, 0x5a, 0xf0,
+	0x94, 0x98, 0x22, 0x67, 0x5e, 0xdd, 0xe2, 0x55, 0x8d, 0xc1, 0x0d, 0x80, 0x9d, 0x37, 0x66, 0xfb,
+	0x06, 0x1b, 0x2b, 0x76, 0x00, 0xb0, 0x43, 0x35, 0xc7, 0x5d, 0x24, 0x22, 0x8a, 0x0e, 0xbf, 0x84,
+	0x2a, 0xa4, 0xef, 0x56, 0xf1, 0xb2, 0xb6, 0x52, 0xef, 0x0e, 0xa1, 0x7b, 0x3a, 0xb0, 0x57, 0x0b,
+	0xea, 0x61, 0x6b, 0xd1, 0x3e, 0xc1, 0x9c, 0xfe, 0xda, 0xec, 0x7c, 0xb0, 0xdd, 0xf9, 0xe0, 0x71,
+	0xe7, 0x83, 0xdb, 0xbd, 0xef, 0x6c, 0xf7, 0xbe, 0x73, 0xb7, 0xf7, 0x9d, 0xdf, 0x13, 0x2e, 0xcc,
+	0xaa, 0x88, 0x10, 0x55, 0x12, 0xf3, 0xbf, 0x2c, 0x97, 0x45, 0x1a, 0x73, 0x92, 0x93, 0x88, 0xe0,
+	0xa3, 0x85, 0x0d, 0xcf, 0x1f, 0x69, 0xd4, 0xb0, 0xb7, 0xf3, 0xe5, 0x29, 0x00, 0x00, 0xff, 0xff,
+	0x56, 0x18, 0xbc, 0x40, 0xd0, 0x02, 0x00, 0x00,
 }
 
 func (m *PessimisticClaims) Marshal() (dAtA []byte, err error) {
@@ -214,6 +258,53 @@ func (m *PessimisticClaims) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *SignedPacketCommitmentsClaim) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SignedPacketCommitmentsClaim) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SignedPacketCommitmentsClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signature) > 0 {
+		i -= len(m.Signature)
+		copy(dAtA[i:], m.Signature)
+		i = encodeVarintClientmsg(dAtA, i, uint64(len(m.Signature)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	{
+		size, err := m.PacketCommitmentsClaim.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintClientmsg(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.AttestatorId) > 0 {
+		i -= len(m.AttestatorId)
+		copy(dAtA[i:], m.AttestatorId)
+		i = encodeVarintClientmsg(dAtA, i, uint64(len(m.AttestatorId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *PacketCommitmentsClaim) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -234,23 +325,6 @@ func (m *PacketCommitmentsClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	_ = i
 	var l int
 	_ = l
-	{
-		size, err := m.Height.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintClientmsg(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x22
-	if len(m.Signature) > 0 {
-		i -= len(m.Signature)
-		copy(dAtA[i:], m.Signature)
-		i = encodeVarintClientmsg(dAtA, i, uint64(len(m.Signature)))
-		i--
-		dAtA[i] = 0x1a
-	}
 	if len(m.PacketCommitments) > 0 {
 		for iNdEx := len(m.PacketCommitments) - 1; iNdEx >= 0; iNdEx-- {
 			i -= len(m.PacketCommitments[iNdEx])
@@ -260,13 +334,16 @@ func (m *PacketCommitmentsClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 			dAtA[i] = 0x12
 		}
 	}
-	if len(m.ValidatorAddress) > 0 {
-		i -= len(m.ValidatorAddress)
-		copy(dAtA[i:], m.ValidatorAddress)
-		i = encodeVarintClientmsg(dAtA, i, uint64(len(m.ValidatorAddress)))
-		i--
-		dAtA[i] = 0xa
+	{
+		size, err := m.Height.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintClientmsg(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -296,28 +373,39 @@ func (m *PessimisticClaims) Size() (n int) {
 	return n
 }
 
+func (m *SignedPacketCommitmentsClaim) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.AttestatorId)
+	if l > 0 {
+		n += 1 + l + sovClientmsg(uint64(l))
+	}
+	l = m.PacketCommitmentsClaim.Size()
+	n += 1 + l + sovClientmsg(uint64(l))
+	l = len(m.Signature)
+	if l > 0 {
+		n += 1 + l + sovClientmsg(uint64(l))
+	}
+	return n
+}
+
 func (m *PacketCommitmentsClaim) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.ValidatorAddress)
-	if l > 0 {
-		n += 1 + l + sovClientmsg(uint64(l))
-	}
+	l = m.Height.Size()
+	n += 1 + l + sovClientmsg(uint64(l))
 	if len(m.PacketCommitments) > 0 {
 		for _, b := range m.PacketCommitments {
 			l = len(b)
 			n += 1 + l + sovClientmsg(uint64(l))
 		}
 	}
-	l = len(m.Signature)
-	if l > 0 {
-		n += 1 + l + sovClientmsg(uint64(l))
-	}
-	l = m.Height.Size()
-	n += 1 + l + sovClientmsg(uint64(l))
 	return n
 }
 
@@ -385,9 +473,160 @@ func (m *PessimisticClaims) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Claims = append(m.Claims, PacketCommitmentsClaim{})
+			m.Claims = append(m.Claims, SignedPacketCommitmentsClaim{})
 			if err := m.Claims[len(m.Claims)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipClientmsg(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthClientmsg
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SignedPacketCommitmentsClaim) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowClientmsg
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SignedPacketCommitmentsClaim: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SignedPacketCommitmentsClaim: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AttestatorId", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClientmsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthClientmsg
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthClientmsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AttestatorId = append(m.AttestatorId[:0], dAtA[iNdEx:postIndex]...)
+			if m.AttestatorId == nil {
+				m.AttestatorId = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PacketCommitmentsClaim", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClientmsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthClientmsg
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthClientmsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.PacketCommitmentsClaim.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowClientmsg
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthClientmsg
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthClientmsg
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signature = append(m.Signature[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signature == nil {
+				m.Signature = []byte{}
 			}
 			iNdEx = postIndex
 		default:
@@ -442,9 +681,9 @@ func (m *PacketCommitmentsClaim) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Height", wireType)
 			}
-			var byteLen int
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowClientmsg
@@ -454,24 +693,23 @@ func (m *PacketCommitmentsClaim) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthClientmsg
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthClientmsg
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ValidatorAddress = append(m.ValidatorAddress[:0], dAtA[iNdEx:postIndex]...)
-			if m.ValidatorAddress == nil {
-				m.ValidatorAddress = []byte{}
+			if err := m.Height.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
 			}
 			iNdEx = postIndex
 		case 2:
@@ -505,73 +743,6 @@ func (m *PacketCommitmentsClaim) Unmarshal(dAtA []byte) error {
 			}
 			m.PacketCommitments = append(m.PacketCommitments, make([]byte, postIndex-iNdEx))
 			copy(m.PacketCommitments[len(m.PacketCommitments)-1], dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowClientmsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthClientmsg
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthClientmsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Signature = append(m.Signature[:0], dAtA[iNdEx:postIndex]...)
-			if m.Signature == nil {
-				m.Signature = []byte{}
-			}
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Height", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowClientmsg
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthClientmsg
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthClientmsg
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Height.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

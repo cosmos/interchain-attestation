@@ -4,13 +4,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/gogoproto/proto"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/gjermundgaraba/pessimistic-validation/lightclient"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
 func TestCodec(t *testing.T) {
+	attestators := generateAttestators(10)
+	validClientMsg := generateClientMsg(attestators, 5)
+
 	testCases := []struct {
 		name            string
 		toMarshalFrom   proto.Message
@@ -28,16 +30,7 @@ func TestCodec(t *testing.T) {
 		},
 		{
 			"PessimisticClaims",
-			&lightclient.PessimisticClaims{
-				Claims: []lightclient.PacketCommitmentsClaim{
-					{
-						ValidatorAddress:  []byte("validator_address"),
-						PacketCommitments: [][]byte{},
-						Signature:         []byte("signature"),
-						Height:            clienttypes.Height{},
-					},
-				},
-			},
+			validClientMsg,
 			&lightclient.PessimisticClaims{},
 		},
 	}

@@ -27,6 +27,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	solomachine "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	"github.com/gjermundgaraba/pessimistic-validation/lightclient"
 
 	pessimistictypes "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/types"
 )
@@ -121,7 +122,8 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 	smLightClientModule := solomachine.NewLightClientModule(app.appCodec)
 	clientRouter.AddRoute(solomachine.ModuleName, &smLightClientModule)
 
-	clientRouter.AddRoute(pessimistictypes.ClientType, &app.PessimisticLightClientModule)
+	pessimisticLightClientModule := lightclient.NewLightClientModule(app.appCodec, app.PessimisticKeeper)
+	clientRouter.AddRoute(pessimistictypes.ClientType, &pessimisticLightClientModule)
 
 	// register IBC modules
 	if err := app.RegisterModules(

@@ -6,7 +6,6 @@ import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	"github.com/gjermundgaraba/pessimistic-validation/lightclient"
 	pessimistictypes "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/types"
 	"time"
 
@@ -81,8 +80,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	pessimisticmodulev1 "github.com/gjermundgaraba/pessimistic-validation/api/pessimisticvalidation/module/v1"
-	_ "github.com/gjermundgaraba/pessimistic-validation/lightclient" // import for side effects
-	lightclientmodulev1 "github.com/gjermundgaraba/pessimistic-validation/lightclient/api/pessimisticvalidation/lightclient/module/v1"
 	_ "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation" // import for side effects
 )
 
@@ -296,10 +293,6 @@ var (
 			{
 				Name:   pessimistictypes.ModuleName,
 				Config: appconfig.WrapAny(&pessimisticmodulev1.Module{}),
-			},
-			{
-				Name: lightclient.ModuleName,
-				Config: appconfig.WrapAny(&lightclientmodulev1.Module{}),
 			},
 		},
 	}),
