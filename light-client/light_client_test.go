@@ -31,8 +31,9 @@ var (
 	)
 	initialConsensusState = lightclient.NewConsensusState(
 		time.Now(),
-		[][]byte{},
+		nil,
 	)
+	defaultHeight = clienttypes.NewHeight(1, 42)
 )
 
 type PessimisticLightClientTestSuite struct {
@@ -40,6 +41,9 @@ type PessimisticLightClientTestSuite struct {
 
 	lightClientModule lightclient.LightClientModule
 	storeProvider     ibcexported.ClientStoreProvider
+
+	mockAttestators []mockAttestator
+	mockAttestatorsHandler mockAttestatorsHandler
 
 	ctx    sdk.Context
 	encCfg moduletestutil.TestEncodingConfig
@@ -56,10 +60,10 @@ func (s *PessimisticLightClientTestSuite) SetupTest() {
 	s.ctx = testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: cmttime.Now()})
 	s.encCfg = moduletestutil.MakeTestEncodingConfig(lightclient.AppModuleBasic{})
 
-	attestators := generateAttestators(10)
-	attestatorsHandler := NewMockAttestatorsHandler(attestators)
+	s.mockAttestators = generateAttestators(10)
+	s.mockAttestatorsHandler = NewMockAttestatorsHandler(s.mockAttestators)
 
-	s.lightClientModule = lightclient.NewLightClientModule(s.encCfg.Codec, attestatorsHandler)
+	s.lightClientModule = lightclient.NewLightClientModule(s.encCfg.Codec, s.mockAttestatorsHandler)
 	s.lightClientModule.RegisterStoreProvider(s.storeProvider)
 }
 
@@ -109,9 +113,9 @@ func (m mockAttestatorsHandler) getMockAttestator(attestatorId []byte) mockAttes
 	return attestator
 }
 
-func (m mockAttestatorsHandler) reSignClaim(claim *lightclient.SignedPacketCommitmentsClaim) {
+func (m mockAttestatorsHandler) reSignClaim(cdc codec.BinaryCodec, claim *lightclient.SignedPacketCommitmentsClaim) {
 	attestator := m.getMockAttestator(claim.AttestatorId)
-	signableBytes := lightclient.GetSignableBytes(claim.PacketCommitmentsClaim.PacketCommitments)
+	signableBytes := lightclient.GetSignableBytes(cdc, claim.PacketCommitmentsClaim)
 	signature, err := attestator.privateKey.Sign(signableBytes)
 	if err != nil {
 		panic(err)
@@ -133,29 +137,36 @@ func generateAttestators(n int) []mockAttestator {
 	return attestators
 }
 
-func generateClientMsg(attestators []mockAttestator, numberOfPacketCommitments int) *lightclient.PessimisticClaims {
+func generateClientMsg(cdc codec.BinaryCodec, attestators []mockAttestator, numberOfPacketCommitments int, modifiers ...func(claim *lightclient.PacketCommitmentsClaim)) *lightclient.PessimisticClaims {
 	claims := make([]lightclient.SignedPacketCommitmentsClaim, len(attestators))
 	packetCommitments := generatePacketCommitments(numberOfPacketCommitments)
-	signableBytes := lightclient.GetSignableBytes(packetCommitments)
+	timestamp := time.Now()
 
 	for i, attestator := range attestators {
+		// Copy so that the test can modify the packet commitments without affecting the other claims
+		packetCommitementsCopy := make([][]byte, len(packetCommitments))
+		copy(packetCommitementsCopy, packetCommitments)
+
+		claim := lightclient.PacketCommitmentsClaim{
+			PacketCommitments: packetCommitementsCopy,
+			Height: defaultHeight,
+			Timestamp: timestamp,
+		}
+
+		for _, modifier := range modifiers {
+			modifier(&claim)
+		}
+
+		signableBytes := lightclient.GetSignableBytes(cdc, claim)
+
 		signature, err := attestator.privateKey.Sign(signableBytes)
 		if err != nil {
 			panic(err)
 		}
 
-		// Copy so that the test can modify the packet commitments without affecting the other claims
-		packetCommitementsCopy := make([][]byte, len(packetCommitments))
-		copy(packetCommitementsCopy, packetCommitments)
 		claims[i] = lightclient.SignedPacketCommitmentsClaim{
 			AttestatorId: attestator.id,
-			PacketCommitmentsClaim: lightclient.PacketCommitmentsClaim{
-				PacketCommitments: packetCommitementsCopy,
-				Height: clienttypes.Height{
-					RevisionNumber: 1,
-					RevisionHeight: 42,
-				},
-			},
+			PacketCommitmentsClaim: claim,
 			Signature: signature,
 		}
 	}
@@ -186,5 +197,17 @@ func getClientState(store storetypes.KVStore, cdc codec.BinaryCodec) *lightclien
 		return nil
 	}
 	return clientState
+}
+
+// getConsensusState retrieves the consensus state from the client prefixed store.
+// It does no checking if the consensus state exists.
+func getConsensusState(store storetypes.KVStore, cdc codec.BinaryCodec, height ibcexported.Height) *lightclient.ConsensusState {
+	bz := store.Get(host.ConsensusStateKey(height))
+	consensusStateI := clienttypes.MustUnmarshalConsensusState(cdc, bz)
+	consensusState, ok := consensusStateI.(*lightclient.ConsensusState)
+	if !ok {
+		return nil
+	}
+	return consensusState
 }
 

@@ -3,6 +3,7 @@ package pessimisticvalidation.lightclient.v1;
 
 import "gogoproto/gogo.proto";
 import "ibc/core/client/v1/client.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/gjermundgaraba/pessimistic-validation/lightclient";
 
@@ -23,5 +24,7 @@ message SignedPacketCommitmentsClaim {
 
 message PacketCommitmentsClaim {
   ibc.core.client.v1.Height height = 1 [ (gogoproto.nullable) = false ];
-  repeated bytes packet_commitments = 2;
+  google.protobuf.Timestamp timestamp = 2
+      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+  repeated bytes packet_commitments = 3;
 }

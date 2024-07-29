@@ -96,8 +96,19 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 					RevisionNumber: 1,
 					RevisionHeight: 100000,
 				}
+				attestatorsHandler.reSignClaim(s.encCfg.Codec, claim)
 			},
 			"claims must all have the same height",
+		},
+		{
+			"invalid client message: different timestamps",
+			10,
+			5,
+			func(claim *lightclient.SignedPacketCommitmentsClaim) {
+				claim.PacketCommitmentsClaim.Timestamp = claim.PacketCommitmentsClaim.Timestamp.Add(10)
+				attestatorsHandler.reSignClaim(s.encCfg.Codec, claim)
+			},
+			"claims must all have the same timestamp",
 		},
 		{
 			"invalid client message: different packet commitments",
@@ -105,7 +116,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 			5,
 			func(claim *lightclient.SignedPacketCommitmentsClaim) {
 				claim.PacketCommitmentsClaim.PacketCommitments[0] = []byte{0x01}
-				attestatorsHandler.reSignClaim(claim)
+				attestatorsHandler.reSignClaim(s.encCfg.Codec, claim)
 			}                                                                                                                   ,
 			"claims must all have the same packet commitments",
 		},
@@ -115,7 +126,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 			5,
 			func(claim *lightclient.SignedPacketCommitmentsClaim) {
 				claim.PacketCommitmentsClaim.PacketCommitments = append(claim.PacketCommitmentsClaim.PacketCommitments, []byte{0x01})
-				attestatorsHandler.reSignClaim(claim)
+				attestatorsHandler.reSignClaim(s.encCfg.Codec, claim)
 			},
 			"claims must all have the same packet commitments",
 		},
@@ -126,7 +137,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 			func(_ *lightclient.SignedPacketCommitmentsClaim) {
 				for _, claim := range clientMsg.(*lightclient.PessimisticClaims).Claims {
 					claim.PacketCommitmentsClaim.PacketCommitments[1] = claim.PacketCommitmentsClaim.PacketCommitments[0]
-					attestatorsHandler.reSignClaim(&claim)
+					attestatorsHandler.reSignClaim(s.encCfg.Codec, &claim)
 				}
 			},
 			"duplicate packet commitment",
@@ -190,10 +201,10 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 			attestatorsHandler = NewMockAttestatorsHandler(attestators)
 
 			for i := 0; i < tt.numberOfAttestator; i++ {
-				clientMsg = generateClientMsg(attestators, tt.numberOfPacketCommitments)
+				clientMsg = generateClientMsg(s.encCfg.Codec, attestators, tt.numberOfPacketCommitments)
 				tt.malleate(&clientMsg.(*lightclient.PessimisticClaims).Claims[i])
 
-				err := initialClientState.VerifyClientMessage(s.ctx, attestatorsHandler, clientMsg)
+				err := initialClientState.VerifyClientMessage(s.ctx, s.encCfg.Codec, attestatorsHandler, clientMsg)
 				if tt.expError != "" {
 					s.Require().Error(err)
 					s.Require().Contains(err.Error(), tt.expError)

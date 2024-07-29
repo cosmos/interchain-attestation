@@ -63,7 +63,6 @@ func (cs ClientState) Initialize(ctx sdk.Context, cdc codec.BinaryCodec, clientS
 
 	setClientState(clientStore, cdc, &cs)
 	setConsensusState(clientStore, cdc, consensusState, cs.LatestHeight)
-	//setConsensusMetadata(ctx, clientStore, cs.LatestHeight)
 
 	return nil
 }

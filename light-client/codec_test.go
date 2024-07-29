@@ -10,8 +10,9 @@ import (
 )
 
 func TestCodec(t *testing.T) {
+	encodingCfg := moduletestutil.MakeTestEncodingConfig(lightclient.AppModuleBasic{})
 	attestators := generateAttestators(10)
-	validClientMsg := generateClientMsg(attestators, 5)
+	validClientMsg := generateClientMsg(encodingCfg.Codec, attestators, 5)
 
 	testCases := []struct {
 		name            string
@@ -39,8 +40,6 @@ func TestCodec(t *testing.T) {
 		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
-			encodingCfg := moduletestutil.MakeTestEncodingConfig(lightclient.AppModuleBasic{})
-
 			bz, err := encodingCfg.Codec.Marshal(tc.toMarshalFrom)
 			require.NoError(t, err)
 			require.NotNil(t, bz)

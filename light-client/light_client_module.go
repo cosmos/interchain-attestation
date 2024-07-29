@@ -62,8 +62,6 @@ func (l *LightClientModule) Initialize(ctx sdk.Context, clientID string, clientS
 // VerifyClientMessage obtains the client state associated with the client identifier and calls into the clientState.VerifyClientMessage method.
 //
 // CONTRACT: clientID is validated in 02-client router, thus clientID is assumed here to have the format 07-tendermint-{n}.
-// TODO: implement this
-// TODO: test this
 func (l *LightClientModule) VerifyClientMessage(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) error {
 	clientStore := l.storeProvider.ClientStore(ctx, clientID)
 	clientState, found := getClientState(clientStore, l.cdc)
@@ -71,7 +69,7 @@ func (l *LightClientModule) VerifyClientMessage(ctx sdk.Context, clientID string
 		return errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
 	}
 
-	return clientState.VerifyClientMessage(ctx, l.attestatorsHandler, clientMsg)
+	return clientState.VerifyClientMessage(ctx, l.cdc, l.attestatorsHandler, clientMsg)
 }
 
 // TODO: implement this
@@ -87,13 +85,15 @@ func (l *LightClientModule) CheckForMisbehaviour(ctx sdk.Context, clientID strin
 func (l *LightClientModule) UpdateStateOnMisbehaviour(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) {
 }
 
-// TODO: implement this
-// TODO: test this
-// TODO: godoc
+// UpdateState obtains the client state associated with the client identifier and calls into the clientState.UpdateState method.
 func (l *LightClientModule) UpdateState(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) []exported.Height {
-	return []exported.Height{
-		clienttypes.NewHeight(0, 0),
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		panic(errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID))
 	}
+
+	return clientState.UpdateState(ctx, l.cdc, clientStore, clientMsg)
 }
 
 // TODO: implement this

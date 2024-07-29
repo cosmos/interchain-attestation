@@ -2,6 +2,7 @@ package lightclient
 
 import (
 	"crypto/sha256"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 )
 
@@ -22,13 +23,8 @@ func (m *PessimisticClaims) ValidateBasic() error {
 	panic("implement me")
 }
 
-func GetSignableBytes(packetCommitements [][]byte) []byte {
-	var packetBytes []byte
-
-	for _, packetCommitement := range packetCommitements {
-		packetBytes = append(packetBytes, packetCommitement...)
-	}
-
+func GetSignableBytes(cdc codec.BinaryCodec, claim PacketCommitmentsClaim) []byte {
+	packetBytes := cdc.MustMarshal(&claim)
 	hash := sha256.Sum256(packetBytes)
 	return hash[:]
 }

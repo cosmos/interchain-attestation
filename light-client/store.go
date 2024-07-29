@@ -33,6 +33,24 @@ func setClientState(clientStore storetypes.KVStore, cdc codec.BinaryCodec, clien
 	clientStore.Set(key, val)
 }
 
+// getConsensusState retrieves the consensus state from the client prefixed store.
+// If the ConsensusState does not exist in state for the provided height a nil value and false boolean flag is returned
+func getConsensusState(store storetypes.KVStore, cdc codec.BinaryCodec, height exported.Height) (*ConsensusState, bool) {
+	bz := store.Get(host.ConsensusStateKey(height))
+	if len(bz) == 0 {
+		return nil, false
+	}
+
+	consensusStateI := clienttypes.MustUnmarshalConsensusState(cdc, bz)
+	var consensusState *ConsensusState
+	consensusState, ok := consensusStateI.(*ConsensusState)
+	if !ok {
+		panic(fmt.Errorf("cannot convert %T into %T", consensusStateI, consensusState))
+	}
+
+	return consensusState, true
+}
+
 // setConsensusState stores the consensus state at the given height.
 func setConsensusState(clientStore storetypes.KVStore, cdc codec.BinaryCodec, consensusState *ConsensusState, height exported.Height) {
 	key := host.ConsensusStateKey(height)

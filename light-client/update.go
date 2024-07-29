@@ -3,13 +3,15 @@ package lightclient
 import (
 	"bytes"
 	errorsmod "cosmossdk.io/errors"
+	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 )
 
 // VerifyClientMessage checks if the clientMessage is the correct type and verifies the message
 func (cs *ClientState) VerifyClientMessage(
-	ctx sdk.Context, attestatorsHandler AttestatorsHandler,
+	ctx sdk.Context, cdc codec.BinaryCodec, attestatorsHandler AttestatorsHandler,
 	clientMsg exported.ClientMessage,
 ) error {
 	pessimisticClaims, ok := clientMsg.(*PessimisticClaims)
@@ -17,12 +19,12 @@ func (cs *ClientState) VerifyClientMessage(
 		return errorsmod.Wrapf(ErrInvalidClientMsg, "invalid client message type %T", clientMsg)
 	}
 
-	return cs.verifyPessimisticClaims(ctx, attestatorsHandler, pessimisticClaims)
+	return cs.verifyPessimisticClaims(ctx, cdc, attestatorsHandler, pessimisticClaims)
 }
 
 // verifyPessimisticClaims verifies that the provided pessimistic claims are valid, all the same and valid signatures from enough validators
 func (cs *ClientState) verifyPessimisticClaims(
-	ctx sdk.Context, attestatorsHandler AttestatorsHandler,
+	ctx sdk.Context, cdc codec.BinaryCodec, attestatorsHandler AttestatorsHandler,
 	pessimisticClaims *PessimisticClaims,
 ) error {
 	if len(pessimisticClaims.Claims) == 0 {
@@ -67,7 +69,7 @@ func (cs *ClientState) verifyPessimisticClaims(
 		attestator := string(claim.AttestatorId)
 
 		// verify signature
-		signBytes := GetSignableBytes(claim.PacketCommitmentsClaim.PacketCommitments)
+		signBytes := GetSignableBytes(cdc, claim.PacketCommitmentsClaim)
 		pubKey, err := attestatorsHandler.GetPublicKey(ctx, claim.AttestatorId)
 		if err != nil {
 			return errorsmod.Wrapf(ErrInvalidClientMsg, "failed to get public key for attestator %s: %s", attestator, err)
@@ -86,6 +88,11 @@ func (cs *ClientState) verifyPessimisticClaims(
 			return errorsmod.Wrapf(ErrInvalidClientMsg, "claims must all have the same height")
 		}
 
+		// check that all claims have the same timestamp
+		if !claim.PacketCommitmentsClaim.Timestamp.Equal(pessimisticClaims.Claims[0].PacketCommitmentsClaim.Timestamp) {
+			return errorsmod.Wrapf(ErrInvalidClientMsg, "claims must all have the same timestamp")
+		}
+
 		// check that all claims have the same packet commitments
 		if !byteSlicesAreEqual(claim.PacketCommitmentsClaim.PacketCommitments, pessimisticClaims.Claims[0].PacketCommitmentsClaim.PacketCommitments) {
 			return errorsmod.Wrapf(ErrInvalidClientMsg, "claims must all have the same packet commitments")
@@ -93,6 +100,41 @@ func (cs *ClientState) verifyPessimisticClaims(
 	}
 
 	return nil
+}
+
+func (cs *ClientState) UpdateState(ctx sdk.Context, cdc codec.BinaryCodec, clientStore storetypes.KVStore, clientMsg exported.ClientMessage) []exported.Height {
+	pessimisticClaims, ok := clientMsg.(*PessimisticClaims)
+	if !ok {
+		panic(errorsmod.Wrapf(ErrInvalidClientMsg, "invalid client message type %T", clientMsg))
+	}
+
+	if len(pessimisticClaims.Claims) == 0 {
+		// perform no-op
+		return []exported.Height{}
+	}
+
+	height := pessimisticClaims.Claims[0].PacketCommitmentsClaim.Height
+	timestamp := pessimisticClaims.Claims[0].PacketCommitmentsClaim.Timestamp
+	packetCommitements := pessimisticClaims.Claims[0].PacketCommitmentsClaim.PacketCommitments
+
+	// TODO: Pruning
+
+	// check for duplicate update
+	if _, found := getConsensusState(clientStore, cdc, height); found {
+		// perform no-op
+		return []exported.Height{height}
+	}
+
+	if height.GT(cs.LatestHeight) {
+		cs.LatestHeight = height
+	}
+
+	consensusState := NewConsensusState(timestamp, packetCommitements)
+
+	setClientState(clientStore, cdc, cs)
+	setConsensusState(clientStore, cdc, consensusState, height)
+
+	return []exported.Height{height}
 }
 
 func byteSlicesAreEqual(slice1, slice2 [][]byte) bool {
