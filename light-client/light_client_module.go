@@ -56,7 +56,7 @@ func (l *LightClientModule) Initialize(ctx sdk.Context, clientID string, clientS
 
 	clientStore := l.storeProvider.ClientStore(ctx, clientID)
 
-	return clientState.Initialize(ctx, l.cdc, clientStore, &consensusState)
+	return clientState.Initialize(l.cdc, clientStore, &consensusState)
 }
 
 // VerifyClientMessage obtains the client state associated with the client identifier and calls into the clientState.VerifyClientMessage method.
@@ -125,18 +125,26 @@ func (l *LightClientModule) Status(ctx sdk.Context, clientID string) exported.St
 	return exported.Active
 }
 
-// TODO: implement this
-// TODO: test this
-// TODO: godoc
+// LatestHeight returns the latest height of the light client with the given clientID.
 func (l *LightClientModule) LatestHeight(ctx sdk.Context, clientID string) exported.Height {
-	return clienttypes.NewHeight(0, 0)
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		return clienttypes.ZeroHeight()
+	}
+
+	return clientState.LatestHeight
 }
 
-// TODO: implement this
-// TODO: test this
-// TODO: godoc
+// TimestampAtHeight returns the timestamp associated with the given height.
 func (l *LightClientModule) TimestampAtHeight(ctx sdk.Context, clientID string, height exported.Height) (uint64, error) {
-	return 0, nil
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		return 0, errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
+	}
+
+	return clientState.getTimestampAtHeight(clientStore, l.cdc, height)
 }
 
 // TODO: implement this

@@ -182,7 +182,15 @@ func (s *PessimisticLightClientTestSuite) assertClientState(clientID string, exp
 
 	storedConsensusState := getConsensusState(clientStore, s.encCfg.Codec, expectedHeight)
 	s.Require().NotNil(storedConsensusState)
-	s.Require().Equal(expectedTimestamp.Unix(), storedConsensusState.Timestamp.Unix())
+	s.Require().Equal(expectedTimestamp.UnixNano(), storedConsensusState.Timestamp.UnixNano())
+
+	// Assert latest height and timestamp at height
+	latestHeight := s.lightClientModule.LatestHeight(s.ctx, clientID)
+	s.Require().Equal(expectedHeight, latestHeight)
+
+	timestampAtHeight, err := s.lightClientModule.TimestampAtHeight(s.ctx, clientID, expectedHeight)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(expectedTimestamp.UnixNano()), timestampAtHeight)
 }
 
 func (s *PessimisticLightClientTestSuite) assertPacketCommitmentStored(clientID string, clientMsg *lightclient.PessimisticClaims) {

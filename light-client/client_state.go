@@ -5,7 +5,6 @@ import (
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"strings"
@@ -54,7 +53,7 @@ func (cs *ClientState) Validate() error {
 
 // Initialize checks that the initial consensus state is an 07-tendermint consensus state and
 // sets the client state, consensus state and associated metadata in the provided client store.
-func (cs ClientState) Initialize(ctx sdk.Context, cdc codec.BinaryCodec, clientStore storetypes.KVStore, consState exported.ConsensusState) error {
+func (cs ClientState) Initialize(cdc codec.BinaryCodec, clientStore storetypes.KVStore, consState exported.ConsensusState) error {
 	consensusState, ok := consState.(*ConsensusState)
 	if !ok {
 		return errorsmod.Wrapf(clienttypes.ErrInvalidConsensus, "invalid initial consensus state. expected type: %T, got: %T",
@@ -75,4 +74,13 @@ func (cs ClientState) VerifyMembership(clientStore storetypes.KVStore, packetCom
 	}
 
 	return nil
+}
+
+func (cs ClientState) getTimestampAtHeight(clientStore storetypes.KVStore, cdc codec.BinaryCodec, height exported.Height) (uint64, error) {
+	consensusState, found := getConsensusState(clientStore, cdc, height)
+	if !found {
+		return 0, errorsmod.Wrapf(clienttypes.ErrConsensusStateNotFound, "consensus state not found for height: %s", height)
+	}
+
+	return uint64(consensusState.Timestamp.UnixNano()), nil
 }
