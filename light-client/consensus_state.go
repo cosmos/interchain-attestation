@@ -15,11 +15,9 @@ func (m *ConsensusState) ClientType() string {
 
 func NewConsensusState(
 	timestamp time.Time,
-	packetCommitments [][]byte,
 ) *ConsensusState {
 	return &ConsensusState{
 		Timestamp:         timestamp,
-		PacketCommitments: packetCommitments,
 	}
 }
 

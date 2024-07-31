@@ -67,3 +67,12 @@ func (cs ClientState) Initialize(ctx sdk.Context, cdc codec.BinaryCodec, clientS
 	return nil
 }
 
+func (cs ClientState) VerifyMembership(clientStore storetypes.KVStore, packetCommitment []byte) error {
+	packetCommitmentStore := getPacketCommitmentStore(clientStore)
+
+	if !packetCommitmentStore.Has(packetCommitment) {
+		return errorsmod.Wrapf(ErrPacketCommitmentNotFound, "packet commitment not found in client store")
+	}
+
+	return nil
+}

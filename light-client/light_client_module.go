@@ -96,24 +96,32 @@ func (l *LightClientModule) UpdateState(ctx sdk.Context, clientID string, client
 	return clientState.UpdateState(ctx, l.cdc, clientStore, clientMsg)
 }
 
-// TODO: implement this
-// TODO: test this
-// TODO: godoc
+// VerifyMembership uses the packet commitment bytes (value) to verify the membership proof.
+// The client module has all the packet commitments stored and will just look for their existence.
 func (l *LightClientModule) VerifyMembership(ctx sdk.Context, clientID string, height exported.Height, delayTimePeriod uint64, delayBlockPeriod uint64, proof []byte, path exported.Path, value []byte) error {
-	return nil
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	clientState, found := getClientState(clientStore, l.cdc)
+	if !found {
+		return errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
+	}
+
+	return clientState.VerifyMembership(clientStore, value)
 }
 
-// TODO: implement this
-// TODO: test this
-// TODO: godoc
+// VerifyNonMembership is currently not possible as we need a packet commitment to check if it exists in the store
 func (l *LightClientModule) VerifyNonMembership(ctx sdk.Context, clientID string, height exported.Height, delayTimePeriod uint64, delayBlockPeriod uint64, proof []byte, path exported.Path) error {
-	return nil
+	return fmt.Errorf("not implemented")
 }
 
-// TODO: implement this
-// TODO: test this
-// TODO: godoc
+// Status returns the status of the light client with the given clientID.
+// TODO: Implement frozen client
 func (l *LightClientModule) Status(ctx sdk.Context, clientID string) exported.Status {
+	clientStore := l.storeProvider.ClientStore(ctx, clientID)
+	_, found := getClientState(clientStore, l.cdc)
+	if !found {
+		return exported.Unknown
+	}
+
 	return exported.Active
 }
 

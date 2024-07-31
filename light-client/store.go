@@ -1,6 +1,7 @@
 package lightclient
 
 import (
+	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -56,5 +57,23 @@ func setConsensusState(clientStore storetypes.KVStore, cdc codec.BinaryCodec, co
 	key := host.ConsensusStateKey(height)
 	val := clienttypes.MustMarshalConsensusState(cdc, consensusState)
 	clientStore.Set(key, val)
+}
+
+func setPacketCommitmentState(clientStore storetypes.KVStore, packetCommitments [][]byte) {
+	packetCommitmentStore := getPacketCommitmentStore(clientStore)
+
+	// TODO: Find more efficient way to prune
+	iterator := packetCommitmentStore.Iterator(nil, nil)
+	for ; iterator.Valid(); iterator.Next() {
+		packetCommitmentStore.Delete(iterator.Key())
+	}
+
+	for _, packetCommitment := range packetCommitments {
+		packetCommitmentStore.Set(packetCommitment, []byte{1})
+	}
+}
+
+func getPacketCommitmentStore(clientStore storetypes.KVStore) storetypes.KVStore {
+	return prefix.NewStore(clientStore, []byte(PacketCommitmentStoreKey))
 }
 

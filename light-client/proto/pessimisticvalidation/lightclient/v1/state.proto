@@ -37,10 +37,4 @@ message ConsensusState {
   // was stored
   google.protobuf.Timestamp timestamp = 1
       [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
-
-  // TODO: Look into how we can store the packet commitments in a more efficient
-  // way (if we need to store for each height updated)
-  // packet_commitments is the list of ibc packet commitments that exist on the
-  // counterparty chain
-  repeated bytes packet_commitments = 2;
 }

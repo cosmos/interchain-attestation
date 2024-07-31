@@ -22,7 +22,6 @@ func TestConsensusState_ValidateBasic(t *testing.T) {
 			"invalid: zero timestamp",
 			&lightclient.ConsensusState{
 				Timestamp:         time.Time{},
-				PacketCommitments: [][]byte{},
 			},
 			"timestamp must be a positive Unix time",
 		},

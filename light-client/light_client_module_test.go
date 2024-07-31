@@ -2,6 +2,7 @@ package lightclient_test
 
 import (
 	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/store/prefix"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/gjermundgaraba/pessimistic-validation/lightclient"
@@ -37,7 +38,6 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_Initialize() {
 			initialClientState,
 			&lightclient.ConsensusState{
 				Timestamp:         time.Time{},
-				PacketCommitments: nil,
 			},
 			"timestamp must be a positive Unix time",
 		},
@@ -58,6 +58,7 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_Initialize() {
 			clientStore := s.storeProvider.ClientStore(s.ctx, clientID)
 			storedClientState := getClientState(clientStore, s.encCfg.Codec)
 			storedConsensusState := getConsensusState(clientStore, s.encCfg.Codec, defaultHeight)
+
 			if tc.expError != "" {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.expError)
@@ -69,7 +70,6 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_Initialize() {
 				// verify state is stored
 				s.Require().Equal(tc.clientState, storedClientState)
 				s.Require().Equal(tc.consensusState.Timestamp.Unix(), storedConsensusState.Timestamp.Unix())
-				s.Require().Equal(tc.consensusState.PacketCommitments, storedConsensusState.PacketCommitments)
 			}
 		})
 	}
@@ -105,14 +105,76 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_UpdateState() {
 
 	expectedHeight := clienttypes.NewHeight(1, defaultHeight.RevisionHeight+1)
 	expectedTimestamp := time.Now()
+
+	for i := 0; i < 25; i++ {
+		clientMsg := generateClientMsg(s.encCfg.Codec, s.mockAttestators, i, func(claim *lightclient.PacketCommitmentsClaim) {
+			claim.Height = expectedHeight
+			claim.Timestamp = expectedTimestamp
+		})
+
+		heights := s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
+		s.Require().Equal([]exported.Height{expectedHeight}, heights)
+
+		s.assertClientState(clientID, expectedHeight, expectedTimestamp)
+		s.assertPacketCommitmentStored(clientID, clientMsg)
+
+		expectedHeight = clienttypes.NewHeight(1, clientMsg.Claims[0].PacketCommitmentsClaim.Height.RevisionHeight+1)
+		expectedTimestamp = expectedTimestamp.Add(2 * time.Second)
+	}
+
+	for i := 25; i != 0; i-- {
+		clientMsg := generateClientMsg(s.encCfg.Codec, s.mockAttestators, i, func(claim *lightclient.PacketCommitmentsClaim) {
+			claim.Height = expectedHeight
+			claim.Timestamp = expectedTimestamp
+		})
+
+		heights := s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
+		s.Require().Equal([]exported.Height{expectedHeight}, heights)
+
+		s.assertClientState(clientID, expectedHeight, expectedTimestamp)
+		s.assertPacketCommitmentStored(clientID, clientMsg)
+
+		expectedHeight = clienttypes.NewHeight(1, clientMsg.Claims[0].PacketCommitmentsClaim.Height.RevisionHeight+1)
+		expectedTimestamp = expectedTimestamp.Add(2 * time.Second)
+	}
+}
+
+func (s *PessimisticLightClientTestSuite) TestLightClientModule_VerifyMembership() {
+	clientID := createClientID(0)
+	clientStateBz := s.encCfg.Codec.MustMarshal(initialClientState)
+	consensusStateBz := s.encCfg.Codec.MustMarshal(initialConsensusState)
+
+	err := s.lightClientModule.Initialize(s.ctx, clientID, clientStateBz, consensusStateBz)
+	s.Require().NoError(err)
+
 	clientMsg := generateClientMsg(s.encCfg.Codec, s.mockAttestators, 5, func(claim *lightclient.PacketCommitmentsClaim) {
-		claim.Height = expectedHeight
-		claim.Timestamp = expectedTimestamp
+		claim.Height = clienttypes.NewHeight(1, defaultHeight.RevisionHeight+1)
 	})
+	s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
 
-	heights := s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
-	s.Require().Equal([]exported.Height{expectedHeight}, heights)
+	for _, packetCommitment := range clientMsg.Claims[0].PacketCommitmentsClaim.PacketCommitments {
+		err = s.lightClientModule.VerifyMembership(s.ctx, clientID, nil, 0, 0, nil, nil, packetCommitment)
+		s.Require().NoError(err)
+	}
 
+	err = s.lightClientModule.VerifyMembership(s.ctx, clientID, nil, 0, 0, nil, nil, []byte("non-existent-packet-commitment"))
+	s.Require().Error(err)
+
+	oldPacketCommitments := clientMsg.Claims[0].PacketCommitmentsClaim.PacketCommitments
+
+	// Update state with no packet commitments
+	clientMsg = generateClientMsg(s.encCfg.Codec, s.mockAttestators, 0, func(claim *lightclient.PacketCommitmentsClaim) {
+		claim.Height = clienttypes.NewHeight(1, clientMsg.Claims[0].PacketCommitmentsClaim.Height.RevisionHeight+1)
+	})
+	s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
+
+	for _, packetCommitment := range oldPacketCommitments {
+		err = s.lightClientModule.VerifyMembership(s.ctx, clientID, nil, 0, 0, nil, nil, packetCommitment)
+		s.Require().Error(err)
+	}
+}
+
+func (s *PessimisticLightClientTestSuite) assertClientState(clientID string, expectedHeight clienttypes.Height, expectedTimestamp time.Time){
 	clientStore := s.storeProvider.ClientStore(s.ctx, clientID)
 	storedClientState := getClientState(clientStore, s.encCfg.Codec)
 	s.Require().NotNil(storedClientState)
@@ -121,5 +183,23 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_UpdateState() {
 	storedConsensusState := getConsensusState(clientStore, s.encCfg.Codec, expectedHeight)
 	s.Require().NotNil(storedConsensusState)
 	s.Require().Equal(expectedTimestamp.Unix(), storedConsensusState.Timestamp.Unix())
-	s.Require().Equal(clientMsg.Claims[0].PacketCommitmentsClaim.PacketCommitments, storedConsensusState.PacketCommitments)
+}
+
+func (s *PessimisticLightClientTestSuite) assertPacketCommitmentStored(clientID string, clientMsg *lightclient.PessimisticClaims) {
+	clientStore := s.storeProvider.ClientStore(s.ctx, clientID)
+	packetCommitmentStore := prefix.NewStore(clientStore, []byte(lightclient.PacketCommitmentStoreKey))
+
+	// verify packet commitments are stored
+	for _, packetCommitment := range clientMsg.Claims[0].PacketCommitmentsClaim.PacketCommitments {
+		hasPacketCommitment := packetCommitmentStore.Has(packetCommitment)
+		s.Require().True(hasPacketCommitment)
+	}
+
+	numberOfPacketsStored := 0
+	iterator := packetCommitmentStore.Iterator(nil, nil)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		numberOfPacketsStored++
+	}
+	s.Require().Equal(len(clientMsg.Claims[0].PacketCommitmentsClaim.PacketCommitments), numberOfPacketsStored)
 }

@@ -31,7 +31,6 @@ var (
 	)
 	initialConsensusState = lightclient.NewConsensusState(
 		time.Now(),
-		nil,
 	)
 	defaultHeight = clienttypes.NewHeight(1, 42)
 )
@@ -46,6 +45,7 @@ type PessimisticLightClientTestSuite struct {
 	mockAttestatorsHandler mockAttestatorsHandler
 
 	ctx    sdk.Context
+	testCtx testutil.TestContext
 	encCfg moduletestutil.TestEncodingConfig
 }
 
@@ -56,8 +56,8 @@ func TestPessimisticLightClientTestSuite(t *testing.T) {
 func (s *PessimisticLightClientTestSuite) SetupTest() {
 	key := storetypes.NewKVStoreKey(ibcexported.StoreKey)
 	s.storeProvider = clienttypes.NewStoreProvider(key)
-	testCtx := testutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
-	s.ctx = testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: cmttime.Now()})
+	s.testCtx = testutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
+	s.ctx = s.testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: cmttime.Now()})
 	s.encCfg = moduletestutil.MakeTestEncodingConfig(lightclient.AppModuleBasic{})
 
 	s.mockAttestators = generateAttestators(10)

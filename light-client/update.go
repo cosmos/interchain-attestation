@@ -129,10 +129,11 @@ func (cs *ClientState) UpdateState(ctx sdk.Context, cdc codec.BinaryCodec, clien
 		cs.LatestHeight = height
 	}
 
-	consensusState := NewConsensusState(timestamp, packetCommitements)
+	consensusState := NewConsensusState(timestamp)
 
 	setClientState(clientStore, cdc, cs)
 	setConsensusState(clientStore, cdc, consensusState, height)
+	setPacketCommitmentState(clientStore, packetCommitements)
 
 	return []exported.Height{height}
 }
