@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"proversidecar/provers"
-	"proversidecar/server"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/server"
 )
 
 const (

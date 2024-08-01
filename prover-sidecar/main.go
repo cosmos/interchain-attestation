@@ -1,7 +1,7 @@
 package main
 
 import (
-	"proversidecar/cmd"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/cmd"
 )
 
 func main() {

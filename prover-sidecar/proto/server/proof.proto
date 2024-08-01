@@ -1,8 +1,9 @@
 syntax = "proto3";
+import "server/types.proto";
 
 option go_package = "github.com/gjermundgaraba/pessimistic-validation/proversidecar/server";
 
-package proof;
+package server;
 
 service Proof {
   rpc GetProof(ProofRequest) returns (ProofResponse) {}
@@ -13,5 +14,7 @@ message ProofRequest {
 }
 
 message ProofResponse {
-  string proof = 1; // TODO: Change to proper types - just for initial prototyping
+  SignedPacketCommitmentsClaim proof = 1;
 }
+
+

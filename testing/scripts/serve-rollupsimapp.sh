@@ -9,6 +9,8 @@ failure() {
 }
 trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
+source scripts/common-serve-env.sh
+
 BINARY=rollupsimappd
 CHAIN_ID=rollupsimapp-1
 ROOT_DIR=/tmp
@@ -20,10 +22,7 @@ P2P_PORT=36656
 RPC_PORT=36657
 REST_PORT=2317
 ROSETTA_PORT=9080
-
-ALICE_MNEMONIC="clock post desk civil pottery foster expand merit dash seminar song memory figure uniform spice circle try happy obvious trash crime hybrid hood cushion"
-BOB_MNEMONIC="angry twist harsh drastic left brass behave host shove marriage fall update business leg direct reward object ugly security warm tuna model broccoli choice"
-VALIDATOR_MNEMONIC="banner spread envelope side kite person disagree path silver will brother under couch edit food venture squirrel civil budget number acquire point work mass"
+GRPC_PORT=9091
 
 # Stop if it is already running
 if pgrep -x "$BINARY" >/dev/null; then
@@ -77,8 +76,9 @@ sed -i -e 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:'"$RPC_PORT"'"#g' $CHAIN_DIR
 sed -i -e 's/timeout_commit = "5s"/timeout_commit = "1s"/g' $CHAIN_DIR/config/config.toml
 sed -i -e 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $CHAIN_DIR/config/config.toml
 sed -i -e 's/index_all_keys = false/index_all_keys = true/g' $CHAIN_DIR/config/config.toml
-sed -i -e 's#"tcp://0.0.0.0:1317"#"tcp://0.0.0.0:'"$REST_PORT"'"#g' $CHAIN_DIR/config/app.toml
+sed -i -e 's#"tcp://localhost:1317"#"tcp://0.0.0.0:'"$REST_PORT"'"#g' $CHAIN_DIR/config/app.toml
 sed -i -e 's#":8080"#":'"$ROSETTA_PORT"'"#g' $CHAIN_DIR/config/app.toml
+sed -i -e 's#"localhost:9090"#"0.0.0.0:'"$GRPC_PORT"'"#g' $CHAIN_DIR/config/app.toml
 sed -i -e 's/enable-unsafe-cors = false/enable-unsafe-cors = true/g' $CHAIN_DIR/config/app.toml
 sed -i -e 's/enabled-unsafe-cors = false/enable-unsafe-cors = true/g' $CHAIN_DIR/config/app.toml
 sed -i.bak -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.025stake\"/" $CHAIN_DIR/config/app.toml
@@ -96,7 +96,7 @@ echo "Starting $CHAIN_ID in $CHAIN_DIR..."
 echo "Creating log file at $LOG_FILE_PATH"
 
 $BINARY genesis validate --home $CHAIN_DIR
-$BINARY start --home $CHAIN_DIR --rollkit.aggregator --rollkit.da_auth_token=$AUTH_TOKEN --rollkit.da_namespace 00000000000000000000000000000000000000000008e5f679bf7116cb --rollkit.da_start_height $DA_BLOCK_HEIGHT --minimum-gas-prices="0stake" --api.enable --api.enabled-unsafe-cors > $LOG_FILE_PATH 2>&1 &
+$BINARY start --home $CHAIN_DIR --rollkit.aggregator true --rollkit.da_auth_token "$AUTH_TOKEN" --rollkit.da_namespace 00000000000000000000000000000000000000000008e5f679bf7116cb --rollkit.da_start_height "$DA_BLOCK_HEIGHT" --minimum-gas-prices="0stake" --api.enable --api.enabled-unsafe-cors > $LOG_FILE_PATH 2>&1 &
 # $BINARY start --log_format json --home $CHAIN_DIR --pruning=nothing --rpc.unsafe --grpc.address="0.0.0.0:$GRPC_PORT" --state-sync.snapshot-interval 10 --state-sync.snapshot-keep-recent 2 > $LOG_FILE_PATH 2>&1 &
 
 sleep 3
@@ -105,6 +105,7 @@ echo ""
 echo "----------- Config -------------"
 echo "RPC: tcp://0.0.0.0:$RPC_PORT"
 echo "REST: tcp://0.0.0.0:$REST_PORT"
+echo "GRPC: tcp://0.0.0.0:$GRPC_PORT"
 echo "chain-id: $CHAIN_ID"
 echo ""
 

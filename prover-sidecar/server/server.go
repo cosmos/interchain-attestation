@@ -2,12 +2,11 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"net"
-	"proversidecar/provers"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers"
 )
 
 type Server struct {
@@ -15,11 +14,11 @@ type Server struct {
 	listener net.Listener
 
 	logger *zap.Logger
-	coordinator *provers.Coordinator
+	coordinator provers.Coordinator
 	grpcServer *grpc.Server
 }
 
-func NewServer(logger *zap.Logger, coordinator *provers.Coordinator) *Server {
+func NewServer(logger *zap.Logger, coordinator provers.Coordinator) *Server {
 	return &Server{
 		logger: logger,
 		coordinator: coordinator,
@@ -56,7 +55,7 @@ func (s *Server) GetProof(ctx context.Context, request *ProofRequest) (*ProofRes
 	chainProver := s.coordinator.GetChainProver(request.ChainId)
 	proof := chainProver.GetProof()
 	return &ProofResponse{
-		Proof: fmt.Sprintf("proof: %s (clientID: %s)", string(proof), request.ChainId),
+		Proof: proof,
 	}, nil
 }
 

@@ -2,10 +2,11 @@ package chainprover
 
 import (
 	"context"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/types"
 )
 
 type ChainProver interface {
 	ChainID() string
 	CollectProofs(ctx context.Context) error
-	GetProof() []byte // TODO: Make more specific to get the correct proof (or all proofs, not sure)
+	GetProof() *types.SignedPacketCommitmentsClaim
 }

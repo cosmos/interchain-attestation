@@ -14,6 +14,8 @@ const (
 
 type Config struct {
 	CosmosChains []CosmosChainConfig `toml:"cosmos_chain"`
+	AttestatorID          string `toml:"attestator_id"`
+	SigningPrivateKeyPath string `toml:"private_key_path"`
 }
 
 type CosmosChainConfig struct {
@@ -25,6 +27,14 @@ type CosmosChainConfig struct {
 func (c Config) Validate() error {
 	if len(c.CosmosChains) == 0 {
 		return errors.New("at least one chain must be defined in the config")
+	}
+
+	if c.AttestatorID == "" {
+		return errors.New("attestator id cannot be empty")
+	}
+
+	if c.SigningPrivateKeyPath == "" {
+		return errors.New("private key path cannot be empty")
 	}
 
 	seenChainIDs := make(map[string]bool)
@@ -93,11 +103,13 @@ func InitConfig(logger *zap.Logger, homedir string, force bool) error {
 	config := Config{
 		CosmosChains: []CosmosChainConfig{
 			{
-				ChainID: "example-1",
-				RPC:    "http://localhost:26657",
+				ChainID:  "example-1",
+				RPC:      "http://localhost:26657",
 				ClientID: "example-1-client",
 			},
 		},
+		AttestatorID:          "your-attestator-id",
+		SigningPrivateKeyPath: "/path/to/your/private/signing/key",
 	}
 
 	f, err := os.Create(configFilePath)

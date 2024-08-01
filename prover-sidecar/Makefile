@@ -1,10 +1,11 @@
 
 proto:
 	@echo "Generating proto files"
-	@protoc --go_out=. --go_opt=paths=source_relative \
-        --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-        proto/proof.proto
-	@mv proto/*.pb.go server/
+	@cd proto && buf generate --template buf.gen.gogo.yaml server/proof.proto
+	@cd proto && buf generate --template buf.gen.gogo.yaml server/types.proto
+	@mv github.com/gjermundgaraba/pessimistic-validation/proversidecar/server/* ./server
+	@mv github.com/gjermundgaraba/pessimistic-validation/proversidecar/types/* ./types
+	@rm -rf github.com
 	@echo "Generated proto files"
 
 build:
@@ -16,5 +17,8 @@ install:
 	@echo "Installing proversidecar binary"
 	@go install ./...
 	@echo "Installed proversidecar binary"
+
+test:
+	go test -mod=readonly ./...
 
 .PHONY: *

@@ -9,6 +9,7 @@ import (
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	tmclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	"github.com/gjermundgaraba/pessimistic-validation/lightclient"
 )
 
 type Codec struct {
@@ -25,6 +26,7 @@ func newCodec() Codec {
 	ibcconnectiontypes.RegisterInterfaces(interfaceRegistry)
 	ibcchanneltypes.RegisterInterfaces(interfaceRegistry)
 	tmclient.RegisterInterfaces(interfaceRegistry)
+	lightclient.RegisterInterfaces(interfaceRegistry)
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 
 	return Codec{

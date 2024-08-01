@@ -9,6 +9,8 @@ failure() {
 }
 trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
+source scripts/common-serve-env.sh
+
 BINARY=simappd
 CHAIN_ID=simapp-1
 ROOT_DIR=/tmp
@@ -20,10 +22,6 @@ RPC_PORT=26657
 REST_PORT=1317
 ROSETTA_PORT=8080
 GRPC_PORT=8090
-
-ALICE_MNEMONIC="clock post desk civil pottery foster expand merit dash seminar song memory figure uniform spice circle try happy obvious trash crime hybrid hood cushion"
-BOB_MNEMONIC="angry twist harsh drastic left brass behave host shove marriage fall update business leg direct reward object ugly security warm tuna model broccoli choice"
-VALIDATOR_MNEMONIC="banner spread envelope side kite person disagree path silver will brother under couch edit food venture squirrel civil budget number acquire point work mass"
 
 # Stop if it is already running
 if pgrep -x "$BINARY" >/dev/null; then
@@ -71,6 +69,7 @@ sed -i -e 's/enable = false/enable = true/g' $CHAIN_DIR/config/app.toml
 sed -i -e 's/swagger = false/swagger = true/g' $CHAIN_DIR/config/app.toml
 sed -i -e 's#"tcp://0.0.0.0:1317"#"tcp://0.0.0.0:'"$REST_PORT"'"#g' $CHAIN_DIR/config/app.toml
 sed -i -e 's#":8080"#":'"$ROSETTA_PORT"'"#g' $CHAIN_DIR/config/app.toml
+sed -i -e 's#"localhost:9090"#"0.0.0.0:'"$GRPC_PORT"'"#g' $CHAIN_DIR/config/app.toml
 sed -i -e 's/enable-unsafe-cors = false/enable-unsafe-cors = true/g' $CHAIN_DIR/config/app.toml
 sed -i -e 's/enabled-unsafe-cors = false/enable-unsafe-cors = true/g' $CHAIN_DIR/config/app.toml
 sed -i.bak -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.025stake\"/" $CHAIN_DIR/config/app.toml
@@ -86,6 +85,7 @@ echo ""
 echo "----------- Config -------------"
 echo "RPC: tcp://0.0.0.0:$RPC_PORT"
 echo "REST: tcp://0.0.0.0:$REST_PORT"
+echo "GRPC: tcp://0.0.0.0:$GRPC_PORT"
 echo "chain-id: $CHAIN_ID"
 echo ""
 

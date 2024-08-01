@@ -10,16 +10,16 @@ RUN apk add --no-cache build-base
 ENV GOPATH=""
 ENV GOMODCACHE="/go/pkg/mod"
 
-ADD prover-sidecar/go.mod prover-sidecar/go.sum ./
+COPY light-client light-client
+COPY prover-sidecar prover-sidecar
 
-RUN --mount=type=cache,mode=0755,target=/go/pkg/mod go mod download
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd light-client && go mod download
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd prover-sidecar && go mod download
 
-COPY ./prover-sidecar .
-
-RUN --mount=type=cache,mode=0755,target=/go/pkg/mod make build
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd prover-sidecar && make build
 
 FROM alpine:3.16
-COPY --from=builder /code/build/proversidecar /usr/bin/proversidecar
+COPY --from=builder /code/prover-sidecar/build/proversidecar /usr/bin/proversidecar
 
 EXPOSE 6969
 

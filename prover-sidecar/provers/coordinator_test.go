@@ -4,7 +4,8 @@ import (
 	"context"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
-	"proversidecar/provers/chainprover"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers/chainprover"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/types"
 	"sync"
 	"testing"
 	"time"
@@ -31,13 +32,13 @@ func (m *MockChainProver) CollectProofs(ctx context.Context) error {
 	return nil
 }
 
-func (m *MockChainProver) GetProof() []byte {
+func (m *MockChainProver) GetProof() *types.SignedPacketCommitmentsClaim {
 	return nil
 }
 
 func TestCoordinator_Run(t *testing.T) {
 	mockChainProvider := &MockChainProver{}
-	coordinator := &Coordinator{
+	coordinator := &coordinator{
 		chainProvers: map[string]chainprover.ChainProver{
 			mockChainID: mockChainProvider,
 		},

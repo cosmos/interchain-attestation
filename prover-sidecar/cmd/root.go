@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"os"
 	"path/filepath"
-	"proversidecar/config"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/config"
 )
 
 const (
@@ -45,7 +45,7 @@ func RootCmd() *cobra.Command {
 			}
 			cmd.SetContext(context.WithValue(cmd.Context(), ContextKeyHomedir, homedir))
 
-			if cmd.Parent() != nil && cmd.Parent().Name() != configCommandName {
+			if cmd.Parent() != nil && cmd.Parent().Name() != configCommandName && cmd.Parent().Name() != keysCommandName {
 				sidecarConfig, found, err := config.ReadConfig(homedir)
 				if err != nil {
 					return err
@@ -72,6 +72,7 @@ func RootCmd() *cobra.Command {
 	cmd.AddCommand(
 		StartCmd(),
 		ConfigCmd(),
+		KeysCmd(),
 	)
 
 	userHomeDir, err := os.UserHomeDir()

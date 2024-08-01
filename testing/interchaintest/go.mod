@@ -14,9 +14,10 @@ replace (
 replace (
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
-	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
+	github.com/gjermundgaraba/pessimistic-validation/lightclient => ../../light-client
 
-	proversidecar => ../../prover-sidecar
+	github.com/gjermundgaraba/pessimistic-validation/proversidecar => ../../prover-sidecar
+	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
 )
 
 require (
@@ -24,12 +25,12 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.8
 	github.com/cosmos/ibc-go/v8 v8.3.2
 	github.com/ethereum/go-ethereum v1.14.7
+	github.com/gjermundgaraba/pessimistic-validation/proversidecar v0.0.0
 	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/strangelove-ventures/interchaintest/v8 v8.5.0
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.65.0
-	proversidecar v0.0.0
 )
 
 require (
@@ -118,6 +119,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/getsentry/sentry-go v0.28.1 // indirect
+	github.com/gjermundgaraba/pessimistic-validation/lightclient v0.0.0 // indirect
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect

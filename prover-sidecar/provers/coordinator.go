@@ -2,11 +2,14 @@ package provers
 
 import (
 	"context"
+	"encoding/base64"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"proversidecar/config"
-	"proversidecar/provers/chainprover"
-	"proversidecar/provers/cosmos"
+	"os"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/config"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers/chainprover"
+	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers/cosmos"
 	"time"
 )
 
@@ -14,33 +17,53 @@ const (
 	defaultMinQueryLoopDuration      = 1 * time.Second
 )
 
-type Coordinator struct {
+type Coordinator interface {
+	GetChainProver(chainID string) chainprover.ChainProver
+	Run(ctx context.Context) error
+}
+
+type coordinator struct {
 	logger *zap.Logger
 
 	chainProvers map[string]chainprover.ChainProver
 }
 
-func NewCoordinator(logger *zap.Logger, sidecarConfig config.Config) (*Coordinator, error) {
+func NewCoordinator(logger *zap.Logger, sidecarConfig config.Config) (Coordinator, error) {
 	chainProvers := make(map[string]chainprover.ChainProver)
 	for _, cosmosConfig := range sidecarConfig.CosmosChains {
-		prover, err := cosmos.NewCosmosProver(logger, cosmosConfig.ChainID, cosmosConfig.RPC, cosmosConfig.ClientID)
+		prover, err := cosmos.NewCosmosProver(logger, sidecarConfig.AttestatorID, cosmosConfig.ChainID, cosmosConfig.RPC, cosmosConfig.ClientID, func(msg []byte) ([]byte, error) {
+			signerPrivKeyBase64, err := os.ReadFile(sidecarConfig.SigningPrivateKeyPath)
+			if err != nil {
+				return nil, err
+			}
+			signerPrivKeyBz, err := base64.StdEncoding.DecodeString(string(signerPrivKeyBase64))
+			if err != nil {
+				return nil, err
+			}
+
+			signerPrivKey := secp256k1.PrivKey{
+				Key: signerPrivKeyBz,
+			}
+
+			return signerPrivKey.Sign(msg)
+		})
 		if err != nil {
 			return nil, err
 		}
 		chainProvers[cosmosConfig.ChainID] = prover
 	}
 
-	return &Coordinator{
+	return &coordinator{
 		logger:       logger,
 		chainProvers: chainProvers,
 	}, nil
 }
 
-func (c *Coordinator) GetChainProver(chainID string) chainprover.ChainProver {
+func (c *coordinator) GetChainProver(chainID string) chainprover.ChainProver {
 	return c.chainProvers[chainID]
 }
 
-func (c *Coordinator) Run(ctx context.Context) error {
+func (c *coordinator) Run(ctx context.Context) error {
 	c.logger.Debug("Coordinator.Run")
 
 	var eg errgroup.Group
@@ -61,7 +84,7 @@ func (c *Coordinator) Run(ctx context.Context) error {
 	return err
 }
 
-func (c *Coordinator) chainProverLoop(ctx context.Context, chainProver chainprover.ChainProver) error {
+func (c *coordinator) chainProverLoop(ctx context.Context, chainProver chainprover.ChainProver) error {
 	ticker := time.NewTicker(defaultMinQueryLoopDuration) // TODO: Make this configurable per chain
 	defer ticker.Stop()
 
