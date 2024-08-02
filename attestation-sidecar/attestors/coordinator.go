@@ -1,15 +1,15 @@
-package provers
+package attestors
 
 import (
 	"context"
 	"encoding/base64"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/attestors/chainattestor"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/attestors/cosmos"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/config"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"os"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/config"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers/chainprover"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers/cosmos"
 	"time"
 )
 
@@ -18,20 +18,20 @@ const (
 )
 
 type Coordinator interface {
-	GetChainProver(chainID string) chainprover.ChainProver
+	GetChainProver(chainID string) chainattestor.ChainAttestor
 	Run(ctx context.Context) error
 }
 
 type coordinator struct {
 	logger *zap.Logger
 
-	chainProvers map[string]chainprover.ChainProver
+	chainProvers map[string]chainattestor.ChainAttestor
 }
 
 func NewCoordinator(logger *zap.Logger, sidecarConfig config.Config) (Coordinator, error) {
-	chainProvers := make(map[string]chainprover.ChainProver)
+	chainProvers := make(map[string]chainattestor.ChainAttestor)
 	for _, cosmosConfig := range sidecarConfig.CosmosChains {
-		prover, err := cosmos.NewCosmosProver(logger, sidecarConfig.AttestatorID, cosmosConfig.ChainID, cosmosConfig.RPC, cosmosConfig.ClientID, func(msg []byte) ([]byte, error) {
+		prover, err := cosmos.NewCosmosAttestor(logger, sidecarConfig.AttestatorID, cosmosConfig.ChainID, cosmosConfig.RPC, cosmosConfig.ClientID, func(msg []byte) ([]byte, error) {
 			signerPrivKeyBase64, err := os.ReadFile(sidecarConfig.SigningPrivateKeyPath)
 			if err != nil {
 				return nil, err
@@ -59,7 +59,7 @@ func NewCoordinator(logger *zap.Logger, sidecarConfig config.Config) (Coordinato
 	}, nil
 }
 
-func (c *coordinator) GetChainProver(chainID string) chainprover.ChainProver {
+func (c *coordinator) GetChainProver(chainID string) chainattestor.ChainAttestor {
 	return c.chainProvers[chainID]
 }
 
@@ -73,7 +73,7 @@ func (c *coordinator) Run(ctx context.Context) error {
 
 		chainProver := chainProver
 		eg.Go(func() error {
-			err := c.chainProverLoop(runCtx, chainProver)
+			err := c.claimCollectionLoop(runCtx, chainProver)
 			runCtxCancel() // Signal the other chain processors to exit.
 			return err
 		})
@@ -84,14 +84,14 @@ func (c *coordinator) Run(ctx context.Context) error {
 	return err
 }
 
-func (c *coordinator) chainProverLoop(ctx context.Context, chainProver chainprover.ChainProver) error {
+func (c *coordinator) claimCollectionLoop(ctx context.Context, chainProver chainattestor.ChainAttestor) error {
 	ticker := time.NewTicker(defaultMinQueryLoopDuration) // TODO: Make this configurable per chain
 	defer ticker.Stop()
 
 	for {
-		// TODO: Add retry logic
-		c.logger.Info("Collecting proofs", zap.String("chain_id", chainProver.ChainID()))
-		if err := chainProver.CollectProofs(ctx); err != nil {
+		// TODO: Add retry/error handling logic
+		c.logger.Info("Collecting claims", zap.String("chain_id", chainProver.ChainID()))
+		if err := chainProver.CollectClaims(ctx); err != nil {
 			return err
 		}
 		select {

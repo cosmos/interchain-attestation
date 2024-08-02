@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/config"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/config"
 )
 
 const (

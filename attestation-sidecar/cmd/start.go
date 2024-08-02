@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/attestors"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/server"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/server"
 )
 
 const (
@@ -15,14 +15,14 @@ const (
 func StartCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
-		Short: "Start the proof sidecar",
+		Short: "Start the attestation sidecar",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			listenAddr, _ := cmd.Flags().GetString(flagListenAddr)
 
 			sidecarConfig := GetConfig(cmd)
 			logger := GetLogger(cmd)
 
-			coordinator, err := provers.NewCoordinator(logger, sidecarConfig)
+			coordinator, err := attestors.NewCoordinator(logger, sidecarConfig)
 			if err != nil {
 				return err
 			}

@@ -3,20 +3,19 @@ package cosmos
 import (
 	"context"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/types"
 	"github.com/gjermundgaraba/pessimistic-validation/lightclient"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/types"
 	"time"
 )
 
-func (c *CosmosProver) CollectProofs(ctx context.Context) error {
-	c.logger.Info("Collecting proofs for chain", zap.String("chain_id", c.chainID))
+func (c *CosmosAttestor) CollectClaims(ctx context.Context) error {
+	c.logger.Info("Collecting claim for chain", zap.String("chain_id", c.chainID))
 
-	// TODO: add locks to prevent multiple CollectProofs from running at the same time
+	// TODO: add locks to prevent multiple CollectClaims from running at the same time
 
-	// TODO: Replace this with actual proof collection logic, just here now to actually query the chain for something
-	commitments, err := c.QueryPacketCommitments(ctx, c.clientID)
+	commitments, err := c.queryPacketCommitments(ctx, c.clientID)
 	if err != nil {
 		return errors.Wrapf(err, "failed to query packet commitments for chain id %s", c.chainID)
 	}
@@ -56,9 +55,9 @@ func (c *CosmosProver) CollectProofs(ctx context.Context) error {
 	}
 
 	// TODO: Put in a database or something?
-	c.latestProof = &signedClaim
+	c.latestClaim = &signedClaim
 
-	c.logger.Info("Collected proofs for chain", zap.String("chain_id", c.chainID), zap.String("client_id", c.clientID), zap.Int("num_packet_commitments", len(packetCommitments)))
+	c.logger.Info("Collected claims for chain", zap.String("chain_id", c.chainID), zap.String("client_id", c.clientID), zap.Int("num_packet_commitments", len(packetCommitments)))
 
 	// sleep for random 1-5 seconds
 	time.Sleep(time.Duration(1 + time.Now().Unix()%5) * time.Second)

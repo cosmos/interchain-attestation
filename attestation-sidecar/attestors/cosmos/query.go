@@ -2,16 +2,16 @@ package cosmos
 
 import (
 	"context"
-	"gitlab.com/tozd/go/errors"
-	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	querytypes "github.com/cosmos/cosmos-sdk/types/query"
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	"gitlab.com/tozd/go/errors"
 	"time"
 )
 
 const PaginationDelay = 10 * time.Millisecond
 
-func (c *CosmosProver) queryLatestHeight(ctx context.Context) (int64, error) {
+func (c *CosmosAttestor) queryLatestHeight(ctx context.Context) (int64, error) {
 	stat, err := c.rpcClient.Status(ctx)
 	if err != nil {
 		return -1, err
@@ -21,7 +21,7 @@ func (c *CosmosProver) queryLatestHeight(ctx context.Context) (int64, error) {
 	return stat.SyncInfo.LatestBlockHeight, nil
 }
 
-func (c *CosmosProver) QueryConnectionsForClient(ctx context.Context, clientID string) ([]string, error) {
+func (c *CosmosAttestor) queryConnectionsForClient(ctx context.Context, clientID string) ([]string, error) {
 	qc := connectiontypes.NewQueryClient(c)
 	connections, err := qc.ClientConnections(ctx, &connectiontypes.QueryClientConnectionsRequest{
 		ClientId: clientID,
@@ -38,10 +38,10 @@ func (c *CosmosProver) QueryConnectionsForClient(ctx context.Context, clientID s
 	return connectionPaths, nil
 }
 
-func (c *CosmosProver) QueryPacketCommitments(ctx context.Context, clientID string) (*chantypes.QueryPacketCommitmentsResponse, error) {
+func (c *CosmosAttestor) queryPacketCommitments(ctx context.Context, clientID string) (*chantypes.QueryPacketCommitmentsResponse, error) {
 	// TODO: Check if the client is in the correct state
 
-	connections, err := c.QueryConnectionsForClient(ctx, clientID)
+	connections, err := c.queryConnectionsForClient(ctx, clientID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (c *CosmosProver) QueryPacketCommitments(ctx context.Context, clientID stri
 	qc := chantypes.NewQueryClient(c)
 
 	var channels []*chantypes.IdentifiedChannel
-	p := DefaultPageRequest()
+	p := defaultPageRequest()
 	for _, connectionID := range connections {
 		res, err := qc.ConnectionChannels(ctx, &chantypes.QueryConnectionChannelsRequest{
 			Connection: connectionID,
@@ -72,7 +72,7 @@ func (c *CosmosProver) QueryPacketCommitments(ctx context.Context, clientID stri
 	}
 
 	commitments := &chantypes.QueryPacketCommitmentsResponse{}
-	p = DefaultPageRequest()
+	p = defaultPageRequest()
 	for _, channel := range channels {
 		for {
 			if channel.State != chantypes.OPEN {
@@ -102,7 +102,7 @@ func (c *CosmosProver) QueryPacketCommitments(ctx context.Context, clientID stri
 	return commitments, nil
 }
 
-func DefaultPageRequest() *querytypes.PageRequest {
+func defaultPageRequest() *querytypes.PageRequest {
 	return &querytypes.PageRequest{
 		Key:        []byte(""),
 		Offset:     0,

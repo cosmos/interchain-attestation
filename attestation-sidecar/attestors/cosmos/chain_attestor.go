@@ -1,16 +1,16 @@
 package cosmos
 
 import (
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/attestors/chainattestor"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/types"
 	clientwrapper "github.com/strangelove-ventures/cometbft-client/client"
 	"go.uber.org/zap"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers/chainprover"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/types"
 	"time"
 )
 
-var _ chainprover.ChainProver = &CosmosProver{}
+var _ chainattestor.ChainAttestor = &CosmosAttestor{}
 
-type CosmosProver struct {
+type CosmosAttestor struct {
 	logger *zap.Logger
 
 	rpcClient *clientwrapper.Client
@@ -22,10 +22,10 @@ type CosmosProver struct {
 	clientID string
 	signer func(msg []byte) ([]byte, error)
 
-	latestProof *types.SignedPacketCommitmentsClaim
+	latestClaim *types.SignedPacketCommitmentsClaim
 }
 
-func NewCosmosProver(logger *zap.Logger, attestatorID string, chainID, rpcAddr, clientID string, signer func(msg []byte) ([]byte, error)) (*CosmosProver, error) {
+func NewCosmosAttestor(logger *zap.Logger, attestatorID string, chainID, rpcAddr, clientID string, signer func(msg []byte) ([]byte, error)) (*CosmosAttestor, error) {
 	cometClient, err := clientwrapper.NewClient(rpcAddr, time.Second * 30) // TODO: Make timeout configurable per chain
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func NewCosmosProver(logger *zap.Logger, attestatorID string, chainID, rpcAddr, 
 
 	codec := newCodec()
 
-	return &CosmosProver{
+	return &CosmosAttestor{
 		logger:    logger,
 		rpcClient: cometClient,
 		codec:     codec,
@@ -45,11 +45,11 @@ func NewCosmosProver(logger *zap.Logger, attestatorID string, chainID, rpcAddr, 
 	}, nil
 }
 
-func (c *CosmosProver) ChainID() string {
+func (c *CosmosAttestor) ChainID() string {
 	return c.chainID
 }
 
-func (c *CosmosProver) GetProof() *types.SignedPacketCommitmentsClaim {
+func (c *CosmosAttestor) GetLatestSignedClaim() *types.SignedPacketCommitmentsClaim {
 	// TODO: Fetch from database?
-	return c.latestProof
+	return c.latestClaim
 }

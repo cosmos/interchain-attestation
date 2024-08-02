@@ -160,15 +160,15 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 				},
 				SidecarConfigs: []ibc.SidecarConfig{
 					{
-						ProcessName: "proversidecar",
+						ProcessName: "attestationsidecar",
 						Image: ibc.DockerImage{
-							Repository: "proversidecar",
+							Repository: "attestationsidecar",
 							Version:    "local",
 							UidGid:     "1025:1025",
 						},
 						HomeDir:          "",
 						Ports:            []string{"6969/tcp"},
-						StartCmd:         []string{"/usr/bin/proversidecar", "start", "--home", "/home/sidecar", "--listen-addr", "0.0.0.0:6969"},
+						StartCmd:         []string{"/usr/bin/attestationsidecar", "start", "--home", "/home/sidecar", "--listen-addr", "0.0.0.0:6969"},
 						Env:              nil,
 						PreStart:         false,
 						ValidatorProcess: true,

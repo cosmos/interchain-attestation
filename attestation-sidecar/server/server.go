@@ -2,23 +2,23 @@ package server
 
 import (
 	"context"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/attestors"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"net"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers"
 )
 
 type Server struct {
-	UnimplementedProofServer
+	UnimplementedClaimServer
 	listener net.Listener
 
-	logger *zap.Logger
-	coordinator provers.Coordinator
-	grpcServer *grpc.Server
+	logger      *zap.Logger
+	coordinator attestors.Coordinator
+	grpcServer  *grpc.Server
 }
 
-func NewServer(logger *zap.Logger, coordinator provers.Coordinator) *Server {
+func NewServer(logger *zap.Logger, coordinator attestors.Coordinator) *Server {
 	return &Server{
 		logger: logger,
 		coordinator: coordinator,
@@ -34,7 +34,7 @@ func (s *Server) Serve(listenAddr string) error {
 	}
 
 	s.grpcServer = grpc.NewServer()
-	RegisterProofServer(s.grpcServer, s)
+	RegisterClaimServer(s.grpcServer, s)
 	s.logger.Info("server listening", zap.String("addr", lis.Addr().String()))
 	if err := s.grpcServer.Serve(lis); err != nil {
 		return err
@@ -49,14 +49,14 @@ func (s *Server) Stop() {
 	s.grpcServer.GracefulStop()
 }
 
-func (s *Server) GetProof(ctx context.Context, request *ProofRequest) (*ProofResponse, error) {
-	s.logger.Debug("server.GetProof", zap.String("chainId", request.ChainId))
+func (s *Server) GetClaim(ctx context.Context, request *ClaimRequest) (*ClaimResponse, error) {
+	s.logger.Debug("server.GetLatestSignedClaim", zap.String("chainId", request.ChainId))
 
 	chainProver := s.coordinator.GetChainProver(request.ChainId)
-	proof := chainProver.GetProof()
-	return &ProofResponse{
-		Proof: proof,
+	claim := chainProver.GetLatestSignedClaim()
+	return &ClaimResponse{
+		Claim: claim,
 	}, nil
 }
 
-var _ ProofServer = &Server{}
+var _ ClaimServer = &Server{}

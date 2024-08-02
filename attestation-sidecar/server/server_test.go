@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/attestors"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/attestors/chainattestor"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/server"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/types"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"math/rand"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/provers/chainprover"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/server"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/types"
 	"sync"
 	"testing"
 	"time"
@@ -21,10 +21,10 @@ import (
 type mockCoordinator struct{}
 type mockChainProver struct{}
 
-var _ provers.Coordinator = &mockCoordinator{}
-var _ chainprover.ChainProver = &mockChainProver{}
+var _ attestors.Coordinator = &mockCoordinator{}
+var _ chainattestor.ChainAttestor = &mockChainProver{}
 
-func (m mockCoordinator) GetChainProver(chainID string) chainprover.ChainProver {
+func (m mockCoordinator) GetChainProver(chainID string) chainattestor.ChainAttestor {
 	return &mockChainProver{}
 }
 
@@ -36,11 +36,11 @@ func (m mockChainProver) ChainID() string {
 	return "mockChainID"
 }
 
-func (m mockChainProver) CollectProofs(ctx context.Context) error {
+func (m mockChainProver) CollectClaims(ctx context.Context) error {
 	panic("should not be called in this test")
 }
 
-func (m mockChainProver) GetProof() *types.SignedPacketCommitmentsClaim {
+func (m mockChainProver) GetLatestSignedClaim() *types.SignedPacketCommitmentsClaim {
 	return &types.SignedPacketCommitmentsClaim{
 		AttestatorId: []byte("mockAttestatorID"),
 		PacketCommitmentsClaim: types.PacketCommitmentsClaim{
@@ -70,12 +70,12 @@ func TestServe(t *testing.T) {
 	client, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	require.NoError(t, err)
 
-	proofClient := server.NewProofClient(client)
-	proof, err := proofClient.GetProof(context.Background(), &server.ProofRequest{
+	claimClient := server.NewClaimClient(client)
+	claim, err := claimClient.GetClaim(context.Background(), &server.ClaimRequest{
 		ChainId: "mockChainID",
 	})
 	require.NoError(t, err)
-	require.NotNil(t, proof)
+	require.NotNil(t, claim)
 
 	s.Stop()
 

@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"os"
 	"path/filepath"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/config"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/config"
 )
 
 const (
@@ -19,12 +19,12 @@ const (
 	flagHome = "home"
 	flagVerbose = "verbose"
 
-	defaultAppFolderName = ".prover-sidecar"
+	defaultAppFolderName = ".attestation-sidecar"
 )
 
 func RootCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "prover-sidecar",
+		Use:   "attestation-sidecar",
 		Short: "",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Context() == nil {
@@ -81,7 +81,7 @@ func RootCmd() *cobra.Command {
 	}
 	defaultHomedir := filepath.Join(userHomeDir, defaultAppFolderName)
 
-	cmd.PersistentFlags().String(flagHome, defaultHomedir, "home directory for prover-sidecar config and data")
+	cmd.PersistentFlags().String(flagHome, defaultHomedir, "home directory for attestation-sidecar config and data")
 	cmd.PersistentFlags().Bool(flagVerbose, false, "enable verbose output")
 
 	return cmd

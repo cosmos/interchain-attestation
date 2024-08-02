@@ -27,11 +27,11 @@ import (
 
 // The code below is borrowed from the Go Realyer and modified a bit
 
-var _ gogogrpc.ClientConn = &CosmosProver{}
+var _ gogogrpc.ClientConn = &CosmosAttestor{}
 
 var protoCodec = encoding.GetCodec(proto.Name)
 
-func (c *CosmosProver) Invoke(ctx context.Context, method string, args, reply interface{}, opts ...grpc.CallOption) error {
+func (c *CosmosAttestor) Invoke(ctx context.Context, method string, args, reply interface{}, opts ...grpc.CallOption) error {
 	if reflect.ValueOf(args).IsNil() {
 		return errors.New("request cannot be nil")
 	}
@@ -66,7 +66,7 @@ func (c *CosmosProver) Invoke(ctx context.Context, method string, args, reply in
 // arguments for the gRPC method, and returns the ABCI response. It is used
 // to factorize code between client (Invoke) and server (RegisterGRPCServer)
 // gRPC handlers.
-func (c *CosmosProver) RunGRPCQuery(ctx context.Context, method string, req interface{}, md metadata.MD) (abci.ResponseQuery, metadata.MD, error) {
+func (c *CosmosAttestor) RunGRPCQuery(ctx context.Context, method string, req interface{}, md metadata.MD) (abci.ResponseQuery, metadata.MD, error) {
 	reqBz, err := protoCodec.Marshal(req)
 	if err != nil {
 		return abci.ResponseQuery{}, nil, err
@@ -117,7 +117,7 @@ func (c *CosmosProver) RunGRPCQuery(ctx context.Context, method string, req inte
 }
 
 // QueryABCI performs an ABCI query and returns the appropriate response and error sdk error code.
-func (c *CosmosProver) QueryABCI(ctx context.Context, req abci.RequestQuery) (abci.ResponseQuery, error) {
+func (c *CosmosAttestor) QueryABCI(ctx context.Context, req abci.RequestQuery) (abci.ResponseQuery, error) {
 	opts := slclient.ABCIQueryOptions{
 		Height: req.Height,
 		Prove:  req.Prove,
@@ -226,7 +226,7 @@ func convertProofOps(proofOps *sltypes.ProofOps) *crypto.ProofOps {
 	return &crypto.ProofOps{Ops: ops}
 }
 
-func (c *CosmosProver) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+func (c *CosmosAttestor) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 	//TODO implement me
 	panic("implement me")
 }

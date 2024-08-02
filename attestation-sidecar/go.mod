@@ -1,4 +1,4 @@
-module github.com/gjermundgaraba/pessimistic-validation/proversidecar
+module github.com/gjermundgaraba/pessimistic-validation/attestationsidecar
 
 go 1.22.2
 

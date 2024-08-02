@@ -5,8 +5,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/config"
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/server"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/config"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/server"
 	"github.com/pelletier/go-toml/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -79,10 +79,10 @@ func (s *E2ETestSuite) TestSidecar() {
 		s.NoError(err)
 		defer client.Close()
 
-		proofClient := server.NewProofClient(client)
-		proof, err := proofClient.GetProof(s.ctx, &server.ProofRequest{ChainId: rollupsimappChainID})
+		claimClient := server.NewClaimClient(client)
+		resp, err := claimClient.GetClaim(s.ctx, &server.ClaimRequest{ChainId: rollupsimappChainID})
 		s.NoError(err)
-		s.NotNil(proof)
-		s.Equal([]byte(fmt.Sprintf("attestator-%d", i)), proof.Proof.AttestatorId)
+		s.NotNil(resp)
+		s.Equal([]byte(fmt.Sprintf("attestator-%d", i)), resp.Claim.AttestatorId)
 	}
 }

@@ -11,16 +11,16 @@ ENV GOPATH=""
 ENV GOMODCACHE="/go/pkg/mod"
 
 COPY light-client light-client
-COPY prover-sidecar prover-sidecar
+COPY attestation-sidecar attestation-sidecar
 
 RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd light-client && go mod download
-RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd prover-sidecar && go mod download
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd attestation-sidecar && go mod download
 
-RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd prover-sidecar && make build
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd attestation-sidecar && make build
 
 FROM alpine:3.16
-COPY --from=builder /code/prover-sidecar/build/proversidecar /usr/bin/proversidecar
+COPY --from=builder /code/attestation-sidecar/build/attestationsidecar /usr/bin/attestationsidecar
 
 EXPOSE 6969
 
-ENTRYPOINT ["/usr/bin/proversidecar"]
+ENTRYPOINT ["/usr/bin/attestationsidecar"]

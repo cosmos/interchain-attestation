@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gjermundgaraba/pessimistic-validation/proversidecar/cmd"
+	"github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/cmd"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import "ibc/core/client/v1/client.proto";
 import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/gjermundgaraba/pessimistic-validation/proversidecar/types";
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/attestationsidecar/types";
 
 // TODO: FIGURE OUT HOW TO GET THESE IMPORTED INSTEAD, SOMETHING WEIRD ABOUT INCORRECT GO TYPE OR SOMETHING
 message SignedPacketCommitmentsClaim {

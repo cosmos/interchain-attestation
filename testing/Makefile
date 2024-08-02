@@ -24,7 +24,7 @@ generate-abi:
 ###                                 Docker                                  ###
 ###############################################################################
 
-docker-images: simapp-image rollupsimapp-image proversidecar-image mock-da-image
+docker-images: simapp-image rollupsimapp-image attestationsidecar-image mock-da-image
 
 simapp-image:
 	@echo "Building simapp:local docker image"
@@ -34,9 +34,9 @@ rollupsimapp-image:
 	@echo "Building rollupsimapp:local docker image"
 	docker build -t rollupsimapp:local -f rollupsimapp.Dockerfile ../
 
-proversidecar-image:
-	@echo "Building proversidecar:local docker image"
-	docker build -t proversidecar:local -f proversidecar.Dockerfile ../
+attestationsidecar-image:
+	@echo "Building attestationsidecar:local docker image"
+	docker build -t attestationsidecar:local -f attestationsidecar.Dockerfile ../
 
 mock-da-image:
 	@echo "Building mock-da:local docker image"
