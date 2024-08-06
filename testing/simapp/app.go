@@ -7,7 +7,7 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-	pessimistickeeper "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/keeper"
+	attestationconfigkeeper "github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
 	"io"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -98,7 +98,7 @@ type SimApp struct {
 	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
 	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
 
-	PessimisticKeeper pessimistickeeper.Keeper
+	PessimisticKeeper attestationconfigkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -381,21 +381,4 @@ func (app *SimApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	}
 
 	return key
-}
-
-// BlockedAddresses returns all the app's blocked account addresses.
-func BlockedAddresses() map[string]bool {
-	result := make(map[string]bool)
-
-	if len(blockAccAddrs) > 0 {
-		for _, addr := range blockAccAddrs {
-			result[addr] = true
-		}
-	} else {
-		for addr := range GetMaccPerms() {
-			result[addr] = true
-		}
-	}
-
-	return result
 }

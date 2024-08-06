@@ -1,0 +1,21 @@
+syntax = "proto3";
+package core.types.v1;
+
+import "gogoproto/gogo.proto";
+import "ibc/core/client/v1/client.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/core/types";
+
+message Attestation {
+  bytes attestator_id = 1;
+  IBCData attested_data = 2 [ (gogoproto.nullable) = false ];
+  bytes signature = 3;
+}
+
+message IBCData {
+  ibc.core.client.v1.Height height = 1 [ (gogoproto.nullable) = false ];
+  google.protobuf.Timestamp timestamp = 2
+      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+  repeated bytes packet_commitments = 3;
+}

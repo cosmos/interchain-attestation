@@ -1,0 +1,16 @@
+syntax = "proto3";
+package configmodule.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/configmodule/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (amino.name) = "configmodule/Params";
+  option (gogoproto.equal) = true;
+
+  // TODO: document
+  uint64 minimum_power = 1;
+}

@@ -11,11 +11,11 @@ ENV GOMODCACHE="/go/pkg/mod"
 # Copy relevant files before go mod download. Replace directives to local paths break if local
 # files are not copied before go mod download.
 COPY testing/simapp testing/simapp
-COPY module module
-COPY light-client light-client
+COPY configmodule configmodule
+COPY core core
 
-RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd module && go mod download
-RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd light-client && go mod download
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd configmodule && go mod download
+RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd core && go mod download
 RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd testing/simapp && go mod download
 
 RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd testing/simapp && make build

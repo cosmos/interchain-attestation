@@ -1,0 +1,12 @@
+syntax = "proto3";
+package configmodule.v1;
+
+import "configmodule/v1/params.proto";
+
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/configmodule/types";
+
+// GenesisState defines the configmodule module's genesis state.
+message GenesisState {
+  // params defines all the paramaters of configmodule module.
+  Params params = 1;
+}

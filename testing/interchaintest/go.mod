@@ -14,9 +14,9 @@ replace (
 replace (
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
+	github.com/gjermundgaraba/pessimistic-validation/core => ../../core
 
-	github.com/gjermundgaraba/pessimistic-validation/attestationsidecar => ../../attestation-sidecar
-	github.com/gjermundgaraba/pessimistic-validation/lightclient => ../../light-client
+	github.com/gjermundgaraba/pessimistic-validation/sidecar => ../../sidecar
 	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
 )
 
@@ -25,7 +25,8 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.8
 	github.com/cosmos/ibc-go/v8 v8.3.2
 	github.com/ethereum/go-ethereum v1.14.7
-	github.com/gjermundgaraba/pessimistic-validation/attestationsidecar v0.0.0
+	github.com/gjermundgaraba/pessimistic-validation/core v0.0.0
+	github.com/gjermundgaraba/pessimistic-validation/sidecar v0.0.0
 	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/strangelove-ventures/interchaintest/v8 v8.5.0
 	github.com/stretchr/testify v1.9.0
@@ -119,7 +120,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/getsentry/sentry-go v0.28.1 // indirect
-	github.com/gjermundgaraba/pessimistic-validation/lightclient v0.0.0 // indirect
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
@@ -232,7 +232,6 @@ require (
 	github.com/spf13/cobra v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
-	github.com/strangelove-ventures/cometbft-client v0.1.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/supranational/blst v0.3.11 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect

@@ -6,7 +6,7 @@ import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	pessimistictypes "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation/types"
+	attestationconfigtypes "github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
 	"time"
 
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -79,8 +79,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	pessimisticmodulev1 "github.com/gjermundgaraba/pessimistic-validation/api/pessimisticvalidation/module/v1"
-	_ "github.com/gjermundgaraba/pessimistic-validation/pessimisticvalidation" // import for side effects
+	_ "github.com/gjermundgaraba/pessimistic-validation/configmodule" // import for side effects
+	pessimisticmodulev1 "github.com/gjermundgaraba/pessimistic-validation/configmodule/api/configmodule/module/v1"
 )
 
 const AccountAddressPrefix = "simapp"
@@ -185,7 +185,7 @@ var (
 						upgradetypes.ModuleName,
 						vestingtypes.ModuleName,
 						circuittypes.ModuleName,
-						pessimistictypes.ModuleName,
+						attestationconfigtypes.ModuleName,
 					},
 					// When ExportGenesis is not specified, the export genesis module order
 					// is equal to the init genesis order
@@ -291,7 +291,7 @@ var (
 				Config: appconfig.WrapAny(&circuitmodulev1.Module{}),
 			},
 			{
-				Name:   pessimistictypes.ModuleName,
+				Name:   attestationconfigtypes.ModuleName,
 				Config: appconfig.WrapAny(&pessimisticmodulev1.Module{}),
 			},
 		},
