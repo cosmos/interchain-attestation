@@ -2,7 +2,6 @@ package cosmos
 
 import (
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestors/chainattestor"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 	clientwrapper "github.com/strangelove-ventures/cometbft-client/client"
 	"go.uber.org/zap"
 	"time"
@@ -21,8 +20,6 @@ type CosmosAttestor struct {
 	rpcAddr string
 	clientID string
 	signer func(msg []byte) ([]byte, error)
-
-	latestAttestation *types.Attestation
 }
 
 func NewCosmosAttestor(logger *zap.Logger, attestatorID string, chainID, rpcAddr, clientID string, signer func(msg []byte) ([]byte, error)) (*CosmosAttestor, error) {
@@ -49,7 +46,3 @@ func (c *CosmosAttestor) ChainID() string {
 	return c.chainID
 }
 
-func (c *CosmosAttestor) GetLatestAttestation() *types.Attestation {
-	// TODO: Fetch from database?
-	return c.latestAttestation
-}

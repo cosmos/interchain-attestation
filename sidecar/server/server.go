@@ -55,9 +55,12 @@ func (s *Server) Stop() {
 func (s *Server) GetAttestation(ctx context.Context, request *types.AttestationRequest) (*types.AttestationResponse, error) {
 	s.logger.Debug("server.GetLatestAttestation", zap.String("chainId", request.ChainId))
 
-	chainProver := s.coordinator.GetChainProver(request.ChainId)
-	attestation := chainProver.GetLatestAttestation()
+	attestation, err := s.coordinator.GetLatestAttestation(request.ChainId)
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.AttestationResponse{
-		Attestation: attestation,
+		Attestation: &attestation,
 	}, nil
 }

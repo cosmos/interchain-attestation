@@ -40,6 +40,8 @@ func (c *CosmosAttestor) queryConnectionsForClient(ctx context.Context, clientID
 
 func (c *CosmosAttestor) queryPacketCommitments(ctx context.Context, clientID string) (*chantypes.QueryPacketCommitmentsResponse, error) {
 	// TODO: Check if the client is in the correct state
+	// TODO: Cache some of this crap
+	// TODO: Add support for ibc lite (i.e. skip a bunch of this)
 
 	connections, err := c.queryConnectionsForClient(ctx, clientID)
 	if err != nil {

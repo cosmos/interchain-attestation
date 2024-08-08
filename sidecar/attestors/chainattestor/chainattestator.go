@@ -5,9 +5,8 @@ import (
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 )
 
-
+// TODO: Document
 type ChainAttestor interface {
 	ChainID() string
-	CollectAttestations(ctx context.Context) error
-	GetLatestAttestation() *types.Attestation
+	CollectAttestation(ctx context.Context) (types.Attestation, error)
 }

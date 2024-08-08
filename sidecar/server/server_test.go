@@ -19,29 +19,22 @@ import (
 )
 
 type mockCoordinator struct{}
-type mockChainProver struct{}
+
+type mockChainAttestor struct{}
 
 var _ attestors.Coordinator = &mockCoordinator{}
-var _ chainattestor.ChainAttestor = &mockChainProver{}
+var _ chainattestor.ChainAttestor = &mockChainAttestor{}
 
-func (m mockCoordinator) GetChainProver(chainID string) chainattestor.ChainAttestor {
-	return &mockChainProver{}
+func (m mockCoordinator) GetChainProver(_ string) chainattestor.ChainAttestor {
+	return &mockChainAttestor{}
 }
 
-func (m mockCoordinator) Run(ctx context.Context) error {
+func (m mockCoordinator) Run(_ context.Context) error {
 	panic("should not be called in this test")
 }
 
-func (m mockChainProver) ChainID() string {
-	return "mockChainID"
-}
-
-func (m mockChainProver) CollectAttestations(ctx context.Context) error {
-	panic("should not be called in this test")
-}
-
-func (m mockChainProver) GetLatestAttestation() *types.Attestation {
-	return &types.Attestation{
+func (m mockCoordinator) GetLatestAttestation(chainID string) (types.Attestation, error) {
+	return types.Attestation{
 		AttestatorId: []byte("mockAttestatorID"),
 		AttestedData: types.IBCData {
 			Height:            clienttypes.NewHeight(1, 42),
@@ -49,7 +42,20 @@ func (m mockChainProver) GetLatestAttestation() *types.Attestation {
 			PacketCommitments: [][]byte{{0x01}, {0x02}, {0x03}},
 		},
 		Signature: []byte("mockSignature"),
-	}
+	}, nil
+}
+
+func (m mockCoordinator) GetAttestationForHeight(chainID string, height uint64) (types.Attestation, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m mockChainAttestor) ChainID() string {
+	return "mockChainID"
+}
+
+func (m mockChainAttestor) CollectAttestation(ctx context.Context) (types.Attestation, error) {
+	panic("should not be called in this test")
 }
 
 func TestServe(t *testing.T) {

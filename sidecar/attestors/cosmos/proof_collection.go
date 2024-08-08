@@ -9,20 +9,20 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *CosmosAttestor) CollectAttestations(ctx context.Context) error {
+func (c *CosmosAttestor) CollectAttestation(ctx context.Context) (types.Attestation, error) {
 	c.logger.Info("Collecting attestationData for chain", zap.String("chain_id", c.chainID))
 
-	// TODO: add locks to prevent multiple CollectAttestations from running at the same time
+	// TODO: add locks to prevent multiple CollectAttestation from running at the same time
 
 	commitments, err := c.queryPacketCommitments(ctx, c.clientID)
 	if err != nil {
-		return errors.Wrapf(err, "failed to query packet commitments for chain id %s", c.chainID)
+		return types.Attestation{}, errors.Wrapf(err, "failed to query packet commitments for chain id %s", c.chainID)
 	}
 
 	revHeight := int64(commitments.Height.RevisionHeight)
 	blockAtHeight, err := c.rpcClient.Block(ctx, &revHeight)
 	if err != nil {
-		return errors.Wrapf(err, "failed to query block for chain id %s", c.chainID)
+		return types.Attestation{}, errors.Wrapf(err, "failed to query block for chain id %s", c.chainID)
 	}
 
 	var packetCommitments [][]byte
@@ -39,7 +39,7 @@ func (c *CosmosAttestor) CollectAttestations(ctx context.Context) error {
 	signableBytes := lightclient.GetSignableBytes(c.codec.Marshaler, attestationData)
 	signature, err := c.signer(signableBytes)
 	if err != nil {
-		return errors.Wrapf(err, "failed to sign attestation data for chain id %s", c.chainID)
+		return types.Attestation{}, errors.Wrapf(err, "failed to sign attestation data for chain id %s", c.chainID)
 	}
 
 	attestation := types.Attestation{
@@ -48,10 +48,7 @@ func (c *CosmosAttestor) CollectAttestations(ctx context.Context) error {
 		Signature:              signature,
 	}
 
-	// TODO: Put in a database or something?
-	c.latestAttestation = &attestation
-
 	c.logger.Info("Collected attestation for chain", zap.String("chain_id", c.chainID), zap.String("client_id", c.clientID), zap.Int("num_packet_commitments", len(packetCommitments)))
 
-	return nil
+	return attestation, nil
 }

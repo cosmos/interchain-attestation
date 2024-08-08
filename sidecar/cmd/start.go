@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"github.com/dgraph-io/badger/v4"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestors"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/server"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
+	"path"
 )
 
 const (
@@ -21,8 +23,15 @@ func StartCmd() *cobra.Command {
 
 			sidecarConfig := GetConfig(cmd)
 			logger := GetLogger(cmd)
+			homedir := GetHomedir(cmd)
 
-			coordinator, err := attestors.NewCoordinator(logger, sidecarConfig)
+			dbPath := path.Join(homedir, "db")
+			db, err := badger.Open(badger.DefaultOptions(dbPath))
+			if err != nil {
+				return err
+			}
+
+			coordinator, err := attestors.NewCoordinator(logger, db, sidecarConfig)
 			if err != nil {
 				return err
 			}
