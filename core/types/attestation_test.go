@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+const (
+	mockChainID  = "testchain-1"
+	mockClientID = "testclient-1"
+)
+
 func TestGetSignableBytes(t *testing.T) {
 	cdc := testutil.MakeTestEncodingConfig().Codec
 
@@ -20,10 +25,12 @@ func TestGetSignableBytes(t *testing.T) {
 			packetCommitments = append(packetCommitments, getRandomBytes(j))
 		}
 
-		attestationData := types.IBCData {
+		attestationData := types.IBCData{
+			ChainId:           mockChainID,
+			ClientId:          mockClientID,
+			Height:            clienttypes.NewHeight(1, 42),
+			Timestamp:         time.Now(),
 			PacketCommitments: packetCommitments,
-			Height: clienttypes.NewHeight(1, 42),
-			Timestamp: time.Now(),
 		}
 		expectedSignableBytes := types.GetSignableBytes(cdc, attestationData)
 

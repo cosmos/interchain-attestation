@@ -3,14 +3,15 @@
 package simapp
 
 import (
+	dbm "github.com/cosmos/cosmos-db"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	attestationconfigkeeper "github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
+	attestationabci "github.com/gjermundgaraba/pessimistic-validation/core/abci"
 	"io"
-
-	dbm "github.com/cosmos/cosmos-db"
+	ve "vote-extensions.dev"
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/depinject"
@@ -98,7 +99,7 @@ type SimApp struct {
 	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
 	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
 
-	PessimisticKeeper attestationconfigkeeper.Keeper
+	AttestationConfigKeeper attestationconfigkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -200,7 +201,7 @@ func NewSimApp(
 		&app.NFTKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.CircuitBreakerKeeper,
-		&app.PessimisticKeeper,
+		&app.AttestationConfigKeeper,
 	); err != nil {
 		panic(err)
 	}
@@ -232,13 +233,25 @@ func NewSimApp(
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
 	// create and set dummy vote extension handler
-	voteExtOp := func(bApp *baseapp.BaseApp) {
-		voteExtHandler := NewVoteExtensionHandler()
-		voteExtHandler.SetHandlers(bApp)
-	}
-	baseAppOptions = append(baseAppOptions, voteExtOp, baseapp.SetOptimisticExecution())
+	baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
+
+	app.App.SetExtendVoteHandler(ve.ExtendVoteHandler(app.App.ModuleManager, []string {
+		attestationabci.ModuleName,
+	}))
+	app.App.SetVerifyVoteExtensionHandler(ve.VerifyExtensionHandler(app.App.ModuleManager, []string {
+		attestationabci.ModuleName,
+	}))
+	app.App.SetPrepareProposal(ve.PrepareProposalHandler(app.App.ModuleManager, []string {
+		attestationabci.ModuleName,
+	}))
+	app.App.SetProcessProposal(ve.ProcessProposalHandler(app.App.ModuleManager, []string {
+		attestationabci.ModuleName,
+	}))
+	app.App.SetPreBlocker(ve.PreBlocker(app.App.ModuleManager, []string {
+		attestationabci.ModuleName,
+	}))
 
 	// Register legacy modules
 	if err := app.registerIBCModules(appOpts); err != nil {

@@ -15,6 +15,7 @@ import (
 
 const (
 	mockChainID = "mockChainID"
+	mockClientID = "mockClientID"
 	mockAttestorID = "mockAttestorID"
 	mockAttestorSignature = "mockAttestorSignature"
 )
@@ -40,6 +41,8 @@ func (m *MockChainAttestor) CollectAttestation(ctx context.Context) (types.Attes
 	return types.Attestation{
 		AttestatorId: []byte(mockAttestorID),
 		AttestedData: types.IBCData{
+			ChainId:           mockChainID,
+			ClientId:          mockClientID,
 			Height:            clienttypes.NewHeight(1, m.CurrentHeight),
 			Timestamp:         m.Timestamp,
 			PacketCommitments: mockPacketCommits,

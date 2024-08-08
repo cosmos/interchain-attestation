@@ -99,7 +99,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 				}
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
-			"attestations must all have the same height",
+			"attestations must all be the same",
 		},
 		{
 			"invalid client message: different timestamps",
@@ -109,7 +109,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 				attestation.AttestedData.Timestamp = attestation.AttestedData.Timestamp.Add(10)
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
-			"attestations must all have the same timestamp",
+			"attestations must all be the same",
 		},
 		{
 			"invalid client message: different packet commitments",
@@ -119,7 +119,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 				attestation.AttestedData.PacketCommitments[0] = []byte{0x01}
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			}                                                                                                                   ,
-			"attestations must all have the same packet commitments",
+			"attestations must all be the same",
 		},
 		{
 			"invalid client message: different amount of packet commitments",
@@ -129,7 +129,27 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 				attestation.AttestedData.PacketCommitments = append(attestation.AttestedData.PacketCommitments, []byte{0x01})
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
-			"attestations must all have the same packet commitments",
+			"attestations must all be the same",
+		},
+		{
+			"invalid client message: different chain id",
+			10,
+			5,
+			func(attestation *types.Attestation) {
+				attestation.AttestedData.ChainId = "different chain id"
+				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
+			},
+			"attestations must all be the same",
+		},
+		{
+			"invalid client message: different client id",
+			10,
+			5,
+			func(attestation *types.Attestation) {
+				attestation.AttestedData.ClientId = "different client id"
+				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
+			},
+			"attestations must all be the same",
 		},
 		{
 			"invalid client message: duplicate packet commitment",

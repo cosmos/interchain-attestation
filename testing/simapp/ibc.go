@@ -27,9 +27,9 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	solomachine "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
-
 	attestationconfigtypes "github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	attestationabci "github.com/gjermundgaraba/pessimistic-validation/core/abci"
+	attestationlightclient "github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
 )
 
 // registerIBCModules register IBC keepers and non dependency inject modules.
@@ -122,8 +122,8 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 	smLightClientModule := solomachine.NewLightClientModule(app.appCodec)
 	clientRouter.AddRoute(solomachine.ModuleName, &smLightClientModule)
 
-	pessimisticLightClientModule := lightclient.NewLightClientModule(app.appCodec, app.PessimisticKeeper)
-	clientRouter.AddRoute(attestationconfigtypes.ClientType, &pessimisticLightClientModule)
+	attestationLightClientModule := attestationlightclient.NewLightClientModule(app.appCodec, app.AttestationConfigKeeper)
+	clientRouter.AddRoute(attestationconfigtypes.ClientType, &attestationLightClientModule)
 
 	// register IBC modules
 	if err := app.RegisterModules(
@@ -133,6 +133,8 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 		capability.NewAppModule(app.appCodec, *app.CapabilityKeeper, false),
 		ibctm.NewAppModule(tmLightClientModule),
 		solomachine.NewAppModule(smLightClientModule),
+		attestationlightclient.NewAppModule(attestationLightClientModule),
+		attestationabci.NewAppModule(),
 	); err != nil {
 		return err
 	}
@@ -145,12 +147,14 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 // This needs to be removed after IBC supports App Wiring.
 func RegisterIBC(registry cdctypes.InterfaceRegistry) map[string]appmodule.AppModule {
 	modules := map[string]appmodule.AppModule{
-		ibcexported.ModuleName:      ibc.AppModule{},
-		ibctransfertypes.ModuleName: ibctransfer.AppModule{},
-		ibcfeetypes.ModuleName:      ibcfee.AppModule{},
-		capabilitytypes.ModuleName:  capability.AppModule{},
-		ibctm.ModuleName:            ibctm.AppModule{},
-		solomachine.ModuleName:      solomachine.AppModule{},
+		ibcexported.ModuleName:            ibc.AppModule{},
+		ibctransfertypes.ModuleName:       ibctransfer.AppModule{},
+		ibcfeetypes.ModuleName:            ibcfee.AppModule{},
+		capabilitytypes.ModuleName:        capability.AppModule{},
+		ibctm.ModuleName:                  ibctm.AppModule{},
+		solomachine.ModuleName:            solomachine.AppModule{},
+		attestationlightclient.ModuleName: attestationlightclient.AppModule{},
+		attestationabci.ModuleName:        attestationabci.AppModule{},
 	}
 
 	for name, m := range modules {

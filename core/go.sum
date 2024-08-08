@@ -1060,3 +1060,5 @@ sigs.k8s.io/yaml v1.1.0/go.mod h1:UJmg0vDUVViEyp3mgSv9WPwZCDxu4rQW1olrI1uml+o=
 sigs.k8s.io/yaml v1.4.0 h1:Mk1wCc2gy/F0THH0TAp1QYyJNzRm2KCLy3o5ASXVI5E=
 sigs.k8s.io/yaml v1.4.0/go.mod h1:Ejl7/uTz7PSA4eKMyQCUTnhZYNmLIl+5c2lQPGR2BPY=
 sourcegraph.com/sourcegraph/appdash v0.0.0-20190731080439-ebfcffb1b5c0/go.mod h1:hI742Nqp5OhwiqlzhgfbWU4mW4yO10fP+LoT9WOswdU=
+vote-extensions.dev v0.0.0-20240731084500-6fcd40697cf6 h1:gEbfzJL9N3S3pUNFOsFln9gxNRBjtHWlqk0zFWE+ikI=
+vote-extensions.dev v0.0.0-20240731084500-6fcd40697cf6/go.mod h1:jHbZyn3rO0pwDlRj5X+fu+oWUBx9gqrC+roQWs9V8JQ=

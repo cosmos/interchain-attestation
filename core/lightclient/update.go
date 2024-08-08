@@ -11,7 +11,9 @@ import (
 
 // VerifyClientMessage checks if the clientMessage is the correct type and verifies the message
 func (cs *ClientState) VerifyClientMessage(
-	ctx sdk.Context, cdc codec.BinaryCodec, attestatorsHandler AttestatorsController,
+	ctx sdk.Context,
+	cdc codec.BinaryCodec,
+	attestatorsHandler AttestatorsController,
 	clientMsg exported.ClientMessage,
 ) error {
 	attestationClaim, ok := clientMsg.(*AttestationClaim)
@@ -24,7 +26,9 @@ func (cs *ClientState) VerifyClientMessage(
 
 // verifyAttestationClaim verifies that the provided attestation claims are valid, all the same and valid signatures from enough validators
 func (cs *ClientState) verifyAttestationClaim(
-	ctx sdk.Context, cdc codec.BinaryCodec, attestatorsHandler AttestatorsController,
+	ctx sdk.Context,
+	cdc codec.BinaryCodec,
+	attestatorsHandler AttestatorsController,
 	attestationClaim *AttestationClaim,
 ) error {
 	if len(attestationClaim.Attestations) == 0 {
@@ -64,17 +68,26 @@ func (cs *ClientState) verifyAttestationClaim(
 		seenPacketCommitments[string(packetCommitements)] = true
 	}
 
+	// Used to check against all the other attestations to make sure they match
+	firstSignableBytes := GetSignableBytes(cdc, attestationClaim.Attestations[0].AttestedData)
+
 	// check that the attestations are all the same
+	// TODO: Could we just verify that the "signable" bytes are all the same?
 	for i, attestation := range attestationClaim.Attestations {
 		attestator := string(attestation.AttestatorId)
 
 		// verify signature
-		signBytes := GetSignableBytes(cdc, attestation.AttestedData)
+		var signableBytes []byte
+		if i == 0 {
+			signableBytes = firstSignableBytes
+		} else {
+			signableBytes = GetSignableBytes(cdc, attestation.AttestedData)
+		}
 		pubKey, err := attestatorsHandler.GetPublicKey(ctx, attestation.AttestatorId)
 		if err != nil {
 			return errorsmod.Wrapf(ErrInvalidClientMsg, "failed to get public key for attestator %s: %s", attestator, err)
 		}
-		if verified := pubKey.VerifySignature(signBytes, attestation.Signature); !verified {
+		if verified := pubKey.VerifySignature(signableBytes, attestation.Signature); !verified {
 			return errorsmod.Wrapf(ErrInvalidClientMsg, "invalid signature from attestator %s", attestator)
 		}
 
@@ -83,19 +96,8 @@ func (cs *ClientState) verifyAttestationClaim(
 			continue
 		}
 
-		// check that all attestations have the same height
-		if !attestation.AttestedData.Height.EQ(attestationClaim.Attestations[0].AttestedData.Height) {
-			return errorsmod.Wrapf(ErrInvalidClientMsg, "attestations must all have the same height")
-		}
-
-		// check that all attestations have the same timestamp
-		if !attestation.AttestedData.Timestamp.Equal(attestationClaim.Attestations[0].AttestedData.Timestamp) {
-			return errorsmod.Wrapf(ErrInvalidClientMsg, "attestations must all have the same timestamp")
-		}
-
-		// check that all attestations have the same packet commitments
-		if !byteSlicesAreEqual(attestation.AttestedData.PacketCommitments, attestationClaim.Attestations[0].AttestedData.PacketCommitments) {
-			return errorsmod.Wrapf(ErrInvalidClientMsg, "attestations must all have the same packet commitments")
+		if !bytes.Equal(firstSignableBytes, signableBytes) {
+			return errorsmod.Wrapf(ErrInvalidClientMsg, "attestations must all be the same")
 		}
 	}
 

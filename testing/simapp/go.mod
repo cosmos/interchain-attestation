@@ -208,6 +208,7 @@ require (
 	nhooyr.io/websocket v1.8.11 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
+	vote-extensions.dev v0.0.0-20240731084500-6fcd40697cf6 // indirect
 )
 
 // Below are the long-lived replace of the SimApp

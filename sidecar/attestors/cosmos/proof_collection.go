@@ -10,19 +10,19 @@ import (
 )
 
 func (c *CosmosAttestor) CollectAttestation(ctx context.Context) (types.Attestation, error) {
-	c.logger.Info("Collecting attestationData for chain", zap.String("chain_id", c.chainID))
+	c.logger.Info("Collecting attestationData for chain", zap.String("chain_id", c.chainID), zap.String("client_id", c.clientID))
 
 	// TODO: add locks to prevent multiple CollectAttestation from running at the same time
 
 	commitments, err := c.queryPacketCommitments(ctx, c.clientID)
 	if err != nil {
-		return types.Attestation{}, errors.Wrapf(err, "failed to query packet commitments for chain id %s", c.chainID)
+		return types.Attestation{}, errors.Wrapf(err, "failed to query packet commitments for client id %s on chain id %s", c.clientID, c.chainID)
 	}
 
 	revHeight := int64(commitments.Height.RevisionHeight)
 	blockAtHeight, err := c.rpcClient.Block(ctx, &revHeight)
 	if err != nil {
-		return types.Attestation{}, errors.Wrapf(err, "failed to query block for chain id %s", c.chainID)
+		return types.Attestation{}, errors.Wrapf(err, "failed to query block for client id %s on chain id %s", c.clientID, c.chainID)
 	}
 
 	var packetCommitments [][]byte
@@ -30,7 +30,9 @@ func (c *CosmosAttestor) CollectAttestation(ctx context.Context) (types.Attestat
 		packetCommitments = append(packetCommitments, commitment.Data)
 	}
 
-	attestationData := types.IBCData{
+	attestationData := types.IBCData {
+		ChainId:           c.chainID,
+		ClientId:          c.clientID,
 		Height:            clienttypes.Height{},
 		Timestamp:         blockAtHeight.Block.Time,
 		PacketCommitments: packetCommitments,
@@ -39,13 +41,13 @@ func (c *CosmosAttestor) CollectAttestation(ctx context.Context) (types.Attestat
 	signableBytes := lightclient.GetSignableBytes(c.codec.Marshaler, attestationData)
 	signature, err := c.signer(signableBytes)
 	if err != nil {
-		return types.Attestation{}, errors.Wrapf(err, "failed to sign attestation data for chain id %s", c.chainID)
+		return types.Attestation{}, errors.Wrapf(err, "failed to sign attestation data for client id %s on chain id %s", c.clientID, c.chainID)
 	}
 
 	attestation := types.Attestation{
-		AttestatorId:           []byte(c.attestatorID),
+		AttestatorId: []byte(c.attestatorID),
 		AttestedData: attestationData,
-		Signature:              signature,
+		Signature:    signature,
 	}
 
 	c.logger.Info("Collected attestation for chain", zap.String("chain_id", c.chainID), zap.String("client_id", c.clientID), zap.Int("num_packet_commitments", len(packetCommitments)))

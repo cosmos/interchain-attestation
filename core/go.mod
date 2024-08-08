@@ -21,6 +21,8 @@ require (
 	google.golang.org/protobuf v1.34.2
 )
 
+require vote-extensions.dev v0.0.0-20240731084500-6fcd40697cf6
+
 require (
 	cosmossdk.io/api v0.7.5 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect

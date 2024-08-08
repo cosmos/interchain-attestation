@@ -23,9 +23,14 @@ import (
 	"time"
 )
 
+const (
+	mockChainID  = "testchain-1"
+	mockClientID = "testclient-1"
+)
+
 var (
 	initialClientState = lightclient.NewClientState(
-		"testchain-1",
+		mockChainID,
 		sdkmath.NewInt(100),
 		clienttypes.Height{},
 		clienttypes.NewHeight(1, 42),
@@ -148,10 +153,12 @@ func generateClientMsg(cdc codec.BinaryCodec, attestators []mockAttestator, numb
 		packetCommitementsCopy := make([][]byte, len(packetCommitments))
 		copy(packetCommitementsCopy, packetCommitments)
 
-		attestationData := types.IBCData {
+		attestationData := types.IBCData{
+			ChainId:           mockChainID,
+			ClientId:          mockClientID,
+			Height:            defaultHeight,
+			Timestamp:         timestamp,
 			PacketCommitments: packetCommitementsCopy,
-			Height: defaultHeight,
-			Timestamp: timestamp,
 		}
 
 		for _, modifier := range modifiers {

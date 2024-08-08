@@ -18,6 +18,13 @@ import (
 	"time"
 )
 
+const (
+	mockChainID  = "mockChainID"
+	mockClientID = "mockClientID"
+	mockChainAttestorID = "mockChainAttestorID"
+	mockSignature = "mockSignature"
+)
+
 type mockCoordinator struct{}
 
 type mockChainAttestor struct{}
@@ -35,13 +42,15 @@ func (m mockCoordinator) Run(_ context.Context) error {
 
 func (m mockCoordinator) GetLatestAttestation(chainID string) (types.Attestation, error) {
 	return types.Attestation{
-		AttestatorId: []byte("mockAttestatorID"),
+		AttestatorId: []byte(mockChainAttestorID),
 		AttestedData: types.IBCData {
+			ChainId:           chainID,
+			ClientId:          mockClientID,
 			Height:            clienttypes.NewHeight(1, 42),
 			Timestamp:         time.Now(),
 			PacketCommitments: [][]byte{{0x01}, {0x02}, {0x03}},
 		},
-		Signature: []byte("mockSignature"),
+		Signature: []byte(mockSignature),
 	}, nil
 }
 
@@ -51,13 +60,14 @@ func (m mockCoordinator) GetAttestationForHeight(chainID string, height uint64) 
 }
 
 func (m mockChainAttestor) ChainID() string {
-	return "mockChainID"
+	return mockChainID
 }
 
 func (m mockChainAttestor) CollectAttestation(ctx context.Context) (types.Attestation, error) {
 	panic("should not be called in this test")
 }
 
+// TestServe is mostly just a smoke test that the server can start and serve requests. Everything is mocked except the server itself.
 func TestServe(t *testing.T) {
 	s := server.NewServer(zap.NewNop(), mockCoordinator{})
 	randomPort := rand.Intn(65535-49152) + 49152
@@ -76,12 +86,15 @@ func TestServe(t *testing.T) {
 	client, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	require.NoError(t, err)
 
-	claimClient := types.NewSidecarClient(client)
-	claim, err := claimClient.GetAttestation(context.Background(), &types.AttestationRequest{
-		ChainId: "mockChainID",
+	sidecarClient := types.NewSidecarClient(client)
+	resp, err := sidecarClient.GetAttestation(context.Background(), &types.AttestationRequest{
+		ChainId: mockChainID,
 	})
 	require.NoError(t, err)
-	require.NotNil(t, claim)
+	require.Equal(t, mockChainAttestorID, resp.Attestation.AttestatorId)
+	require.Equal(t, mockChainID, resp.Attestation.AttestedData.ChainId)
+	require.Equal(t, mockClientID, resp.Attestation.AttestedData.ClientId)
+	require.Equal(t, mockSignature, string(resp.Attestation.Signature))
 
 	s.Stop()
 
