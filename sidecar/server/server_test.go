@@ -3,10 +3,10 @@ package server_test
 import (
 	"context"
 	"fmt"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestors"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestors/chainattestor"
+	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators"
+	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/attestator"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/server"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -21,36 +21,38 @@ import (
 const (
 	mockChainID  = "mockChainID"
 	mockClientID = "mockClientID"
-	mockChainAttestorID = "mockChainAttestorID"
+	mockChainAttestatorID = "mockChainAttestatorID"
 	mockSignature = "mockSignature"
 )
 
 type mockCoordinator struct{}
 
-type mockChainAttestor struct{}
+type mockChainAttestator struct{}
 
-var _ attestors.Coordinator = &mockCoordinator{}
-var _ chainattestor.ChainAttestor = &mockChainAttestor{}
+var _ attestators.Coordinator = &mockCoordinator{}
+var _ attestator.Attestator = &mockChainAttestator{}
 
-func (m mockCoordinator) GetChainProver(_ string) chainattestor.ChainAttestor {
-	return &mockChainAttestor{}
+func (m mockCoordinator) GetChainProver(_ string) attestator.Attestator {
+	return &mockChainAttestator{}
 }
 
 func (m mockCoordinator) Run(_ context.Context) error {
 	panic("should not be called in this test")
 }
 
-func (m mockCoordinator) GetLatestAttestation(chainID string) (types.Attestation, error) {
-	return types.Attestation{
-		AttestatorId: []byte(mockChainAttestorID),
-		AttestedData: types.IBCData {
-			ChainId:           chainID,
-			ClientId:          mockClientID,
-			Height:            clienttypes.NewHeight(1, 42),
-			Timestamp:         time.Now(),
-			PacketCommitments: [][]byte{{0x01}, {0x02}, {0x03}},
+func (m mockCoordinator) GetLatestAttestations() ([]types.Attestation, error) {
+	return []types.Attestation{
+		{
+			AttestatorId: []byte(mockChainAttestatorID),
+			AttestedData: types.IBCData {
+				ChainId:           mockChainID,
+				ClientId:          mockClientID,
+				Height:            clienttypes.NewHeight(1, 42),
+				Timestamp:         time.Now(),
+				PacketCommitments: [][]byte{{0x01}, {0x02}, {0x03}},
+			},
+			Signature: []byte(mockSignature),
 		},
-		Signature: []byte(mockSignature),
 	}, nil
 }
 
@@ -59,11 +61,11 @@ func (m mockCoordinator) GetAttestationForHeight(chainID string, height uint64) 
 	panic("implement me")
 }
 
-func (m mockChainAttestor) ChainID() string {
+func (m mockChainAttestator) ChainID() string {
 	return mockChainID
 }
 
-func (m mockChainAttestor) CollectAttestation(ctx context.Context) (types.Attestation, error) {
+func (m mockChainAttestator) CollectAttestation(ctx context.Context) (types.Attestation, error) {
 	panic("should not be called in this test")
 }
 
@@ -87,14 +89,14 @@ func TestServe(t *testing.T) {
 	require.NoError(t, err)
 
 	sidecarClient := types.NewSidecarClient(client)
-	resp, err := sidecarClient.GetAttestation(context.Background(), &types.AttestationRequest{
-		ChainId: mockChainID,
-	})
+	resp, err := sidecarClient.GetAttestations(context.Background(), &types.GetAttestationsRequest{})
+
 	require.NoError(t, err)
-	require.Equal(t, mockChainAttestorID, resp.Attestation.AttestatorId)
-	require.Equal(t, mockChainID, resp.Attestation.AttestedData.ChainId)
-	require.Equal(t, mockClientID, resp.Attestation.AttestedData.ClientId)
-	require.Equal(t, mockSignature, string(resp.Attestation.Signature))
+	require.Len(t, resp.Attestations, 1)
+	require.Equal(t, []byte(mockChainAttestatorID), resp.Attestations[0].AttestatorId)
+	require.Equal(t, mockChainID, resp.Attestations[0].AttestedData.ChainId)
+	require.Equal(t, mockClientID, resp.Attestations[0].AttestedData.ClientId)
+	require.Equal(t, mockSignature, string(resp.Attestations[0].Signature))
 
 	s.Stop()
 

@@ -8,7 +8,7 @@ import (
 func TestConfig_Validate(t *testing.T) {
 
 	tests := []struct {
-		name    string
+		name   string
 		config Config
 		expErr string
 	}{
@@ -17,14 +17,30 @@ func TestConfig_Validate(t *testing.T) {
 			config: Config{
 				CosmosChains: []CosmosChainConfig{
 					{
-						ChainID:  "chain1",
-						RPC:      "http://localhost:26657",
-						ClientID: "client1",
+						ChainID:        "chain1",
+						RPC:            "http://localhost:26657",
+						ClientID:       "client1",
+						Attestation:    true,
+						ClientToUpdate: "client1",
+						AddressPrefix:  "",
+						KeyringBackend: "",
+						KeyName:        "",
+						Gas:            "",
+						GasPrices:      "",
+						GasAdjustment:  0,
 					},
 					{
-						ChainID:  "chain2",
-						RPC:      "http://localhost:26658",
-						ClientID: "client2",
+						ChainID:        "chain2",
+						RPC:            "http://localhost:26658",
+						ClientID:       "",
+						Attestation:    false,
+						ClientToUpdate: "",
+						AddressPrefix:  "",
+						KeyringBackend: "",
+						KeyName:        "",
+						Gas:            "",
+						GasPrices:      "",
+						GasAdjustment:  0,
 					},
 				},
 				AttestatorID:          "test-attestator-id",
@@ -45,9 +61,8 @@ func TestConfig_Validate(t *testing.T) {
 			config: Config{
 				CosmosChains: []CosmosChainConfig{
 					{
-						ChainID:  "",
-						RPC:      "http://localhost:26657",
-						ClientID: "client1",
+						ChainID:             "",
+						RPC:                 "http://localhost:26657",
 					},
 				},
 				AttestatorID:          "test-attestator-id",
@@ -56,13 +71,46 @@ func TestConfig_Validate(t *testing.T) {
 			expErr: "chain id cannot be empty",
 		},
 		{
+			name: "empty attestation client id",
+			config: Config{
+				CosmosChains: []CosmosChainConfig{
+					{
+						ChainID:        "chain1",
+						RPC:            "http://localhost:26657",
+						ClientID:       "",
+						Attestation:    true,
+						ClientToUpdate: "client1",
+					},
+				},
+				AttestatorID:          "test-attestator-id",
+				SigningPrivateKeyPath: "some/path",
+			},
+			expErr: "client id cannot be empty when attestation is true",
+		},
+		{
+			name: "empty client to update",
+			config: Config{
+				CosmosChains: []CosmosChainConfig{
+					{
+						ChainID:        "chain1",
+						RPC:            "http://localhost:26657",
+						ClientID:       "client1",
+						Attestation:    true,
+						ClientToUpdate: "",
+					},
+				},
+				AttestatorID:          "test-attestator-id",
+				SigningPrivateKeyPath: "some/path",
+			},
+			expErr: "client to update cannot be empty when attestation is true",
+		},
+		{
 			name: "empty rpc",
 			config: Config{
 				CosmosChains: []CosmosChainConfig{
 					{
-						ChainID:  "chain1",
-						RPC:      "",
-						ClientID: "client1",
+						ChainID:             "chain1",
+						RPC:                 "",
 					},
 				},
 				AttestatorID:          "test-attestator-id",
@@ -71,33 +119,19 @@ func TestConfig_Validate(t *testing.T) {
 			expErr: "rpc address cannot be empty",
 		},
 		{
-			name: "empty client id",
-			config: Config{
-				CosmosChains: []CosmosChainConfig{
-					{
-						ChainID:  "chain1",
-						RPC:      "http://localhost:26657",
-						ClientID: "",
-					},
-				},
-				AttestatorID:          "test-attestator-id",
-				SigningPrivateKeyPath: "some/path",
-			},
-			expErr: "client id cannot be empty",
-		},
-		{
 			name: "duplicate chain id",
 			config: Config{
 				CosmosChains: []CosmosChainConfig{
 					{
-						ChainID:  "chain1",
-						RPC:      "http://localhost:26657",
-						ClientID: "client1",
+						ChainID:        "chain1",
+						RPC:            "http://localhost:26657",
+						ClientID:       "client1",
+						Attestation:    true,
+						ClientToUpdate: "client1",
 					},
 					{
-						ChainID:  "chain1",
-						RPC:      "http://localhost:26658",
 						ClientID: "client2",
+						ChainID:  "chain1",
 					},
 				},
 				AttestatorID:          "test-attestator-id",
@@ -106,44 +140,72 @@ func TestConfig_Validate(t *testing.T) {
 			expErr: "duplicate chain id",
 		},
 		{
+			name: "duplicate client to update",
+			config: Config{
+				CosmosChains: []CosmosChainConfig{
+					{
+						ChainID:        "chain1",
+						RPC:            "http://localhost:26657",
+						ClientID:       "client1",
+						Attestation:    true,
+						ClientToUpdate: "client1",
+					},
+					{
+						ChainID:        "chain2",
+						RPC:            "http://localhost:26658",
+						ClientID:       "client2",
+						Attestation:    true,
+						ClientToUpdate: "client1",
+					},
+				},
+				AttestatorID:          "test-attestator-id",
+				SigningPrivateKeyPath: "some/path",
+			},
+			expErr: "duplicate client to update",
+		},
+		{
 			name: "empty attestator id",
 			config: Config{
 				CosmosChains: []CosmosChainConfig{
 					{
-						ChainID:  "chain1",
-						RPC:      "http://localhost:26657",
-						ClientID: "client1",
+						ChainID:        "chain1",
+						RPC:            "http://localhost:26657",
+						ClientID:       "client1",
+						Attestation:    true,
+						ClientToUpdate: "client1",
 					},
 					{
-						ChainID:  "chain2",
-						RPC:      "http://localhost:26658",
-						ClientID: "client2",
+						ChainID:     "chain2",
+						RPC:         "http://localhost:26658",
+						Attestation: false,
 					},
 				},
 				AttestatorID:          "",
 				SigningPrivateKeyPath: "some/path",
 			},
-			expErr: "attestator id cannot be empty",
+			expErr: "attestator id cannot be empty if any chains have attestation true",
 		},
 		{
-			name: "empty signing private key path",
+			name: "empty signing private key path if any chain have attestation true",
 			config: Config{
 				CosmosChains: []CosmosChainConfig{
 					{
-						ChainID:  "chain1",
-						RPC:      "http://localhost:26657",
-						ClientID: "client1",
+						ChainID:        "chain1",
+						RPC:            "http://localhost:26657",
+						ClientID:       "client1",
+						Attestation:    true,
+						ClientToUpdate: "client1",
 					},
 					{
-						ChainID:  "chain2",
-						RPC:      "http://localhost:26658",
-						ClientID: "client2",
+						ChainID:     "chain2",
+						RPC:         "http://localhost:26658",
+						Attestation: false,
 					},
 				},
 				AttestatorID:          "test-attestator-id",
 				SigningPrivateKeyPath: "",
 			},
-			expErr: "private key path cannot be empty",
+			expErr: "private key path cannot be empty if any chains have attestation true",
 		},
 	}
 	for _, tt := range tests {

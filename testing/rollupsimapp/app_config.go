@@ -28,8 +28,11 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"fmt"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	_ "github.com/decentrio/rollkit-sdk/x/sequencer" // import for side-effects
-	_ "github.com/decentrio/rollkit-sdk/x/staking"   // import for side-effects
+	_ "github.com/decentrio/rollkit-sdk/x/sequencer"                  // import for side-effects
+	_ "github.com/decentrio/rollkit-sdk/x/staking"                    // import for side-effects
+	_ "github.com/gjermundgaraba/pessimistic-validation/configmodule" // import for side effects
+	attestationconfigmodulev1 "github.com/gjermundgaraba/pessimistic-validation/configmodule/api/configmodule/module/v1"
+	attestationconfigtypes "github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -58,9 +61,9 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	ibcfeetypes "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v9/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
 	sequencerv1 "github.com/decentrio/rollkit-sdk/api/rollkitsdk/sequencer/module"
 	sequencertypes "github.com/decentrio/rollkit-sdk/x/sequencer/types"
 )
@@ -156,6 +159,7 @@ var (
 						vestingtypes.ModuleName,
 						consensustypes.ModuleName,
 						circuittypes.ModuleName,
+						attestationconfigtypes.ModuleName,
 					},
 					// When ExportGenesis is not specified, the export genesis module order
 					// is equal to the init genesis order
@@ -240,6 +244,10 @@ var (
 			{
 				Name:   sequencertypes.ModuleName,
 				Config: appconfig.WrapAny(&sequencerv1.Module{}),
+			},
+			{
+				Name:   attestationconfigtypes.ModuleName,
+				Config: appconfig.WrapAny(&attestationconfigmodulev1.Module{}),
 			},
 		},
 	}),

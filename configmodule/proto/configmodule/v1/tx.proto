@@ -5,7 +5,9 @@ import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "google/protobuf/any.proto";
 import "configmodule/v1/params.proto";
+import "configmodule/v1/attestator.proto";
 
 option go_package = "github.com/gjermundgaraba/pessimistic-validation/configmodule/types";
 
@@ -16,6 +18,12 @@ service Msg {
   // UpdateParams defines a governance operation for updating the
   // configmodule module parameters.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // TODO: Document
+  rpc RegisterAttestator(MsgRegisterAttestator)
+      returns (MsgRegisterAttestatorResponse);
+
+  // TODO: Update attestator (including public key and chains to attestate)
 }
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
@@ -36,3 +44,20 @@ message MsgUpdateParams {
 // MsgUpdateParamsResponse defines the response structure for executing a
 // MsgUpdateParams message.
 message MsgUpdateParamsResponse {}
+
+// TODO: Document
+message MsgRegisterAttestator {
+  option (cosmos.msg.v1.signer) = "validator_address";
+
+  string validator_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.ValidatorAddressString" ];
+
+  bytes attestator_id = 2;
+
+  google.protobuf.Any attestation_public_key = 3
+      [ (cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey" ];
+
+  // TODO: Register chains to attestate as well
+}
+
+message MsgRegisterAttestatorResponse {}

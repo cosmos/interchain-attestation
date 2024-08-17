@@ -3,9 +3,9 @@ package simapp
 import (
 	"fmt"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	ibcfeetypes "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v9/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
 	attestationconfigtypes "github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
 	"time"
 
@@ -80,7 +80,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	_ "github.com/gjermundgaraba/pessimistic-validation/configmodule" // import for side effects
-	pessimisticmodulev1 "github.com/gjermundgaraba/pessimistic-validation/configmodule/api/configmodule/module/v1"
+	attestationconfigmodulev1 "github.com/gjermundgaraba/pessimistic-validation/configmodule/api/configmodule/module/v1"
 )
 
 const AccountAddressPrefix = "simapp"
@@ -292,7 +292,7 @@ var (
 			},
 			{
 				Name:   attestationconfigtypes.ModuleName,
-				Config: appconfig.WrapAny(&pessimisticmodulev1.Module{}),
+				Config: appconfig.WrapAny(&attestationconfigmodulev1.Module{}),
 			},
 		},
 	}),

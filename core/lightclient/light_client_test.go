@@ -13,9 +13,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+	host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
 	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 	testifysuite "github.com/stretchr/testify/suite"
@@ -45,7 +45,7 @@ type PessimisticLightClientTestSuite struct {
 	testifysuite.Suite
 
 	lightClientModule lightclient.LightClientModule
-	storeProvider     ibcexported.ClientStoreProvider
+	storeProvider     clienttypes.StoreProvider
 
 	mockAttestators []mockAttestator
 	mockAttestatorsHandler mockAttestatorsHandler
@@ -69,8 +69,7 @@ func (s *PessimisticLightClientTestSuite) SetupTest() {
 	s.mockAttestators = generateAttestators(10)
 	s.mockAttestatorsHandler = NewMockAttestatorsHandler(s.mockAttestators)
 
-	s.lightClientModule = lightclient.NewLightClientModule(s.encCfg.Codec, s.mockAttestatorsHandler)
-	s.lightClientModule.RegisterStoreProvider(s.storeProvider)
+	s.lightClientModule = lightclient.NewLightClientModule(s.encCfg.Codec, s.storeProvider, s.mockAttestatorsHandler)
 }
 
 type mockAttestator struct {

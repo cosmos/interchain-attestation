@@ -7,7 +7,7 @@ import (
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
-	_ "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	_ "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	types "github.com/gjermundgaraba/pessimistic-validation/core/types"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"

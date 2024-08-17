@@ -56,15 +56,22 @@ interchaintest:
 ###                                  Serve                                  ###
 ###############################################################################
 
-serve: kill-all
+serve: kill-all install-simapps mock-da-image
 	@echo "===========     Serve     ============"
+	./scripts/serve-mock-da.sh
 	./scripts/serve-simapp.sh
 	./scripts/serve-rollupsimapp.sh
+	./scripts/serve-sidecar.sh
 
 kill-all:
 	@echo "Killing simappd"
 	-@pkill simappd 2>/dev/null
 	@echo "Killing rollupsimappd"
 	-@pkill rollupsimappd 2>/dev/null
+	@echo "Killing attestation-sidecar"
+	-@pkill attestation-sidecar 2>/dev/null
+	@echo "Killing mock-da"
+	-@docker container stop mockda 2>/dev/null
+	-@docker container rm mockda 2>/dev/null
 
 .PHONY: *

@@ -2,9 +2,9 @@ package rollupsimapp
 
 import (
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v9/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
 	"io"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -42,6 +42,7 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	sequencerkeeper "github.com/decentrio/rollkit-sdk/x/sequencer/keeper"
 	rollkitstakingkeeper "github.com/decentrio/rollkit-sdk/x/staking/keeper"
+	attestationconfigkeeper "github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
 )
 
 // DefaultNodeHome default home directories for the application daemon
@@ -84,6 +85,8 @@ type RollupSimApp struct {
 	// Scoped IBC
 	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
 	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
+
+	AttestationConfigKeeper attestationconfigkeeper.Keeper
 
 	// Rollkit keepers
 	StakingKeeper         *rollkitstakingkeeper.Keeper
@@ -184,6 +187,7 @@ func NewRollupSimApp(
 		&app.AuthzKeeper,
 		&app.FeeGrantKeeper,
 		&app.CircuitBreakerKeeper,
+		&app.AttestationConfigKeeper,
 		&app.SequencerKeeper,
 	); err != nil {
 		panic(err)
@@ -228,6 +232,7 @@ func NewRollupSimApp(
 	if err := app.registerIBCModules(appOpts); err != nil {
 		panic(err)
 	}
+
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
@@ -365,21 +370,4 @@ func (app *RollupSimApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	}
 
 	return key
-}
-
-// BlockedAddresses returns all the app's blocked account addresses.
-func BlockedAddresses() map[string]bool {
-	result := make(map[string]bool)
-
-	if len(blockAccAddrs) > 0 {
-		for _, addr := range blockAccAddrs {
-			result[addr] = true
-		}
-	} else {
-		for addr := range GetMaccPerms() {
-			result[addr] = true
-		}
-	}
-
-	return result
 }

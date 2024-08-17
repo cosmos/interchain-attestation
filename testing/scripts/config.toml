@@ -107,7 +107,6 @@ gas_price = { price = 0.025, denom = 'stake' }
 address_type = { derivation = 'cosmos' }
 event_source = { mode = 'pull', interval = '500ms', max_retries = 4 }
 
-
 [chains.trust_threshold]
 numerator = 2
 denominator = 3

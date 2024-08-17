@@ -17,6 +17,7 @@ message ClientState {
   // required_token_power is the minimum number of tokens this client needs to
   // have signed over state updates to accept them
 
+  // TODO: Do we actually need this, or should it come from the controller?
   string required_token_power = 2 [
     (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "cosmossdk.io/math.Int",

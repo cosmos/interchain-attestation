@@ -2,6 +2,9 @@ package configmodule
 
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+	_ "cosmossdk.io/api/cosmos/crypto/ed25519" // register to that it shows up in protoregistry.GlobalTypes
+	_ "cosmossdk.io/api/cosmos/crypto/secp256k1" // register to that it shows up in protoregistry.GlobalTypes
+	_ "cosmossdk.io/api/cosmos/crypto/secp256r1" // register to that it shows up in protoregistry.GlobalTypes
 	configmodulev1 "github.com/gjermundgaraba/pessimistic-validation/configmodule/api/configmodule/v1"
 )
 
@@ -15,6 +18,17 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					RpcMethod: "Params",
 					Use:       "params",
 					Short:     "Shows the parameters of the module",
+				},
+				{
+					RpcMethod: "Attestators",
+					Use:       "attestators",
+					Short:     "Query all attestators",
+				},
+				{
+					RpcMethod: "Attestator",
+					Use:       "attestator [attestator_id]",
+					Short:     "Query attestator by attestator id",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "attestator_id"}},
 				},
 			},
 		},

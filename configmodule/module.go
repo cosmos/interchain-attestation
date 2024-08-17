@@ -11,32 +11,35 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	modulev1 "github.com/gjermundgaraba/pessimistic-validation/configmodule/api/configmodule/module/v1"
+	"github.com/gjermundgaraba/pessimistic-validation/configmodule/client/cli"
 	"github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
 	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 )
 
-// ConsensusVersion defines the current configmodule module consensus version.
+// ConsensusVersion defines the current attestationconfig module consensus version.
 const ConsensusVersion = 1
 
 var (
-	_ module.AppModuleBasic      = (*AppModuleBasic)(nil)
+	_ module.AppModuleBasic = (*AppModuleBasic)(nil)
 
 	_ module.AppModuleSimulation = (*AppModule)(nil)
 	_ module.HasGenesis          = (*AppModule)(nil)
 	_ module.HasInvariants       = (*AppModule)(nil)
 	_ module.HasConsensusVersion = (*AppModule)(nil)
-	_ module.HasServices		 = (*AppModule)(nil)
+	_ module.HasServices         = (*AppModule)(nil)
 
-	_ autocli.HasAutoCLIConfig   = (*AppModule)(nil)
+	_ autocli.HasAutoCLIConfig = (*AppModule)(nil)
 
-	_ appmodule.AppModule       = (*AppModule)(nil)
+	_ appmodule.AppModule = (*AppModule)(nil)
 )
 
 // ----------------------------------------------------------------------------
@@ -45,31 +48,36 @@ var (
 
 // AppModuleBasic implements the AppModuleBasic interface that defines the
 // independent methods a Cosmos SDK module needs to implement.
-type AppModuleBasic struct{
+type AppModuleBasic struct {
 	cdc codec.Codec
 }
 
-// Name returns the configmodule module's name.
+// Name returns the attestationconfig module's name.
 func (a AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec registers the configmodule module's types on the LegacyAmino codec.
+// RegisterLegacyAminoCodec registers the attestationconfig module's types on the LegacyAmino codec.
 func (a AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	// TODO: Necessary or nah?
 	// types.RegisterLegacyAminoCodec(cdc)
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the bank module.
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the attestationconfig module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
 	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
 		panic(err)
 	}
 }
 
-// RegisterInterfaces registers interfaces and implementations of the bank module.
+// RegisterInterfaces registers interfaces and implementations of the attestationconfig module.
 func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
+}
+
+// GetTxCmd returns the root tx command for the attestationconfig module.
+func (a AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.TxCmd(a.cdc.InterfaceRegistry().SigningContext().ValidatorAddressCodec())
 }
 
 // ----------------------------------------------------------------------------
@@ -80,7 +88,7 @@ func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) 
 type AppModule struct {
 	AppModuleBasic
 
-	keeper 	  keeper.Keeper
+	keeper keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
@@ -102,17 +110,17 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
 }
 
-// RegisterInvariants registers the configmodule module invariants.
+// RegisterInvariants registers the attestationconfig module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	keeper.RegisterInvariants(ir, am.keeper)
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the configmodule module
+// DefaultGenesis returns default genesis state as raw bytes for the attestationconfig module
 func (AppModule) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-// ValidateGenesis performs genesis state validation for the bank module.
+// ValidateGenesis performs genesis state validation for the attestationconfig module.
 func (AppModule) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
@@ -122,7 +130,7 @@ func (AppModule) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConfig,
 	return data.Validate()
 }
 
-// InitGenesis performs genesis initialization for the bank module. It returns
+// InitGenesis performs genesis initialization for the attestationconfig module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) {
 	var genesisState types.GenesisState
@@ -131,7 +139,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	InitGenesis(ctx, am.keeper, genesisState)
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the bank
+// ExportGenesis returns the exported genesis state as raw bytes for the attestationconfig
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
@@ -157,16 +165,18 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	Config       *modulev1.Module
-	Cdc          codec.Codec
-	StoreService store.KVStoreService
+	Config                *modulev1.Module
+	Cdc                   codec.Codec
+	ValidatorAddressCodec runtime.ValidatorAddressCodec
+	StoreService          store.KVStoreService
+	StakingKeeper         types.StakingKeeper
 }
 
 type ModuleOutputs struct {
 	depinject.Out
 
 	Keeper keeper.Keeper
-	Module            appmodule.AppModule
+	Module appmodule.AppModule
 }
 
 func ProvideModule(in ModuleInputs) ModuleOutputs {
@@ -175,7 +185,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	if in.Config.Authority != "" {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
-	k := keeper.NewKeeper(in.StoreService, in.Cdc, authority.String())
+	k := keeper.NewKeeper(in.StoreService, in.Cdc, in.ValidatorAddressCodec, authority.String(), in.StakingKeeper)
 
 	m := NewAppModule(
 		in.Cdc,

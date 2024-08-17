@@ -1,9 +1,7 @@
 package types
 
 func DefaultParams() Params {
-	return Params{
-		MinimumPower: 0,
-	}
+	return Params{}
 }
 
 // Validate performs basic validation of params

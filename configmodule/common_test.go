@@ -31,8 +31,6 @@ type suite struct {
 func createTestSuite(t *testing.T) suite {
 	res := suite{}
 
-	//config := simtestutil.DefaultStartUpConfig()
-
 	app, err := simtestutil.SetupWithConfiguration(
 		depinject.Configs(
 			configurator.NewAppConfig(

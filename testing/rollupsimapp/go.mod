@@ -1,27 +1,34 @@
 module github.com/gjermundgaraba/pessimistic-validation/rollupsimapp
 
-go 1.22.2
+go 1.23.0
+
+replace (
+	github.com/gjermundgaraba/pessimistic-validation/configmodule => ../../configmodule
+	github.com/gjermundgaraba/pessimistic-validation/core => ../../core
+)
 
 require (
 	cosmossdk.io/api v0.7.5
-	cosmossdk.io/client/v2 v2.0.0-beta.2.0.20240625194835-17173894fea9 // TODO(@julienrbrt): tag client/v2
-	cosmossdk.io/core v0.11.0
-	cosmossdk.io/depinject v1.0.0-alpha.4
+	cosmossdk.io/client/v2 v2.0.0-beta.3 // TODO(@julienrbrt): tag client/v2
+	cosmossdk.io/core v0.11.1
+	cosmossdk.io/depinject v1.0.0
 	cosmossdk.io/log v1.3.1
 	cosmossdk.io/math v1.3.0
 	cosmossdk.io/store v1.1.0
 	cosmossdk.io/tools/confix v0.1.1
 	cosmossdk.io/x/circuit v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
-	cosmossdk.io/x/tx v0.13.3 // indirect
-	cosmossdk.io/x/upgrade v0.1.4-0.20240625194835-17173894fea9 // TODO(@julienrbrt): tag upgrade
-	github.com/cometbft/cometbft v0.38.9
+	cosmossdk.io/x/tx v0.13.4 // indirect
+	cosmossdk.io/x/upgrade v0.1.4 // TODO(@julienrbrt): tag upgrade
+	github.com/cometbft/cometbft v0.38.10
 	github.com/cosmos/cosmos-db v1.0.2
-	github.com/cosmos/cosmos-sdk v0.50.7
+	github.com/cosmos/cosmos-sdk v0.50.9
 	github.com/cosmos/gogoproto v1.5.0 // indirect
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
-	github.com/cosmos/ibc-go/v8 v8.0.0-beta.1.0.20240709183926-ecbf479f8075 // TODO: Update to v9 when available
+	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1
 	github.com/decentrio/rollkit-sdk v0.2.0-rc0
+	github.com/gjermundgaraba/pessimistic-validation/configmodule v0.0.0
+	github.com/gjermundgaraba/pessimistic-validation/core v0.0.0
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/rollkit/cosmos-sdk-starter v0.0.0-20240711025550-2ec636be897c
 	github.com/rollkit/rollkit v0.13.6
@@ -293,7 +300,7 @@ require (
 	google.golang.org/api v0.186.0 // indirect
 	google.golang.org/genproto v0.0.0-20240701130421-f6361c86f094 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240701130421-f6361c86f094 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240709173604-40e1e62336c5 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/typ.v4 v4.3.0 // indirect

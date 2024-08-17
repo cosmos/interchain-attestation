@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 	"github.com/stretchr/testify/require"
 	"testing"

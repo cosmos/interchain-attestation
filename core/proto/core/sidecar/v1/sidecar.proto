@@ -1,15 +1,21 @@
 syntax = "proto3";
 package core.sidecar.v1;
 
+import "gogoproto/gogo.proto";
 import "core/types/v1/attestation.proto";
 
 option go_package = "github.com/gjermundgaraba/pessimistic-validation/core/types";
 
 // TODO: Document
 service Sidecar {
-  rpc GetAttestation(AttestationRequest) returns (AttestationResponse) {}
+  rpc GetAttestations(GetAttestationsRequest)
+      returns (GetAttestationsResponse) {}
 }
 
-message AttestationRequest { string chain_id = 1; }
+message GetAttestationsRequest {}
 
-message AttestationResponse { types.v1.Attestation attestation = 1; }
+message GetAttestationsResponse {
+  // one attestation for every chain configured in the sidecar
+  repeated types.v1.Attestation attestations = 1
+      [ (gogoproto.nullable) = false ];
+}

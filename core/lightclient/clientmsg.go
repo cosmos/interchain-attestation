@@ -3,7 +3,7 @@ package lightclient
 import (
 	"crypto/sha256"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 )
 

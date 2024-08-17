@@ -1,0 +1,24 @@
+syntax = "proto3";
+package core.voteextension.v1;
+
+import "gogoproto/gogo.proto";
+import "core/types/v1/attestation.proto";
+import "core/lightclient/v1/clientmsg.proto";
+
+option go_package = "github.com/gjermundgaraba/pessimistic-validation/core/voteextension";
+
+message VoteExtension {
+  // one attestation for every chain configured in the sidecar
+  repeated types.v1.Attestation attestations = 1
+      [ (gogoproto.nullable) = false ];
+}
+
+message ClientUpdate {
+  string client_to_update = 1;
+  lightclient.v1.AttestationClaim attestation_claim = 2
+      [ (gogoproto.nullable) = false ];
+}
+
+message ClientUpdates {
+  repeated ClientUpdate client_updates = 1 [ (gogoproto.nullable) = false ];
+}

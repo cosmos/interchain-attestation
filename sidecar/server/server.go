@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestors"
+	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -15,13 +15,13 @@ type Server struct {
 	listener net.Listener
 
 	logger      *zap.Logger
-	coordinator attestors.Coordinator
+	coordinator attestators.Coordinator
 	grpcServer  *grpc.Server
 }
 
 var _ types.SidecarServer = &Server{}
 
-func NewServer(logger *zap.Logger, coordinator attestors.Coordinator) *Server {
+func NewServer(logger *zap.Logger, coordinator attestators.Coordinator) *Server {
 	return &Server{
 		logger: logger,
 		coordinator: coordinator,
@@ -33,7 +33,7 @@ func (s *Server) Serve(listenAddr string) error {
 
 	lis, err := net.Listen("tcp", listenAddr)
 	if err != nil {
-		return errors.Wrapf(err, "failed to listen on %s", listenAddr)
+		return errors.Errorf("failed to listen on %s: %w", listenAddr, err)
 	}
 
 	s.grpcServer = grpc.NewServer()
@@ -52,15 +52,15 @@ func (s *Server) Stop() {
 	s.grpcServer.GracefulStop()
 }
 
-func (s *Server) GetAttestation(ctx context.Context, request *types.AttestationRequest) (*types.AttestationResponse, error) {
-	s.logger.Debug("server.GetLatestAttestation", zap.String("chainId", request.ChainId))
+func (s *Server) GetAttestations(_ context.Context, _ *types.GetAttestationsRequest) (*types.GetAttestationsResponse, error) {
+	s.logger.Debug("server.GetLatestAttestation")
 
-	attestation, err := s.coordinator.GetLatestAttestation(request.ChainId)
+	attestations, err := s.coordinator.GetLatestAttestations()
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.AttestationResponse{
-		Attestation: &attestation,
+	return &types.GetAttestationsResponse{
+		Attestations: attestations,
 	}, nil
 }

@@ -11,6 +11,5 @@ message Params {
   option (amino.name) = "configmodule/Params";
   option (gogoproto.equal) = true;
 
-  // TODO: document
-  uint64 minimum_power = 1;
+  // TODO: Add configuration options such as "all validators must attest"
 }

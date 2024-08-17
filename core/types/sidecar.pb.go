@@ -6,6 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
 	grpc "google.golang.org/grpc"
@@ -27,22 +28,21 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type AttestationRequest struct {
-	ChainId string `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
+type GetAttestationsRequest struct {
 }
 
-func (m *AttestationRequest) Reset()         { *m = AttestationRequest{} }
-func (m *AttestationRequest) String() string { return proto.CompactTextString(m) }
-func (*AttestationRequest) ProtoMessage()    {}
-func (*AttestationRequest) Descriptor() ([]byte, []int) {
+func (m *GetAttestationsRequest) Reset()         { *m = GetAttestationsRequest{} }
+func (m *GetAttestationsRequest) String() string { return proto.CompactTextString(m) }
+func (*GetAttestationsRequest) ProtoMessage()    {}
+func (*GetAttestationsRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8ce634b51eec8241, []int{0}
 }
-func (m *AttestationRequest) XXX_Unmarshal(b []byte) error {
+func (m *GetAttestationsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *AttestationRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GetAttestationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_AttestationRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GetAttestationsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -52,41 +52,35 @@ func (m *AttestationRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-func (m *AttestationRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AttestationRequest.Merge(m, src)
+func (m *GetAttestationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAttestationsRequest.Merge(m, src)
 }
-func (m *AttestationRequest) XXX_Size() int {
+func (m *GetAttestationsRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *AttestationRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AttestationRequest.DiscardUnknown(m)
+func (m *GetAttestationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAttestationsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AttestationRequest proto.InternalMessageInfo
+var xxx_messageInfo_GetAttestationsRequest proto.InternalMessageInfo
 
-func (m *AttestationRequest) GetChainId() string {
-	if m != nil {
-		return m.ChainId
-	}
-	return ""
+type GetAttestationsResponse struct {
+	// one attestation for every chain configured in the sidecar
+	Attestations []Attestation `protobuf:"bytes,1,rep,name=attestations,proto3" json:"attestations"`
 }
 
-type AttestationResponse struct {
-	Attestation *Attestation `protobuf:"bytes,1,opt,name=attestation,proto3" json:"attestation,omitempty"`
-}
-
-func (m *AttestationResponse) Reset()         { *m = AttestationResponse{} }
-func (m *AttestationResponse) String() string { return proto.CompactTextString(m) }
-func (*AttestationResponse) ProtoMessage()    {}
-func (*AttestationResponse) Descriptor() ([]byte, []int) {
+func (m *GetAttestationsResponse) Reset()         { *m = GetAttestationsResponse{} }
+func (m *GetAttestationsResponse) String() string { return proto.CompactTextString(m) }
+func (*GetAttestationsResponse) ProtoMessage()    {}
+func (*GetAttestationsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8ce634b51eec8241, []int{1}
 }
-func (m *AttestationResponse) XXX_Unmarshal(b []byte) error {
+func (m *GetAttestationsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *AttestationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GetAttestationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_AttestationResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GetAttestationsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -96,52 +90,52 @@ func (m *AttestationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *AttestationResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AttestationResponse.Merge(m, src)
+func (m *GetAttestationsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAttestationsResponse.Merge(m, src)
 }
-func (m *AttestationResponse) XXX_Size() int {
+func (m *GetAttestationsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *AttestationResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_AttestationResponse.DiscardUnknown(m)
+func (m *GetAttestationsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAttestationsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AttestationResponse proto.InternalMessageInfo
+var xxx_messageInfo_GetAttestationsResponse proto.InternalMessageInfo
 
-func (m *AttestationResponse) GetAttestation() *Attestation {
+func (m *GetAttestationsResponse) GetAttestations() []Attestation {
 	if m != nil {
-		return m.Attestation
+		return m.Attestations
 	}
 	return nil
 }
 
 func init() {
-	proto.RegisterType((*AttestationRequest)(nil), "core.sidecar.v1.AttestationRequest")
-	proto.RegisterType((*AttestationResponse)(nil), "core.sidecar.v1.AttestationResponse")
+	proto.RegisterType((*GetAttestationsRequest)(nil), "core.sidecar.v1.GetAttestationsRequest")
+	proto.RegisterType((*GetAttestationsResponse)(nil), "core.sidecar.v1.GetAttestationsResponse")
 }
 
 func init() { proto.RegisterFile("core/sidecar/v1/sidecar.proto", fileDescriptor_8ce634b51eec8241) }
 
 var fileDescriptor_8ce634b51eec8241 = []byte{
-	// 273 bytes of a gzipped FileDescriptorProto
+	// 275 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4d, 0xce, 0x2f, 0x4a,
 	0xd5, 0x2f, 0xce, 0x4c, 0x49, 0x4d, 0x4e, 0x2c, 0xd2, 0x2f, 0x33, 0x84, 0x31, 0xf5, 0x0a, 0x8a,
-	0xf2, 0x4b, 0xf2, 0x85, 0xf8, 0x41, 0xd2, 0x7a, 0x30, 0xb1, 0x32, 0x43, 0x29, 0x79, 0xb0, 0xfa,
-	0x92, 0xca, 0x82, 0xd4, 0x62, 0x90, 0xea, 0xc4, 0x92, 0x92, 0xd4, 0xe2, 0x92, 0xc4, 0x92, 0xcc,
-	0xfc, 0x3c, 0x88, 0x0e, 0x25, 0x7d, 0x2e, 0x21, 0x47, 0x84, 0x60, 0x50, 0x6a, 0x61, 0x69, 0x6a,
-	0x71, 0x89, 0x90, 0x24, 0x17, 0x47, 0x72, 0x46, 0x62, 0x66, 0x5e, 0x7c, 0x66, 0x8a, 0x04, 0xa3,
-	0x02, 0xa3, 0x06, 0x67, 0x10, 0x3b, 0x98, 0xef, 0x99, 0xa2, 0x14, 0xcc, 0x25, 0x8c, 0xa2, 0xa1,
-	0xb8, 0x20, 0x3f, 0xaf, 0x38, 0x55, 0xc8, 0x86, 0x8b, 0x1b, 0xc9, 0x70, 0xb0, 0x26, 0x6e, 0x23,
-	0x29, 0x3d, 0xb0, 0x7b, 0xc0, 0xd6, 0xeb, 0x95, 0x19, 0xea, 0x21, 0x6b, 0x44, 0x56, 0x6e, 0x94,
-	0xc1, 0xc5, 0x1e, 0x0c, 0x71, 0xb4, 0x50, 0x2c, 0x17, 0x9f, 0x7b, 0x6a, 0x09, 0x92, 0x4a, 0x21,
-	0x65, 0x3d, 0x34, 0x5f, 0xe9, 0x61, 0xba, 0x58, 0x4a, 0x05, 0xbf, 0x22, 0x88, 0x2b, 0x95, 0x18,
-	0x9c, 0x42, 0x4f, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23, 0x39, 0xc6, 0x09,
-	0x8f, 0xe5, 0x18, 0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0xca, 0x3a, 0x3d, 0xb3,
-	0x24, 0xa3, 0x34, 0x49, 0x2f, 0x39, 0x3f, 0x57, 0x3f, 0x3d, 0x2b, 0xb5, 0x28, 0xb7, 0x34, 0x2f,
-	0x25, 0x3d, 0xb1, 0x28, 0x31, 0x29, 0x51, 0xbf, 0x20, 0xb5, 0xb8, 0x38, 0x33, 0x37, 0xb3, 0xb8,
-	0x24, 0x33, 0x59, 0xb7, 0x2c, 0x31, 0x27, 0x33, 0x05, 0x6c, 0xaa, 0x3e, 0x22, 0x6c, 0x93, 0xd8,
-	0xc0, 0xa1, 0x69, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xc2, 0x85, 0x4a, 0xda, 0xa0, 0x01, 0x00,
-	0x00,
+	0xf2, 0x4b, 0xf2, 0x85, 0xf8, 0x41, 0xd2, 0x7a, 0x30, 0xb1, 0x32, 0x43, 0x29, 0x91, 0xf4, 0xfc,
+	0xf4, 0x7c, 0xb0, 0x9c, 0x3e, 0x88, 0x05, 0x51, 0x26, 0x25, 0x0f, 0x36, 0xa5, 0xa4, 0xb2, 0x20,
+	0xb5, 0x18, 0x64, 0x46, 0x62, 0x49, 0x49, 0x6a, 0x71, 0x49, 0x62, 0x49, 0x66, 0x7e, 0x1e, 0x44,
+	0x81, 0x92, 0x04, 0x97, 0x98, 0x7b, 0x6a, 0x89, 0x23, 0x42, 0xbc, 0x38, 0x28, 0xb5, 0xb0, 0x34,
+	0xb5, 0xb8, 0x44, 0x29, 0x9e, 0x4b, 0x1c, 0x43, 0xa6, 0xb8, 0x20, 0x3f, 0xaf, 0x38, 0x55, 0xc8,
+	0x85, 0x8b, 0x07, 0xc9, 0xa4, 0x62, 0x09, 0x46, 0x05, 0x66, 0x0d, 0x6e, 0x23, 0x29, 0x3d, 0xb0,
+	0x9b, 0xc0, 0x96, 0xe9, 0x95, 0x19, 0xea, 0x21, 0x69, 0x75, 0x62, 0x39, 0x71, 0x4f, 0x9e, 0x21,
+	0x08, 0x45, 0x97, 0x51, 0x21, 0x17, 0x7b, 0x30, 0xc4, 0xfd, 0x42, 0x69, 0x5c, 0xfc, 0x68, 0x76,
+	0x09, 0xa9, 0xeb, 0xa1, 0xf9, 0x50, 0x0f, 0xbb, 0x3b, 0xa5, 0x34, 0x08, 0x2b, 0x84, 0x38, 0x5b,
+	0x89, 0xc1, 0x29, 0xf4, 0xc4, 0x23, 0x39, 0xc6, 0x0b, 0x8f, 0xe4, 0x18, 0x1f, 0x3c, 0x92, 0x63,
+	0x9c, 0xf0, 0x58, 0x8e, 0xe1, 0xc2, 0x63, 0x39, 0x86, 0x1b, 0x8f, 0xe5, 0x18, 0xa2, 0xac, 0xd3,
+	0x33, 0x4b, 0x32, 0x4a, 0x93, 0xf4, 0x92, 0xf3, 0x73, 0xf5, 0xd3, 0xb3, 0x52, 0x8b, 0x72, 0x4b,
+	0xf3, 0x52, 0xd2, 0x13, 0x8b, 0x12, 0x93, 0x12, 0xf5, 0x0b, 0x52, 0x8b, 0x8b, 0x33, 0x73, 0x33,
+	0x8b, 0x4b, 0x32, 0x93, 0x75, 0xcb, 0x12, 0x73, 0x32, 0x53, 0xc0, 0xc6, 0xea, 0x23, 0x42, 0x36,
+	0x89, 0x0d, 0x1c, 0x96, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0x79, 0x91, 0x9d, 0xe1, 0xb4,
+	0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -156,7 +150,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type SidecarClient interface {
-	GetAttestation(ctx context.Context, in *AttestationRequest, opts ...grpc.CallOption) (*AttestationResponse, error)
+	GetAttestations(ctx context.Context, in *GetAttestationsRequest, opts ...grpc.CallOption) (*GetAttestationsResponse, error)
 }
 
 type sidecarClient struct {
@@ -167,9 +161,9 @@ func NewSidecarClient(cc grpc1.ClientConn) SidecarClient {
 	return &sidecarClient{cc}
 }
 
-func (c *sidecarClient) GetAttestation(ctx context.Context, in *AttestationRequest, opts ...grpc.CallOption) (*AttestationResponse, error) {
-	out := new(AttestationResponse)
-	err := c.cc.Invoke(ctx, "/core.sidecar.v1.Sidecar/GetAttestation", in, out, opts...)
+func (c *sidecarClient) GetAttestations(ctx context.Context, in *GetAttestationsRequest, opts ...grpc.CallOption) (*GetAttestationsResponse, error) {
+	out := new(GetAttestationsResponse)
+	err := c.cc.Invoke(ctx, "/core.sidecar.v1.Sidecar/GetAttestations", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -178,35 +172,35 @@ func (c *sidecarClient) GetAttestation(ctx context.Context, in *AttestationReque
 
 // SidecarServer is the server API for Sidecar service.
 type SidecarServer interface {
-	GetAttestation(context.Context, *AttestationRequest) (*AttestationResponse, error)
+	GetAttestations(context.Context, *GetAttestationsRequest) (*GetAttestationsResponse, error)
 }
 
 // UnimplementedSidecarServer can be embedded to have forward compatible implementations.
 type UnimplementedSidecarServer struct {
 }
 
-func (*UnimplementedSidecarServer) GetAttestation(ctx context.Context, req *AttestationRequest) (*AttestationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAttestation not implemented")
+func (*UnimplementedSidecarServer) GetAttestations(ctx context.Context, req *GetAttestationsRequest) (*GetAttestationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAttestations not implemented")
 }
 
 func RegisterSidecarServer(s grpc1.Server, srv SidecarServer) {
 	s.RegisterService(&_Sidecar_serviceDesc, srv)
 }
 
-func _Sidecar_GetAttestation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AttestationRequest)
+func _Sidecar_GetAttestations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAttestationsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SidecarServer).GetAttestation(ctx, in)
+		return srv.(SidecarServer).GetAttestations(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/core.sidecar.v1.Sidecar/GetAttestation",
+		FullMethod: "/core.sidecar.v1.Sidecar/GetAttestations",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SidecarServer).GetAttestation(ctx, req.(*AttestationRequest))
+		return srv.(SidecarServer).GetAttestations(ctx, req.(*GetAttestationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -216,15 +210,15 @@ var _Sidecar_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*SidecarServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetAttestation",
-			Handler:    _Sidecar_GetAttestation_Handler,
+			MethodName: "GetAttestations",
+			Handler:    _Sidecar_GetAttestations_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "core/sidecar/v1/sidecar.proto",
 }
 
-func (m *AttestationRequest) Marshal() (dAtA []byte, err error) {
+func (m *GetAttestationsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -234,27 +228,20 @@ func (m *AttestationRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *AttestationRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *GetAttestationsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *AttestationRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GetAttestationsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.ChainId) > 0 {
-		i -= len(m.ChainId)
-		copy(dAtA[i:], m.ChainId)
-		i = encodeVarintSidecar(dAtA, i, uint64(len(m.ChainId)))
-		i--
-		dAtA[i] = 0xa
-	}
 	return len(dAtA) - i, nil
 }
 
-func (m *AttestationResponse) Marshal() (dAtA []byte, err error) {
+func (m *GetAttestationsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -264,27 +251,29 @@ func (m *AttestationResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *AttestationResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *GetAttestationsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *AttestationResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GetAttestationsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Attestation != nil {
-		{
-			size, err := m.Attestation.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
+	if len(m.Attestations) > 0 {
+		for iNdEx := len(m.Attestations) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Attestations[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSidecar(dAtA, i, uint64(size))
 			}
-			i -= size
-			i = encodeVarintSidecar(dAtA, i, uint64(size))
+			i--
+			dAtA[i] = 0xa
 		}
-		i--
-		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -300,28 +289,26 @@ func encodeVarintSidecar(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *AttestationRequest) Size() (n int) {
+func (m *GetAttestationsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.ChainId)
-	if l > 0 {
-		n += 1 + l + sovSidecar(uint64(l))
-	}
 	return n
 }
 
-func (m *AttestationResponse) Size() (n int) {
+func (m *GetAttestationsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.Attestation != nil {
-		l = m.Attestation.Size()
-		n += 1 + l + sovSidecar(uint64(l))
+	if len(m.Attestations) > 0 {
+		for _, e := range m.Attestations {
+			l = e.Size()
+			n += 1 + l + sovSidecar(uint64(l))
+		}
 	}
 	return n
 }
@@ -332,7 +319,7 @@ func sovSidecar(x uint64) (n int) {
 func sozSidecar(x uint64) (n int) {
 	return sovSidecar(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *AttestationRequest) Unmarshal(dAtA []byte) error {
+func (m *GetAttestationsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -355,44 +342,12 @@ func (m *AttestationRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: AttestationRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetAttestationsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AttestationRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetAttestationsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChainId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowSidecar
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthSidecar
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthSidecar
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChainId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSidecar(dAtA[iNdEx:])
@@ -414,7 +369,7 @@ func (m *AttestationRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *AttestationResponse) Unmarshal(dAtA []byte) error {
+func (m *GetAttestationsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -437,15 +392,15 @@ func (m *AttestationResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: AttestationResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetAttestationsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AttestationResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetAttestationsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Attestation", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Attestations", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -472,10 +427,8 @@ func (m *AttestationResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Attestation == nil {
-				m.Attestation = &Attestation{}
-			}
-			if err := m.Attestation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Attestations = append(m.Attestations, Attestation{})
+			if err := m.Attestations[len(m.Attestations)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
