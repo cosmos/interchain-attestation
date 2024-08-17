@@ -1,6 +1,6 @@
 # NOTE: This needs to be run from the root context of the repo
 
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /code
 
@@ -18,7 +18,7 @@ RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd sidecar && go mod downloa
 
 RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd sidecar && make build
 
-FROM alpine:3.16
+FROM alpine:3.20
 COPY --from=builder /code/sidecar/build/attestationsidecar /usr/bin/attestationsidecar
 
 EXPOSE 6969

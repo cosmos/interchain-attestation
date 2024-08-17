@@ -84,6 +84,8 @@ if [ "$RES_CODE" != "0" ]; then
   exit 1
 fi
 
+rm register-attestator.json
+
 echo "Creating light clients"
 $BINARY relayer create clients rollupsimapp-1 tendermint simapp-1 attestation --home $SIDECAR_DIR
 
