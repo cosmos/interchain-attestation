@@ -13,23 +13,23 @@ import (
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
-	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
-	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
-	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-	solomachine "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
-	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
-
-	attestationconfigtypes "github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	ibcfee "github.com/cosmos/ibc-go/v9/modules/apps/29-fee"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/keeper"
+	ibcfeetypes "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/types"
+	ibctransfer "github.com/cosmos/ibc-go/v9/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v9/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v9/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v9/modules/core"
+	ibcclienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v9/modules/core/03-connection/types"
+	porttypes "github.com/cosmos/ibc-go/v9/modules/core/05-port/types"
+	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
+	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
+	solomachine "github.com/cosmos/ibc-go/v9/modules/light-clients/06-solomachine"
+	ibctm "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
+	attestationconfigkeeper "github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
+	attestationlightclient "github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
+	attestationve "github.com/gjermundgaraba/pessimistic-validation/core/voteextension"
 )
 
 // registerIBCModules register IBC keepers and non dependency inject modules.
@@ -68,7 +68,6 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 		app.appCodec,
 		app.GetKey(ibcexported.StoreKey),
 		app.GetSubspace(ibcexported.ModuleName),
-		ibctm.NewConsensusHost(app.StakingKeeper),
 		app.UpgradeKeeper,
 		scopedIBCKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -114,16 +113,21 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedIBCTransferKeeper = scopedIBCTransferKeeper
 
-	clientRouter := app.IBCKeeper.ClientKeeper.GetRouter()
+	clientKeeper := app.IBCKeeper.ClientKeeper
+	storeProvider := clientKeeper.GetStoreProvider()
 
-	tmLightClientModule := ibctm.NewLightClientModule(app.appCodec, authtypes.NewModuleAddress(govtypes.ModuleName).String())
-	clientRouter.AddRoute(ibctm.ModuleName, &tmLightClientModule)
+	tmLightClientModule := ibctm.NewLightClientModule(app.appCodec, storeProvider)
+	clientKeeper.AddRoute(ibctm.ModuleName, &tmLightClientModule)
 
-	smLightClientModule := solomachine.NewLightClientModule(app.appCodec)
-	clientRouter.AddRoute(solomachine.ModuleName, &smLightClientModule)
+	smLightClientModule := solomachine.NewLightClientModule(app.appCodec, storeProvider)
+	clientKeeper.AddRoute(solomachine.ModuleName, &smLightClientModule)
 
-	pessimisticLightClientModule := lightclient.NewLightClientModule(app.appCodec, app.PessimisticKeeper)
-	clientRouter.AddRoute(attestationconfigtypes.ClientType, &pessimisticLightClientModule)
+	attestationLightClientModule := attestationlightclient.NewLightClientModule(
+		app.appCodec,
+		storeProvider,
+		attestationconfigkeeper.NewAttestatorHandler(app.AttestationConfigKeeper),
+	)
+	clientKeeper.AddRoute(attestationlightclient.ModuleName, &attestationLightClientModule)
 
 	// register IBC modules
 	if err := app.RegisterModules(
@@ -133,6 +137,8 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 		capability.NewAppModule(app.appCodec, *app.CapabilityKeeper, false),
 		ibctm.NewAppModule(tmLightClientModule),
 		solomachine.NewAppModule(smLightClientModule),
+		attestationlightclient.NewAppModule(attestationLightClientModule),
+		attestationve.NewAppModule(app.IBCKeeper.ClientKeeper, app.appCodec),
 	); err != nil {
 		return err
 	}
@@ -145,12 +151,14 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 // This needs to be removed after IBC supports App Wiring.
 func RegisterIBC(registry cdctypes.InterfaceRegistry) map[string]appmodule.AppModule {
 	modules := map[string]appmodule.AppModule{
-		ibcexported.ModuleName:      ibc.AppModule{},
-		ibctransfertypes.ModuleName: ibctransfer.AppModule{},
-		ibcfeetypes.ModuleName:      ibcfee.AppModule{},
-		capabilitytypes.ModuleName:  capability.AppModule{},
-		ibctm.ModuleName:            ibctm.AppModule{},
-		solomachine.ModuleName:      solomachine.AppModule{},
+		ibcexported.ModuleName:            ibc.AppModule{},
+		ibctransfertypes.ModuleName:       ibctransfer.AppModule{},
+		ibcfeetypes.ModuleName:            ibcfee.AppModule{},
+		capabilitytypes.ModuleName:        capability.AppModule{},
+		ibctm.ModuleName:                  ibctm.AppModule{},
+		solomachine.ModuleName:            solomachine.AppModule{},
+		attestationlightclient.ModuleName: attestationlightclient.AppModule{},
+		attestationve.ModuleName:          attestationve.AppModule{},
 	}
 
 	for name, m := range modules {

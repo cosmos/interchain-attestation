@@ -1,6 +1,6 @@
 module github.com/gjermundgaraba/pessimistic-validation/simapp
 
-go 1.22.2
+go 1.23.0
 
 replace (
 	github.com/gjermundgaraba/pessimistic-validation/configmodule => ../../configmodule
@@ -9,9 +9,9 @@ replace (
 
 require (
 	cosmossdk.io/api v0.7.5
-	cosmossdk.io/client/v2 v2.0.0-beta.2.0.20240625194835-17173894fea9 // TODO(@julienrbrt): tag client/v2
-	cosmossdk.io/core v0.11.0
-	cosmossdk.io/depinject v1.0.0-alpha.4
+	cosmossdk.io/client/v2 v2.0.0-beta.3 // TODO(@julienrbrt): tag client/v2
+	cosmossdk.io/core v0.11.1
+	cosmossdk.io/depinject v1.0.0
 	cosmossdk.io/log v1.3.1
 	cosmossdk.io/math v1.3.0
 	cosmossdk.io/store v1.1.0
@@ -20,14 +20,14 @@ require (
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
 	cosmossdk.io/x/nft v0.1.1
-	cosmossdk.io/x/tx v0.13.3 // indirect
-	cosmossdk.io/x/upgrade v0.1.4-0.20240625194835-17173894fea9 // TODO(@julienrbrt): tag upgrade
-	github.com/cometbft/cometbft v0.38.9
+	cosmossdk.io/x/tx v0.13.4 // indirect
+	cosmossdk.io/x/upgrade v0.1.4 // TODO(@julienrbrt): tag upgrade
+	github.com/cometbft/cometbft v0.38.10
 	github.com/cosmos/cosmos-db v1.0.2
-	github.com/cosmos/cosmos-sdk v0.50.8
+	github.com/cosmos/cosmos-sdk v0.50.9
 	github.com/cosmos/gogoproto v1.5.0 // indirect
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
-	github.com/cosmos/ibc-go/v8 v8.0.0-beta.1.0.20240709183926-ecbf479f8075 // TODO: Update to v9 when available
+	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1
 	github.com/gjermundgaraba/pessimistic-validation/configmodule v0.0.0
 	github.com/gjermundgaraba/pessimistic-validation/core v0.0.0
 	github.com/golang/mock v1.6.0 // indirect
@@ -38,6 +38,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/protobuf v1.34.2
 )
+
+require vote-extensions.dev v0.0.0-20240731084500-6fcd40697cf6
 
 require (
 	cloud.google.com/go v0.115.0 // indirect
@@ -142,7 +144,6 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
-	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/linxGnu/grocksdb v1.9.2 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
@@ -188,19 +189,19 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.24.0 // indirect
+	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
-	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
-	golang.org/x/term v0.21.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/api v0.186.0 // indirect
 	google.golang.org/genproto v0.0.0-20240701130421-f6361c86f094 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240701130421-f6361c86f094 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240709173604-40e1e62336c5 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

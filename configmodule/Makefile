@@ -11,6 +11,11 @@ export GO111MODULE = on
 build:
 	go build -mod=readonly ./...
 
+mocks: $(MOCKS_DIR)
+	@go install github.com/golang/mock/mockgen@v1.6.0
+	sh ./scripts/mockgen.sh
+.PHONY: mocks
+
 ###############################################################################
 ###                          Tools & Dependencies                           ###
 ###############################################################################

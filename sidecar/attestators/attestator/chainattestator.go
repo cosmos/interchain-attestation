@@ -1,4 +1,4 @@
-package chainattestor
+package attestator
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 )
 
 // TODO: Document
-type ChainAttestor interface {
+type Attestator interface {
 	ChainID() string
 	CollectAttestation(ctx context.Context) (types.Attestation, error)
 }

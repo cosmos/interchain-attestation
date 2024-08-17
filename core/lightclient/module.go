@@ -18,11 +18,11 @@ func (a AppModuleBasic) Name() string {
 	return ModuleName
 }
 
-// RegisterLegacyAminoCodec performs a no-op. The pessimistic client does not support amino.
+// RegisterLegacyAminoCodec performs a no-op. The attestation client does not support amino.
 func (a AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) {}
 
 // RegisterInterfaces registers module concrete types into protobuf Any. This allows core IBC
-// to unmarshal the pessimistic light client types.
+// to unmarshal the attestation light client types.
 func (a AppModuleBasic) RegisterInterfaces(registry types.InterfaceRegistry) {
 	RegisterInterfaces(registry)
 }
@@ -30,13 +30,13 @@ func (a AppModuleBasic) RegisterInterfaces(registry types.InterfaceRegistry) {
 // RegisterGRPCGatewayRoutes performs a no-op.
 func (a AppModuleBasic) RegisterGRPCGatewayRoutes(context client.Context, mux *runtime.ServeMux) {}
 
-// AppModule is the application module for the pessimistic client module
+// AppModule is the application module for the attestation client module
 type AppModule struct {
 	AppModuleBasic
 	lightClientModule LightClientModule
 }
 
-// NewAppModule creates a new pessimistic client AppModule
+// NewAppModule creates a new attestation client AppModule
 func NewAppModule(lightClientModule LightClientModule) AppModule {
 	return AppModule{
 		lightClientModule: lightClientModule,

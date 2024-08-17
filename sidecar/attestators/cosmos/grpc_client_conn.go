@@ -11,6 +11,7 @@ import (
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	sltypes "github.com/strangelove-ventures/cometbft-client/abci/types"
+	clientwrapper "github.com/strangelove-ventures/cometbft-client/client"
 	slclient "github.com/strangelove-ventures/cometbft-client/rpc/client"
 	slcoretypes "github.com/strangelove-ventures/cometbft-client/rpc/core/types"
 	"gitlab.com/tozd/go/errors"
@@ -27,11 +28,16 @@ import (
 
 // The code below is borrowed from the Go Realyer and modified a bit
 
-var _ gogogrpc.ClientConn = &CosmosAttestor{}
+type ClientConn struct {
+	cometClient *clientwrapper.Client
+	codec       CodecConfig
+}
+
+var _ gogogrpc.ClientConn = &ClientConn{}
 
 var protoCodec = encoding.GetCodec(proto.Name)
 
-func (c *CosmosAttestor) Invoke(ctx context.Context, method string, args, reply interface{}, opts ...grpc.CallOption) error {
+func (c *ClientConn) Invoke(ctx context.Context, method string, args, reply interface{}, opts ...grpc.CallOption) error {
 	if reflect.ValueOf(args).IsNil() {
 		return errors.New("request cannot be nil")
 	}
@@ -66,7 +72,7 @@ func (c *CosmosAttestor) Invoke(ctx context.Context, method string, args, reply 
 // arguments for the gRPC method, and returns the ABCI response. It is used
 // to factorize code between client (Invoke) and server (RegisterGRPCServer)
 // gRPC handlers.
-func (c *CosmosAttestor) RunGRPCQuery(ctx context.Context, method string, req interface{}, md metadata.MD) (abci.ResponseQuery, metadata.MD, error) {
+func (c *ClientConn) RunGRPCQuery(ctx context.Context, method string, req interface{}, md metadata.MD) (abci.ResponseQuery, metadata.MD, error) {
 	reqBz, err := protoCodec.Marshal(req)
 	if err != nil {
 		return abci.ResponseQuery{}, nil, err
@@ -117,13 +123,13 @@ func (c *CosmosAttestor) RunGRPCQuery(ctx context.Context, method string, req in
 }
 
 // QueryABCI performs an ABCI query and returns the appropriate response and error sdk error code.
-func (c *CosmosAttestor) QueryABCI(ctx context.Context, req abci.RequestQuery) (abci.ResponseQuery, error) {
+func (c *ClientConn) QueryABCI(ctx context.Context, req abci.RequestQuery) (abci.ResponseQuery, error) {
 	opts := slclient.ABCIQueryOptions{
 		Height: req.Height,
 		Prove:  req.Prove,
 	}
 
-	slRes, err := c.rpcClient.ABCIQueryWithOptions(ctx, req.Path, req.Data, opts)
+	slRes, err := c.cometClient.ABCIQueryWithOptions(ctx, req.Path, req.Data, opts)
 	if err != nil {
 		return abci.ResponseQuery{}, err
 	}
@@ -226,7 +232,7 @@ func convertProofOps(proofOps *sltypes.ProofOps) *crypto.ProofOps {
 	return &crypto.ProofOps{Ops: ops}
 }
 
-func (c *CosmosAttestor) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+func (c *ClientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -42,15 +42,15 @@ if ! mkdir -p $CHAIN_DIR 2>/dev/null; then
     exit 1
 fi
 
-# Rollkit specific
+# Rollkit specific with local light client
 # Mocha
-DA_BLOCK_HEIGHT=$(curl public-celestia-mocha4-consensus.numia.xyz:26657/block |jq -r '.result.block.header.height')
-AUTH_TOKEN=$(celestia light auth write --p2p.network mocha)
+#DA_BLOCK_HEIGHT=$(curl public-celestia-mocha4-consensus.numia.xyz:26657/block |jq -r '.result.block.header.height')
+#AUTH_TOKEN=$(celestia light auth write --p2p.network mocha)
 # Arabica
 #DA_BLOCK_HEIGHT=$(curl https://rpc.celestia-arabica-11.com/block |jq -r '.result.block.header.height')
 #AUTH_TOKEN=$(celestia light auth write --p2p.network arabica)
-echo -e "\n Your DA_BLOCK_HEIGHT is $DA_BLOCK_HEIGHT \n"
-echo -e "\n Your DA AUTH_TOKEN is $AUTH_TOKEN \n"
+#echo -e "\n Your DA_BLOCK_HEIGHT is $DA_BLOCK_HEIGHT \n"
+#echo -e "\n Your DA AUTH_TOKEN is $AUTH_TOKEN \n"
 
 echo "Initializing $CHAIN_ID..."
 $BINARY init $VALIDATOR_NAME --home $CHAIN_DIR --chain-id=$CHAIN_ID --default-denom stake > /dev/null 2>&1
@@ -96,8 +96,10 @@ echo "Starting $CHAIN_ID in $CHAIN_DIR..."
 echo "Creating log file at $LOG_FILE_PATH"
 
 $BINARY genesis validate --home $CHAIN_DIR
-$BINARY start --home $CHAIN_DIR --rollkit.aggregator true --rollkit.da_auth_token "$AUTH_TOKEN" --rollkit.da_namespace 00000000000000000000000000000000000000000008e5f679bf7116cb --rollkit.da_start_height "$DA_BLOCK_HEIGHT" --minimum-gas-prices="0stake" --api.enable --api.enabled-unsafe-cors > $LOG_FILE_PATH 2>&1 &
-# $BINARY start --log_format json --home $CHAIN_DIR --pruning=nothing --rpc.unsafe --grpc.address="0.0.0.0:$GRPC_PORT" --state-sync.snapshot-interval 10 --state-sync.snapshot-keep-recent 2 > $LOG_FILE_PATH 2>&1 &
+
+# With local light client
+#$BINARY start --home $CHAIN_DIR --rollkit.aggregator true --rollkit.da_auth_token "$AUTH_TOKEN" --rollkit.da_namespace 00000000000000000000000000000000000000000008e5f679bf7116cb --rollkit.da_start_height "$DA_BLOCK_HEIGHT" --minimum-gas-prices="0stake" --api.enable --api.enabled-unsafe-cors > $LOG_FILE_PATH 2>&1 &
+$BINARY start --home $CHAIN_DIR --rollkit.da_address http://localhost:$MOCK_DA_PORT --rollkit.aggregator true --rollkit.da_namespace 00000000000000000000000000000000000000000008e5f679bf7116cb --minimum-gas-prices="0stake" --api.enable --api.enabled-unsafe-cors > $LOG_FILE_PATH 2>&1 &
 
 sleep 3
 

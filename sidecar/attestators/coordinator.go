@@ -1,19 +1,17 @@
-package attestors
+package attestators
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestors/chainattestor"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestors/cosmos"
+	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/attestator"
+	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/cosmos"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/config"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"os"
+	"sync"
 	"time"
 )
 
@@ -24,7 +22,7 @@ const (
 // TODO: Document
 type Coordinator interface {
 	Run(ctx context.Context) error
-	GetLatestAttestation(chainID string) (types.Attestation, error)
+	GetLatestAttestations() ([]types.Attestation, error)
 	GetAttestationForHeight(chainID string, height uint64) (types.Attestation, error)
 }
 
@@ -32,66 +30,97 @@ type coordinator struct {
 	logger *zap.Logger
 	db     *badger.DB
 
-	chainProvers map[string]chainattestor.ChainAttestor
+	chainAttestators    map[string]attestator.Attestator
 	queryLoopDuration time.Duration
 }
 
 var _ Coordinator = &coordinator{}
 
 func NewCoordinator(logger *zap.Logger, db *badger.DB, sidecarConfig config.Config) (Coordinator, error) {
-	chainProvers := make(map[string]chainattestor.ChainAttestor)
+	attestatorSigningKey, err := AttestatorSigningKeyFromConfig(cosmos.NewCodecConfig().Marshaler, sidecarConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	chainProvers := make(map[string]attestator.Attestator)
 	for _, cosmosConfig := range sidecarConfig.CosmosChains {
-		prover, err := cosmos.NewCosmosAttestor(logger, sidecarConfig.AttestatorID, cosmosConfig.ChainID, cosmosConfig.RPC, cosmosConfig.ClientID, func(msg []byte) ([]byte, error) {
-			signerPrivKeyBase64, err := os.ReadFile(sidecarConfig.SigningPrivateKeyPath)
-			if err != nil {
-				return nil, err
-			}
-			signerPrivKeyBz, err := base64.StdEncoding.DecodeString(string(signerPrivKeyBase64))
-			if err != nil {
-				return nil, err
-			}
+		if !cosmosConfig.Attestation {
+			logger.Debug("Skipping chain", zap.String("chain_id", cosmosConfig.ChainID), zap.String("reason", "attestation disabled"))
+			continue
+		}
 
-			signerPrivKey := secp256k1.PrivKey{
-				Key: signerPrivKeyBz,
-			}
-
-			return signerPrivKey.Sign(msg)
-		})
+		att, err := cosmos.NewCosmosAttestator(
+			logger,
+			sidecarConfig.AttestatorID,
+			cosmosConfig,
+			attestatorSigningKey.Sign,
+		)
 		if err != nil {
 			return nil, err
 		}
-		chainProvers[cosmosConfig.ChainID] = prover
+		chainProvers[cosmosConfig.ChainID] = att
 	}
 
 	return &coordinator{
-		logger:       logger,
-		db:           db,
-		chainProvers: chainProvers,
+		logger:            logger,
+		db:                db,
+		chainAttestators:    chainProvers,
 		queryLoopDuration: defaultMinQueryLoopDuration,
 	}, nil
 }
 
-func (c *coordinator) GetLatestAttestation(chainID string) (types.Attestation, error) {
-	var bz []byte
-	if err := c.db.View(func(txn *badger.Txn) error {
-		item, err := txn.Get(latestKey(chainID))
-		if err != nil {
-			return err
-		}
-		return item.Value(func(val []byte) error {
-			bz = val
-			return nil
-		})
-	}); err != nil {
-		return types.Attestation{}, err
+func (c *coordinator) GetLatestAttestations() ([]types.Attestation, error) {
+	var wg sync.WaitGroup
+	attestationChan := make(chan types.Attestation, len(c.chainAttestators))
+	errChan := make(chan error, len(c.chainAttestators))
+
+	for _, chainAttestator := range c.chainAttestators {
+		wg.Add(1)
+		chainAttestator := chainAttestator
+		go func(chainAttestator attestator.Attestator) {
+			defer wg.Done()
+
+			var bz []byte
+			if err := c.db.View(func(txn *badger.Txn) error {
+				item, err := txn.Get(latestKey(chainAttestator.ChainID()))
+				if err != nil {
+					return err
+				}
+				return item.Value(func(val []byte) error {
+					bz = val
+					return nil
+				})
+			}); err != nil {
+				errChan <- err
+				return
+			}
+
+			var attestation types.Attestation
+			if err := proto.Unmarshal(bz, &attestation); err != nil {
+				errChan <- err
+				return
+			}
+
+			attestationChan <- attestation
+		}(chainAttestator)
 	}
 
-	var attestation types.Attestation
-	if err := proto.Unmarshal(bz, &attestation); err != nil {
-		return types.Attestation{}, err
+	go func() {
+		wg.Wait()
+		close(attestationChan)
+		close(errChan)
+	}()
+
+	var attestations []types.Attestation
+	for attestation := range attestationChan {
+		attestations = append(attestations, attestation)
 	}
 
-	return attestation, nil
+	if err := <-errChan; err != nil {
+		return nil, err
+	}
+
+	return attestations, nil
 }
 
 func (c *coordinator) GetAttestationForHeight(chainID string, height uint64) (types.Attestation, error) {
@@ -116,7 +145,7 @@ func (c *coordinator) Run(ctx context.Context) error {
 
 	var eg errgroup.Group
 	runCtx, runCtxCancel := context.WithCancel(ctx)
-	for _, chainProver := range c.chainProvers {
+	for _, chainProver := range c.chainAttestators {
 		c.logger.Info("Starting chain prover loop", zap.String("chain_id", chainProver.ChainID()))
 
 		chainProver := chainProver
@@ -132,7 +161,7 @@ func (c *coordinator) Run(ctx context.Context) error {
 	return err
 }
 
-func (c *coordinator) collectionLoop(ctx context.Context, chainProver chainattestor.ChainAttestor) error {
+func (c *coordinator) collectionLoop(ctx context.Context, chainProver attestator.Attestator) error {
 	ticker := time.NewTicker(c.queryLoopDuration) // TODO: Make this configurable per chain
 	defer ticker.Stop()
 
@@ -149,13 +178,22 @@ func (c *coordinator) collectionLoop(ctx context.Context, chainProver chainattes
 	}
 }
 
-func (c *coordinator) collectOnce(ctx context.Context, chainProver chainattestor.ChainAttestor) {
+func (c *coordinator) collectOnce(ctx context.Context, chainProver attestator.Attestator) {
 	c.logger.Info("Collecting claims", zap.String("chain_id", chainProver.ChainID()))
 	attestation, err := chainProver.CollectAttestation(ctx)
 	if err != nil {
 		c.logger.Error("Failed to collect claims", zap.String("chain_id", chainProver.ChainID()), zap.Error(err))
 		return
 	}
+	c.logger.Info("Collected attestation for chain",
+		zap.String("chain_id", chainProver.ChainID()),
+		zap.String("client_id", attestation.AttestedData.ClientId),
+		zap.String("client_to_update", attestation.AttestedData.ClientToUpdate),
+		zap.String("height", fmt.Sprint(attestation.AttestedData.Height.RevisionHeight)),
+		zap.String("timestamp", attestation.AttestedData.Timestamp.String()),
+		zap.Int("num_packet_commitments", len(attestation.AttestedData.PacketCommitments)),
+	)
+
 	if err := c.db.Update(func(txn *badger.Txn) error {
 		aBz, err := attestation.Marshal()
 		if err != nil {

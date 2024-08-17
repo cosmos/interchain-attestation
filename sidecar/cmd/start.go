@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/dgraph-io/badger/v4"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestors"
+	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/server"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -21,17 +21,9 @@ func StartCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			listenAddr, _ := cmd.Flags().GetString(flagListenAddr)
 
-			sidecarConfig := GetConfig(cmd)
 			logger := GetLogger(cmd)
-			homedir := GetHomedir(cmd)
 
-			dbPath := path.Join(homedir, "db")
-			db, err := badger.Open(badger.DefaultOptions(dbPath))
-			if err != nil {
-				return err
-			}
-
-			coordinator, err := attestors.NewCoordinator(logger, db, sidecarConfig)
+			coordinator, err := setUpCoordinator(cmd, logger)
 			if err != nil {
 				return err
 			}
@@ -65,4 +57,22 @@ func StartCmd() *cobra.Command {
 	cmd.Flags().String(flagListenAddr, "localhost:6969", "Address for grpc server to listen on")
 
 	return cmd
+}
+
+func setUpCoordinator(cmd *cobra.Command, logger *zap.Logger) (attestators.Coordinator, error) {
+	sidecarConfig := GetConfig(cmd)
+	homedir := GetHomedir(cmd)
+
+	dbPath := path.Join(homedir, "db")
+	db, err := badger.Open(badger.DefaultOptions(dbPath))
+	if err != nil {
+		return nil, err
+	}
+
+	coordinator, err := attestators.NewCoordinator(logger, db, sidecarConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return coordinator, nil
 }

@@ -14,8 +14,11 @@ message Attestation {
 }
 
 message IBCData {
-  ibc.core.client.v1.Height height = 1 [ (gogoproto.nullable) = false ];
-  google.protobuf.Timestamp timestamp = 2
+  string chain_id = 1;
+  string client_id = 2;
+  string client_to_update = 3;
+  ibc.core.client.v1.Height height = 4 [ (gogoproto.nullable) = false ];
+  google.protobuf.Timestamp timestamp = 5
       [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
-  repeated bytes packet_commitments = 3;
+  repeated bytes packet_commitments = 6;
 }

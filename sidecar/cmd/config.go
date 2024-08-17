@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/config"
+	"github.com/spf13/cobra"
 )
 
 const (
@@ -30,9 +30,16 @@ func InitConfigCmd() *cobra.Command {
 			force, _ := cmd.Flags().GetBool(flagForceInitConfig)
 
 			homedir := GetHomedir(cmd)
-			logger := GetLogger(cmd)
 
-			return config.InitConfig(logger, homedir, force)
+			configFilePath, err := config.InitConfig(homedir, force)
+			if err != nil {
+				return err
+			}
+
+			cmd.Printf("Example config file created at %s\n", configFilePath)
+			cmd.Println("Please update it with your configuration")
+
+			return nil
 		},
 	}
 

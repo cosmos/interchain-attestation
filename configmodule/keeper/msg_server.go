@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"cosmossdk.io/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
 )
 
@@ -33,4 +34,32 @@ func (m msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams)
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil
+}
+
+func (m msgServer) RegisterAttestator(ctx context.Context, msg *types.MsgRegisterAttestator) (*types.MsgRegisterAttestatorResponse, error) {
+	valAddr, err := m.validatorAddressCodec.StringToBytes(msg.ValidatorAddress)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
+	}
+
+	if err := msg.Validate(m.validatorAddressCodec); err != nil {
+		return nil, err
+	}
+
+	validator, err := m.stakingKeeper.GetValidator(ctx, valAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	attestator := types.Attestator{
+		AttestatorId:      msg.AttestatorId,
+		PublicKey:       msg.AttestationPublicKey,
+		ConsensusPubkey: validator.ConsensusPubkey,
+	}
+
+	if err := m.Keeper.SetNewAttestator(ctx, attestator); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgRegisterAttestatorResponse{}, nil
 }

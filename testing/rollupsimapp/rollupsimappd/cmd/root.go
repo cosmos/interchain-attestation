@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	attestationlightclient "github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -84,6 +85,8 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager[name] = module.CoreAppModuleBasicAdaptor(name, mod)
 		autoCliOpts.Modules[name] = mod
 	}
+
+	attestationlightclient.RegisterInterfaces(clientCtx.InterfaceRegistry)
 
 	initRootCmd(rootCmd, clientCtx.TxConfig, moduleBasicManager)
 

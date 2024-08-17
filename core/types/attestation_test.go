@@ -4,11 +4,16 @@ import (
 	"crypto/rand"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+)
+
+const (
+	mockChainID  = "testchain-1"
+	mockClientID = "testclient-1"
 )
 
 func TestGetSignableBytes(t *testing.T) {
@@ -20,10 +25,12 @@ func TestGetSignableBytes(t *testing.T) {
 			packetCommitments = append(packetCommitments, getRandomBytes(j))
 		}
 
-		attestationData := types.IBCData {
+		attestationData := types.IBCData{
+			ChainId:           mockChainID,
+			ClientId:          mockClientID,
+			Height:            clienttypes.NewHeight(1, 42),
+			Timestamp:         time.Now(),
 			PacketCommitments: packetCommitments,
-			Height: clienttypes.NewHeight(1, 42),
-			Timestamp: time.Now(),
 		}
 		expectedSignableBytes := types.GetSignableBytes(cdc, attestationData)
 

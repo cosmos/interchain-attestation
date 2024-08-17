@@ -1,5 +1,4 @@
 #!/bin/bash
-#set -e
 set -eE -o functrace
 
 failure() {
@@ -77,7 +76,7 @@ sed -i.bak -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.025stake\"/" 
 
 echo "Starting $CHAIN_ID in $CHAIN_DIR..."
 echo "Creating log file at $LOG_FILE_PATH"
-$BINARY start --log_format json --home $CHAIN_DIR --pruning=nothing --rpc.unsafe --grpc.address="0.0.0.0:$GRPC_PORT" --state-sync.snapshot-interval 10 --state-sync.snapshot-keep-recent 2 > $LOG_FILE_PATH 2>&1 &
+SIDE_CAR_ADDRESS=localhost:6969 $BINARY start --home $CHAIN_DIR --pruning=nothing --rpc.unsafe --grpc.address="0.0.0.0:$GRPC_PORT" --state-sync.snapshot-interval 10 --state-sync.snapshot-keep-recent 2 > $LOG_FILE_PATH 2>&1 &
 
 sleep 3
 

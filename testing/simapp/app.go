@@ -3,14 +3,18 @@
 package simapp
 
 import (
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-	attestationconfigkeeper "github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
-	"io"
-
+	abci "github.com/cometbft/cometbft/abci/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v9/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
+	attestationconfigkeeper "github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
+	attestationve "github.com/gjermundgaraba/pessimistic-validation/core/voteextension"
+	"io"
+	ve "vote-extensions.dev"
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/depinject"
@@ -98,7 +102,7 @@ type SimApp struct {
 	ScopedIBCKeeper         capabilitykeeper.ScopedKeeper
 	ScopedIBCTransferKeeper capabilitykeeper.ScopedKeeper
 
-	PessimisticKeeper attestationconfigkeeper.Keeper
+	AttestationConfigKeeper attestationconfigkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -200,7 +204,7 @@ func NewSimApp(
 		&app.NFTKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.CircuitBreakerKeeper,
-		&app.PessimisticKeeper,
+		&app.AttestationConfigKeeper,
 	); err != nil {
 		panic(err)
 	}
@@ -232,13 +236,25 @@ func NewSimApp(
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
 	// create and set dummy vote extension handler
-	voteExtOp := func(bApp *baseapp.BaseApp) {
-		voteExtHandler := NewVoteExtensionHandler()
-		voteExtHandler.SetHandlers(bApp)
-	}
-	baseAppOptions = append(baseAppOptions, voteExtOp, baseapp.SetOptimisticExecution())
+	baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
+
+	app.App.SetExtendVoteHandler(ve.ExtendVoteHandler(app.App.ModuleManager, []string {
+		attestationve.ModuleName,
+	}))
+	app.App.SetVerifyVoteExtensionHandler(ve.VerifyExtensionHandler(app.App.ModuleManager, []string {
+		attestationve.ModuleName,
+	}))
+	app.App.SetPrepareProposal(ve.PrepareProposalHandler(app.App.ModuleManager, []string {
+		attestationve.ModuleName,
+	}))
+	app.App.SetProcessProposal(ve.ProcessProposalHandler(app.App.ModuleManager, []string {
+		attestationve.ModuleName,
+	}))
+	app.App.SetPreBlocker(ve.PreBlocker(app.App.ModuleManager, []string {
+		attestationve.ModuleName,
+	}))
 
 	// Register legacy modules
 	if err := app.registerIBCModules(appOpts); err != nil {
@@ -281,6 +297,24 @@ func NewSimApp(
 	// 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
 	// 	return app.App.InitChainer(ctx, req)
 	// })
+
+	 app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
+		 if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap()); err != nil {
+			 return nil, err
+		 }
+
+		 paramsProto, err := app.ConsensusParamsKeeper.ParamsStore.Get(ctx)
+		 if err != nil {
+			 return nil, err
+		 }
+		 params := cmttypes.ConsensusParamsFromProto(paramsProto)
+		 params.ABCI.VoteExtensionsEnableHeight = 2
+		 if err := app.ConsensusParamsKeeper.ParamsStore.Set(ctx, params.ToProto()); err != nil {
+			 return nil, err
+		 }
+
+		 return app.App.InitChainer(ctx, req)
+	})
 
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)

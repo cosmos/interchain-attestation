@@ -10,7 +10,7 @@ import (
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
-	types "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	types "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
@@ -33,7 +33,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // ClientState tracks the validation setup required for a light client
 type ClientState struct {
 	// chain_id is the chain-id of the chain this light client is tracking
-	ChainId            string                `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
+	ChainId string `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
+	// TODO: Do we actually need this, or should it come from the controller?
 	RequiredTokenPower cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=required_token_power,json=requiredTokenPower,proto3,customtype=cosmossdk.io/math.Int" json:"required_token_power"`
 	// Block height when the client was frozen due to a misbehaviour
 	FrozenHeight types.Height `protobuf:"bytes,3,opt,name=frozen_height,json=frozenHeight,proto3" json:"frozen_height"`

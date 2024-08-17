@@ -3,26 +3,26 @@ package cosmos
 import (
 	"context"
 	querytypes "github.com/cosmos/cosmos-sdk/types/query"
-	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
-	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	connectiontypes "github.com/cosmos/ibc-go/v9/modules/core/03-connection/types"
+	chantypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
 	"gitlab.com/tozd/go/errors"
 	"time"
 )
 
 const PaginationDelay = 10 * time.Millisecond
 
-func (c *CosmosAttestor) queryLatestHeight(ctx context.Context) (int64, error) {
-	stat, err := c.rpcClient.Status(ctx)
+func (c *Attestator) queryLatestHeight(ctx context.Context) (int64, error) {
+	stat, err := c.cometClient.Status(ctx)
 	if err != nil {
 		return -1, err
 	} else if stat.SyncInfo.CatchingUp {
-		return -1, errors.Errorf("node at %s running chain %s not caught up", c.rpcAddr, c.chainID)
+		return -1, errors.Errorf("node at %s running chain %s not caught up", c.config.RPC, c.config.ChainID)
 	}
 	return stat.SyncInfo.LatestBlockHeight, nil
 }
 
-func (c *CosmosAttestor) queryConnectionsForClient(ctx context.Context, clientID string) ([]string, error) {
-	qc := connectiontypes.NewQueryClient(c)
+func (c *Attestator) queryConnectionsForClient(ctx context.Context, clientID string) ([]string, error) {
+	qc := connectiontypes.NewQueryClient(c.clientConn)
 	connections, err := qc.ClientConnections(ctx, &connectiontypes.QueryClientConnectionsRequest{
 		ClientId: clientID,
 	})
@@ -38,7 +38,7 @@ func (c *CosmosAttestor) queryConnectionsForClient(ctx context.Context, clientID
 	return connectionPaths, nil
 }
 
-func (c *CosmosAttestor) queryPacketCommitments(ctx context.Context, clientID string) (*chantypes.QueryPacketCommitmentsResponse, error) {
+func (c *Attestator) queryPacketCommitments(ctx context.Context, clientID string) (*chantypes.QueryPacketCommitmentsResponse, error) {
 	// TODO: Check if the client is in the correct state
 	// TODO: Cache some of this crap
 	// TODO: Add support for ibc lite (i.e. skip a bunch of this)
@@ -48,7 +48,11 @@ func (c *CosmosAttestor) queryPacketCommitments(ctx context.Context, clientID st
 		return nil, err
 	}
 
-	qc := chantypes.NewQueryClient(c)
+	if len(connections) == 0 {
+		return nil, errors.Errorf("no connections found for client id %s", clientID)
+	}
+
+	qc := chantypes.NewQueryClient(c.clientConn)
 
 	var channels []*chantypes.IdentifiedChannel
 	p := defaultPageRequest()
@@ -71,6 +75,10 @@ func (c *CosmosAttestor) queryPacketCommitments(ctx context.Context, clientID st
 		}
 		time.Sleep(PaginationDelay)
 		p.Key = next
+	}
+
+	if len(channels) == 0 {
+		return nil, errors.Errorf("no channels found for client id %s", clientID)
 	}
 
 	commitments := &chantypes.QueryPacketCommitmentsResponse{}

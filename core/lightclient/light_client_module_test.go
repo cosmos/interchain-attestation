@@ -3,8 +3,8 @@ package lightclient_test
 import (
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 	"time"

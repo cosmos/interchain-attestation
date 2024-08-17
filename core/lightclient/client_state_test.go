@@ -2,7 +2,7 @@ package lightclient_test
 
 import (
 	sdkmath "cosmossdk.io/math"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
 	"github.com/stretchr/testify/require"
 	"testing"

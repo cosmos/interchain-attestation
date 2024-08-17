@@ -2,9 +2,9 @@ package lightclient_test
 
 import (
 	"fmt"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-	tmclienttypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+	"github.com/cosmos/ibc-go/v9/modules/core/exported"
+	tmclienttypes "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
 	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 )
@@ -99,7 +99,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 				}
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
-			"attestations must all have the same height",
+			"attestations must all be the same",
 		},
 		{
 			"invalid client message: different timestamps",
@@ -109,7 +109,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 				attestation.AttestedData.Timestamp = attestation.AttestedData.Timestamp.Add(10)
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
-			"attestations must all have the same timestamp",
+			"attestations must all be the same",
 		},
 		{
 			"invalid client message: different packet commitments",
@@ -119,7 +119,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 				attestation.AttestedData.PacketCommitments[0] = []byte{0x01}
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			}                                                                                                                   ,
-			"attestations must all have the same packet commitments",
+			"attestations must all be the same",
 		},
 		{
 			"invalid client message: different amount of packet commitments",
@@ -129,7 +129,27 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 				attestation.AttestedData.PacketCommitments = append(attestation.AttestedData.PacketCommitments, []byte{0x01})
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
-			"attestations must all have the same packet commitments",
+			"attestations must all be the same",
+		},
+		{
+			"invalid client message: different chain id",
+			10,
+			5,
+			func(attestation *types.Attestation) {
+				attestation.AttestedData.ChainId = "different chain id"
+				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
+			},
+			"attestations must all be the same",
+		},
+		{
+			"invalid client message: different client id",
+			10,
+			5,
+			func(attestation *types.Attestation) {
+				attestation.AttestedData.ClientId = "different client id"
+				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
+			},
+			"attestations must all be the same",
 		},
 		{
 			"invalid client message: duplicate packet commitment",
@@ -173,7 +193,7 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 			"invalid signature from attestator",
 		},
 		{
-			"insufficient number of attestors in claim",
+			"insufficient number of attestators in claim",
 			10,
 			5,
 			func(attestation *types.Attestation) {

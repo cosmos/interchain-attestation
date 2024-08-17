@@ -1,12 +1,16 @@
 package lightclient
 
 import (
+	"bytes"
 	errorsmod "cosmossdk.io/errors"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+	v2 "github.com/cosmos/ibc-go/v9/modules/core/23-commitment/types/v2"
+	host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v9/modules/core/exported"
+	"strings"
 )
 
 var _ exported.LightClientModule = (*LightClientModule)(nil)
@@ -14,23 +18,17 @@ var _ exported.LightClientModule = (*LightClientModule)(nil)
 // LightClientModule implements the core IBC api.LightClientModule interface.
 type LightClientModule struct {
 	cdc                codec.BinaryCodec
-	storeProvider      exported.ClientStoreProvider
+	storeProvider      clienttypes.StoreProvider
 	attestatorsHandler AttestatorsController
 }
 
 // NewLightClientModule creates and returns a new pessimistic LightClientModule.
-func NewLightClientModule(cdc codec.BinaryCodec, attestatorsHandler AttestatorsController) LightClientModule {
+func NewLightClientModule(cdc codec.BinaryCodec, storeProvider clienttypes.StoreProvider, attestatorsHandler AttestatorsController) LightClientModule {
 	return LightClientModule{
 		cdc:                cdc,
+		storeProvider:      storeProvider,
 		attestatorsHandler: attestatorsHandler,
 	}
-}
-
-// RegisterStoreProvider is called by core IBC when a LightClientModule is added to the router.
-// It allows the LightClientModule to set a ClientStoreProvider which supplies isolated prefix client stores
-// to IBC light client instances.
-func (l *LightClientModule) RegisterStoreProvider(storeProvider exported.ClientStoreProvider) {
-	l.storeProvider = storeProvider
 }
 
 // Initialize unmarshals the provided client and consensus states and performs basic validation.
@@ -103,6 +101,23 @@ func (l *LightClientModule) VerifyMembership(ctx sdk.Context, clientID string, h
 	clientState, found := getClientState(clientStore, l.cdc)
 	if !found {
 		return errorsmod.Wrap(clienttypes.ErrClientNotFound, clientID)
+	}
+
+	merklePath, ok := path.(v2.MerklePath)
+	if ok {
+		// TODO deal with other stores
+		if bytes.Equal(merklePath.KeyPath[0], []byte("ibc")) {
+			split := strings.Split(string(merklePath.KeyPath[1]), "/")
+			if split[0] == host.KeyConnectionPrefix ||
+				split[0] == host.KeyChannelEndPrefix {
+				// TODO: Verify membership using merkleroot
+				// For now, to get things moving, we just return true here :O
+				ctx.Logger().Info("we are not verifying merkle root for connection/channel keys yet, this might be dangerous, we just accept it", "key path", merklePath.KeyPath)
+				return nil
+			} else {
+				ctx.Logger().Info("key path is not supported for merkle root verification, so it better be a packet commitment!", "key path", merklePath.KeyPath)
+			}
+		}
 	}
 
 	return clientState.VerifyMembership(clientStore, value)
