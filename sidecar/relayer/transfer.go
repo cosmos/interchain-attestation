@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (r *Relayer) Transfer(ctx context.Context, fromChainConfig config.CosmosChainConfig, toChainConfig config.CosmosChainConfig, to string, amount string) (channeltypes.Packet, error) {
+func (r *Relayer) Transfer(ctx context.Context, fromChainConfig config.CosmosChainConfig, channelID string, to string, amount string) (channeltypes.Packet, error) {
 	clientCtx, err := r.createClientCtx(ctx, fromChainConfig)
 	if err != nil {
 		return channeltypes.Packet{}, err
@@ -26,10 +26,10 @@ func (r *Relayer) Transfer(ctx context.Context, fromChainConfig config.CosmosCha
 	// create a new transfer message
 	transferMsg := &transfertypes.MsgTransfer{
 		SourcePort:       transfertypes.PortID,
-		SourceChannel:    fromChainConfig.ClientID,
+		SourceChannel:    channelID,
 		Sender:           clientCtx.From,
 		Receiver:         to,
-		TimeoutTimestamp: uint64(time.Now().Add(time.Minute * 10).UnixMilli()),
+		TimeoutTimestamp: uint64(time.Now().Add(time.Minute * 10).UnixNano()),
 		Tokens:           coins,
 	}
 

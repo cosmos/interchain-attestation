@@ -5,6 +5,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	transfertypes "github.com/cosmos/ibc-go/v9/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v9/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
@@ -27,6 +28,7 @@ func NewCodecConfig() CodecConfig {
 	ibcchanneltypes.RegisterInterfaces(interfaceRegistry)
 	tmclient.RegisterInterfaces(interfaceRegistry)
 	lightclient.RegisterInterfaces(interfaceRegistry)
+	transfertypes.RegisterInterfaces(interfaceRegistry)
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 
 	return CodecConfig{

@@ -157,7 +157,7 @@ func (r *Relayer) UpdateClient(ctx context.Context, chainConfig config.CosmosCha
 		if _, err := r.sendTx(clientCtx, txf, msg); err != nil {
 			return 0, errors.Errorf("failed to send tx: %w", err)
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(5 * time.Second)
 
 		clientStateAfter, err := r.QueryClientState(ctx, chainConfig)
 		if err != nil {

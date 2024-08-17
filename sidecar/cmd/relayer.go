@@ -31,6 +31,7 @@ func CreateCommand() *cobra.Command {
 	cmd.AddCommand(
 		CreateClientCmd(),
 		CreateConnectionsCmd(),
+		CreateChannelsCmd(),
 	)
 
 	return cmd
@@ -130,14 +131,59 @@ func CreateConnectionsCmd() *cobra.Command {
 	return cmd
 }
 
+func CreateChannelsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "channels [chain-id] [connection-id] [port-id] [version] [counterparty-chain-id] [counterparty-connection-id] [counterparty-port-id]",
+		Short: "create channels between two chains",
+		Args: cobra.ExactArgs(7),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			chainID := args[0]
+			connectionID := args[1]
+			portID := args[2]
+			version := args[3]
+			counterPartyChainID := args[4]
+			counterPartyConnectionID := args[5]
+			counterPartyPortID := args[6]
+
+			logger := GetLogger(cmd)
+			homedir := GetHomedir(cmd)
+			cfg := GetConfig(cmd)
+			codecConfig := cosmos.NewCodecConfig()
+
+			r := relayer.NewRelayer(logger, codecConfig.Marshaler, homedir)
+
+			chainConfig, found := cfg.GetChain(chainID)
+			if !found {
+				return errors.Errorf("chain with id %s not found in config", chainID)
+			}
+
+			counterpartyChainConfig, found := cfg.GetChain(counterPartyChainID)
+			if !found {
+				return errors.Errorf("counterparty chain with id %s not found in config", counterPartyChainID)
+			}
+
+			channelID, counterpartyChannelID, err := r.CreateChannels(cmd.Context(), chainConfig, connectionID, portID, version, counterpartyChainConfig, counterPartyConnectionID, counterPartyPortID)
+			if err != nil {
+				return err
+			}
+
+			logger.Info("channels created", zap.String("channel_id", channelID), zap.String("counterparty_channel_id", counterpartyChannelID))
+
+			return nil
+		},
+	}
+
+	return cmd
+}
+
 func TransferCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "transfer [from-chain-id] [to-chain-id] [to] [amount]",
+		Use:   "transfer [from-chain-id] [source-channel-id] [to] [amount]",
 		Short: "do an ibc transfer",
 		Args: cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fromChainID := args[0]
-			toChainID := args[1]
+			sourceChannelID := args[1]
 			to := args[2]
 			amount := args[3]
 
@@ -148,17 +194,12 @@ func TransferCmd() *cobra.Command {
 
 			r := relayer.NewRelayer(logger, codecConfig.Marshaler, homedir)
 
-			toChainConfig, found := cfg.GetChain(toChainID)
-			if !found {
-				return errors.Errorf("to chain with id %s not found in config", toChainID)
-			}
-
 			fromChainConfig, found := cfg.GetChain(fromChainID)
 			if !found {
 				return errors.Errorf("from chain with id %s not found in config", fromChainID)
 			}
 
-			packet, err := r.Transfer(cmd.Context(), fromChainConfig, toChainConfig, to, amount)
+			packet, err := r.Transfer(cmd.Context(), fromChainConfig, sourceChannelID, to, amount)
 			if err != nil {
 				return err
 			}

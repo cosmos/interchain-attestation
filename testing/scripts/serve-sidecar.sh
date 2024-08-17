@@ -14,6 +14,7 @@ source scripts/common-serve-env.sh
 BINARY=attestation-sidecar
 ROOT_DIR=/tmp
 SIDECAR_DIR=$ROOT_DIR/sidecar
+LOG_FILE_PATH=$SIDECAR_DIR/sidecar.log
 
 # Stop if it is already running
 if pgrep -x "$BINARY" >/dev/null; then
@@ -87,7 +88,12 @@ echo "Creating light clients"
 $BINARY relayer create clients rollupsimapp-1 tendermint simapp-1 attestation --home $SIDECAR_DIR
 
 echo "Starting sidecar"
-$BINARY start --home $SIDECAR_DIR # TODO: Background and log to file
+$BINARY start --home $SIDECAR_DIR > $LOG_FILE_PATH 2>&1 &
 
-#echo "Creating connections"
-echo $BINARY relayer create connections rollupsimapp-1 simapp-1 --home $SIDECAR_DIR
+sleep 3
+
+echo "Creating connections"
+$BINARY relayer create connections rollupsimapp-1 simapp-1 --verbose --home $SIDECAR_DIR
+
+echo "Creating channels"
+$BINARY relayer create channels rollupsimapp-1 connection-0 transfer ics20-1 simapp-1 connection-0 transfer --home $SIDECAR_DIR

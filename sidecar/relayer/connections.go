@@ -48,6 +48,7 @@ func (r *Relayer) CreateConnections(ctx context.Context, chainConfig config.Cosm
 		return "", "", errors.Errorf("failed to update client after openack on %s with client id %s: %w", counterpartyChainConfig.ChainID, counterpartyChainConfig.ClientID, err)
 	}
 
+	// Open confirm on counterparty
 	if err := r.ConnectionOpenConfirm(ctx, counterpartyChainConfig, counterpartyConnectionID, chainConfig, connectionID, updatedClientStateHeight); err != nil {
 		return "", "", errors.Errorf("failed to open confirm connection on %s: %w", counterpartyChainConfig.ChainID, err)
 	}
@@ -97,7 +98,6 @@ func (r *Relayer) ConnectionOpenTry(
 	counterpartyProofHeight uint64,
 ) (string, error) {
 	r.logger.Debug("Open try connection", zap.String("chain_id", chainConfig.ChainID), zap.String("counterparty_chain_id", counterpartyChainConfig.ChainID), zap.String("counterparty_connection_id", counterpartyConnectionID), zap.Uint64("counterparty_proof_height", counterpartyProofHeight))
-	counterpartyPrefix := commitmenttypes.NewMerklePrefix([]byte(exported.StoreKey))
 
 	initProof, err := r.GenerateConnectionHandshakeProof(ctx, counterpartyChainConfig, counterpartyConnectionID, counterpartyProofHeight)
 	if err != nil {
@@ -111,6 +111,7 @@ func (r *Relayer) ConnectionOpenTry(
 
 	txf := r.createTxFactory(clientCtx, chainConfig)
 
+	counterpartyPrefix := commitmenttypes.NewMerklePrefix([]byte(exported.StoreKey))
 	msg := connectiontypes.NewMsgConnectionOpenTry(
 		chainConfig.ClientID,
 		counterpartyConnectionID,
@@ -170,7 +171,7 @@ func (r *Relayer) ConnectionOpenAck(
 	)
 
 	if _, err := r.sendTx(clientCtx, txf, ackMsg); err != nil {
-		return errors.Errorf("failed to send tx %v: %w", ackMsg, err)
+		return errors.Errorf("failed to send tx %w", err)
 	}
 
 	return nil

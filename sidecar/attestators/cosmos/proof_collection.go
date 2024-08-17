@@ -15,7 +15,7 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 	// TODO: add locks to prevent multiple CollectAttestation from running at the same time
 
 	commitments, err := c.queryPacketCommitments(ctx, c.config.ClientID)
-	if err != nil {
+	if err != nil || commitments.Height.RevisionHeight == 0 {
 		c.logger.Info("Failed to query packet commitments, but to keep the client updated, we will return empty list of commitments", zap.Error(err))
 
 		resp, err := c.cometClient.ABCIInfo(ctx)
