@@ -31,7 +31,6 @@ type QueryClient interface {
 	// Parameters queries the parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	Attestators(ctx context.Context, in *QueryAttestatorsRequest, opts ...grpc.CallOption) (*QueryAttestatorsResponse, error)
-	// TODO: Add support for querying by validator address
 	Attestator(ctx context.Context, in *QueryAttestatorRequest, opts ...grpc.CallOption) (*QueryAttestatorResponse, error)
 }
 
@@ -77,7 +76,6 @@ type QueryServer interface {
 	// Parameters queries the parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	Attestators(context.Context, *QueryAttestatorsRequest) (*QueryAttestatorsResponse, error)
-	// TODO: Add support for querying by validator address
 	Attestator(context.Context, *QueryAttestatorRequest) (*QueryAttestatorResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }

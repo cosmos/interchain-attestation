@@ -3,8 +3,8 @@ package cosmos
 import (
 	"context"
 	chantypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
 )

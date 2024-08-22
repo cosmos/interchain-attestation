@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/gogoproto/proto"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
+	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
 	"github.com/stretchr/testify/require"
 	"testing"
 )

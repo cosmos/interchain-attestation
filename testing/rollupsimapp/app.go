@@ -42,7 +42,7 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	sequencerkeeper "github.com/decentrio/rollkit-sdk/x/sequencer/keeper"
 	rollkitstakingkeeper "github.com/decentrio/rollkit-sdk/x/staking/keeper"
-	attestationconfigkeeper "github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
+	attestationconfigkeeper "github.com/gjermundgaraba/interchain-attestation/configmodule/keeper"
 )
 
 // DefaultNodeHome default home directories for the application daemon

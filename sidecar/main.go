@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/cmd"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/cmd"
 	"os"
 )
 

@@ -11,9 +11,9 @@ replace (
 replace (
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
-	github.com/gjermundgaraba/pessimistic-validation/core => ../../core
+	github.com/gjermundgaraba/interchain-attestation/core => ../../core
 
-	github.com/gjermundgaraba/pessimistic-validation/sidecar => ../../sidecar
+	github.com/gjermundgaraba/interchain-attestation/sidecar => ../../sidecar
 	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
 )
 
@@ -22,8 +22,8 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.9
 	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1
 	github.com/ethereum/go-ethereum v1.14.7
-	github.com/gjermundgaraba/pessimistic-validation/core v0.0.0
-	github.com/gjermundgaraba/pessimistic-validation/sidecar v0.0.0
+	github.com/gjermundgaraba/interchain-attestation/core v0.0.0
+	github.com/gjermundgaraba/interchain-attestation/sidecar v0.0.0
 	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/strangelove-ventures/interchaintest/v8 v8.5.0
 	github.com/stretchr/testify v1.9.0

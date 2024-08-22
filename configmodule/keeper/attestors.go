@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"context"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
 )
 
 func (k Keeper) SetNewAttestator(ctx context.Context, attestator types.Attestator) error {

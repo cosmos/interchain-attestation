@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

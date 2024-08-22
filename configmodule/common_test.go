@@ -13,10 +13,10 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/bank"                           // for side effects
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"                      // for side effects
 	_ "github.com/cosmos/cosmos-sdk/x/staking"                        // for side effects
-	_ "github.com/gjermundgaraba/pessimistic-validation/configmodule" // for side effects
-	configmodulemodulev1 "github.com/gjermundgaraba/pessimistic-validation/configmodule/api/configmodule/module/v1"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	_ "github.com/gjermundgaraba/interchain-attestation/configmodule" // for side effects
+	configmodulemodulev1 "github.com/gjermundgaraba/interchain-attestation/configmodule/api/configmodule/module/v1"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/keeper"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
 	"github.com/stretchr/testify/require"
 	"testing"
 )

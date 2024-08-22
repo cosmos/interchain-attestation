@@ -22,7 +22,7 @@ type LightClientModule struct {
 	attestatorsHandler AttestatorsController
 }
 
-// NewLightClientModule creates and returns a new pessimistic LightClientModule.
+// NewLightClientModule creates and returns a new attestation LightClientModule.
 func NewLightClientModule(cdc codec.BinaryCodec, storeProvider clienttypes.StoreProvider, attestatorsHandler AttestatorsController) LightClientModule {
 	return LightClientModule{
 		cdc:                cdc,

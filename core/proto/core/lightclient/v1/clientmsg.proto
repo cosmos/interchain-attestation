@@ -6,7 +6,7 @@ import "ibc/core/client/v1/client.proto";
 import "google/protobuf/timestamp.proto";
 import "core/types/v1/attestation.proto";
 
-option go_package = "github.com/gjermundgaraba/pessimistic-validation/core/lightclient";
+option go_package = "github.com/gjermundgaraba/interchain-attestation/core/lightclient";
 
 // AttestationClaim is the clientMsg that is sent to the light client to update
 // the consensus state All the claims need to be for the same height and have

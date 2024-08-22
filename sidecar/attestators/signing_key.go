@@ -5,7 +5,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/config"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
 	"os"
 )
 

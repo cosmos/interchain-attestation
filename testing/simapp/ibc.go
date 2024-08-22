@@ -27,9 +27,9 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
 	solomachine "github.com/cosmos/ibc-go/v9/modules/light-clients/06-solomachine"
 	ibctm "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
-	attestationconfigkeeper "github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
-	attestationlightclient "github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
-	attestationve "github.com/gjermundgaraba/pessimistic-validation/core/voteextension"
+	attestationconfigkeeper "github.com/gjermundgaraba/interchain-attestation/configmodule/keeper"
+	attestationlightclient "github.com/gjermundgaraba/interchain-attestation/core/lightclient"
+	attestationve "github.com/gjermundgaraba/interchain-attestation/core/voteextension"
 )
 
 // registerIBCModules register IBC keepers and non dependency inject modules.

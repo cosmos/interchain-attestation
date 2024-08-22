@@ -30,7 +30,6 @@ type MsgClient interface {
 	// UpdateParams defines a governance operation for updating the
 	// configmodule module parameters.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
-	// TODO: Document
 	RegisterAttestator(ctx context.Context, in *MsgRegisterAttestator, opts ...grpc.CallOption) (*MsgRegisterAttestatorResponse, error)
 }
 
@@ -67,7 +66,6 @@ type MsgServer interface {
 	// UpdateParams defines a governance operation for updating the
 	// configmodule module parameters.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
-	// TODO: Document
 	RegisterAttestator(context.Context, *MsgRegisterAttestator) (*MsgRegisterAttestatorResponse, error)
 	mustEmbedUnimplementedMsgServer()
 }

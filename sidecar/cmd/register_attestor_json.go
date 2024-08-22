@@ -4,9 +4,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/cometbft/cometbft/libs/json"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/cosmos"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
 	"github.com/spf13/cobra"
 )
 

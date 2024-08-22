@@ -1,6 +1,6 @@
-# Solidity Contracts for Testing Pessimistic Validation
+# Solidity Contracts for Testing Interchain Attestation
 
-This directory contains Solidity contracts used to test pessimistic validation for EVM.
+This directory contains Solidity contracts used to test Interchain Attestation for EVM.
 
 ## Foundry
 

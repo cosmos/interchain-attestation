@@ -4,8 +4,8 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
 	"github.com/stretchr/testify/require"
 	"testing"
 )

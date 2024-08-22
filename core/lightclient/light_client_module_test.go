@@ -5,12 +5,12 @@ import (
 	"cosmossdk.io/store/prefix"
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
 	"time"
 )
 
-func (s *PessimisticLightClientTestSuite) TestLightClientModule_Initialize() {
+func (s *AttestationLightClientTestSuite) TestLightClientModule_Initialize() {
 	testCases := []struct {
 		name           string
 		clientState    *lightclient.ClientState
@@ -76,7 +76,7 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_Initialize() {
 	}
 }
 
-func (s *PessimisticLightClientTestSuite) TestLightClientModule_VerifyClientMessage() {
+func (s *AttestationLightClientTestSuite) TestLightClientModule_VerifyClientMessage() {
 	clientID := createClientID(0)
 	clientStateBz := s.encCfg.Codec.MustMarshal(initialClientState)
 	consensusStateBz := s.encCfg.Codec.MustMarshal(initialConsensusState)
@@ -96,7 +96,7 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_VerifyClientMess
 	s.Require().Contains(err.Error(), "client not found")
 }
 
-func (s *PessimisticLightClientTestSuite) TestLightClientModule_UpdateState() {
+func (s *AttestationLightClientTestSuite) TestLightClientModule_UpdateState() {
 	clientID := createClientID(0)
 	clientStateBz := s.encCfg.Codec.MustMarshal(initialClientState)
 	consensusStateBz := s.encCfg.Codec.MustMarshal(initialConsensusState)
@@ -140,7 +140,7 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_UpdateState() {
 	}
 }
 
-func (s *PessimisticLightClientTestSuite) TestLightClientModule_VerifyMembership() {
+func (s *AttestationLightClientTestSuite) TestLightClientModule_VerifyMembership() {
 	clientID := createClientID(0)
 	clientStateBz := s.encCfg.Codec.MustMarshal(initialClientState)
 	consensusStateBz := s.encCfg.Codec.MustMarshal(initialConsensusState)
@@ -175,7 +175,7 @@ func (s *PessimisticLightClientTestSuite) TestLightClientModule_VerifyMembership
 	}
 }
 
-func (s *PessimisticLightClientTestSuite) assertClientState(clientID string, expectedHeight clienttypes.Height, expectedTimestamp time.Time) {
+func (s *AttestationLightClientTestSuite) assertClientState(clientID string, expectedHeight clienttypes.Height, expectedTimestamp time.Time) {
 	clientStore := s.storeProvider.ClientStore(s.ctx, clientID)
 	storedClientState := getClientState(clientStore, s.encCfg.Codec)
 	s.Require().NotNil(storedClientState)
@@ -194,7 +194,7 @@ func (s *PessimisticLightClientTestSuite) assertClientState(clientID string, exp
 	s.Require().Equal(uint64(expectedTimestamp.UnixNano()), timestampAtHeight)
 }
 
-func (s *PessimisticLightClientTestSuite) assertPacketCommitmentStored(clientID string, clientMsg *lightclient.AttestationClaim) {
+func (s *AttestationLightClientTestSuite) assertPacketCommitmentStored(clientID string, clientMsg *lightclient.AttestationClaim) {
 	clientStore := s.storeProvider.ClientStore(s.ctx, clientID)
 	packetCommitmentStore := prefix.NewStore(clientStore, []byte(lightclient.PacketCommitmentStoreKey))
 

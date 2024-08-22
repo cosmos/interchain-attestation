@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/cosmos"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
 	"github.com/spf13/cobra"
 	"os"
 	"path"

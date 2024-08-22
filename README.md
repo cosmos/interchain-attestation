@@ -1,5 +1,7 @@
 # Interchain Attestation
 
+![Interchain Attestion Logo.png](docs/images/Interchain%20Attestion%20Logo.png)
+
 (Previously known as Pessimistic Validation)
 
 Interchain Attestation is a project to enable IBC everywhere. In particular, IBC for chains that can't/don't have a 
@@ -49,10 +51,32 @@ The architecture is using a combination of a sidecar process, ABCI++ Vote Extens
 
 A talk about the project can be found here: https://www.youtube.com/watch?v=loNyUjSgR8M
 
+## Development
+
+### Prerequisites
+
+TODO: Add rest of prerequisites
+
+* Go
+* Docker (for e2e tests)
+
+### Testing
+
+Each module has a unit test suite that can be run with `make test`.
+
+In addition, there is an e2e test suite that can be run using `make interchaintest` (under `testing/`).
+Before running the test, however, you need to build the docker images (which is required for every change you make to the code) with `make docker-images`.
+
+### Running locally
+
+You can spin up a local testnet using `make serve` (under `testing/`. This spins up two chains, configures a sidecar process, and sets up an IBC connection with clients, connections and channels.
+
+To stop all the processes, run `make kill-all`.
+
 ## Background
 
-This project was originally built for Celestia's Infinite Space Bazaar to solve the problem of 
-waiting for the dispute period to pass when bridging assets from an optimistic rollup to a receiving chain.
+This project was originally built by Gjermund Garaba (https://github.com/gjermundgaraba/, https://twitter.com/gjermundgaraba)
+for Celestia's Infinite Space Bazaar to solve the problem of waiting for the dispute period to pass when bridging assets from an optimistic rollup to a receiving chain.
 
 You can find the original working proof of concept code here:
-https://github.com/gjermundgaraba/pessimistic-validation/tree/9bc691c585697921b84c5467b13996389e6d119f
+https://github.com/gjermundgaraba/interchain-attestation/tree/9bc691c585697921b84c5467b13996389e6d119f

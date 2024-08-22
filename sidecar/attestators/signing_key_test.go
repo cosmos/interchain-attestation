@@ -3,8 +3,8 @@ package attestators_test
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/cosmos"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
 	"github.com/stretchr/testify/require"
 	"testing"
 )

@@ -30,9 +30,9 @@ import (
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	_ "github.com/decentrio/rollkit-sdk/x/sequencer"                  // import for side-effects
 	_ "github.com/decentrio/rollkit-sdk/x/staking"                    // import for side-effects
-	_ "github.com/gjermundgaraba/pessimistic-validation/configmodule" // import for side effects
-	attestationconfigmodulev1 "github.com/gjermundgaraba/pessimistic-validation/configmodule/api/configmodule/module/v1"
-	attestationconfigtypes "github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	_ "github.com/gjermundgaraba/interchain-attestation/configmodule" // import for side effects
+	attestationconfigmodulev1 "github.com/gjermundgaraba/interchain-attestation/configmodule/api/configmodule/module/v1"
+	attestationconfigtypes "github.com/gjermundgaraba/interchain-attestation/configmodule/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/module"

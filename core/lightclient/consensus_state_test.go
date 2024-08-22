@@ -1,7 +1,7 @@
 package lightclient_test
 
 import (
-"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
+"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
 "github.com/stretchr/testify/require"
 "testing"
 "time"

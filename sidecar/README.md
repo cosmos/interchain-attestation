@@ -1,9 +1,9 @@
-# Prover Sidecar
+# Attestation Sidecar
 
-The prover sidecar is a service that runs alongside a chain with pessimistic-validation and pulls in information
-that the validator can use to update the pessimistic light client (with ABCI++).
+The attestation sidecar is a process that runs alongside a chain with Interchain Attestation and pulls in information
+that the validator can use to update the attestation light client (with ABCI++).
 
-TODO: Add more information on how the prover sidecar works and what it does.
+TODO: Add more information about the sidecar
 
 ## Install
 

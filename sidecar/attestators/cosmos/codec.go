@@ -10,7 +10,7 @@ import (
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v9/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
 	tmclient "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
+	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
 )
 
 type CodecConfig struct {

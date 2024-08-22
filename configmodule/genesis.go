@@ -2,8 +2,8 @@ package configmodule
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/keeper"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/keeper"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
 )
 
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {

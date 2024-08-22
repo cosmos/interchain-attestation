@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
+	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
 )
 
 type AttestatorHandler struct{ k Keeper }

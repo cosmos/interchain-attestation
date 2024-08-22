@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
-	coretypes "github.com/gjermundgaraba/pessimistic-validation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
+	coretypes "github.com/gjermundgaraba/interchain-attestation/core/types"
 	"github.com/spf13/cobra"
 	"strings"
 )

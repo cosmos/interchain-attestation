@@ -1883,7 +1883,6 @@ func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
 	return file_configmodule_v1_tx_proto_rawDescGZIP(), []int{1}
 }
 
-// TODO: Document
 type MsgRegisterAttestator struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

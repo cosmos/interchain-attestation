@@ -2,7 +2,7 @@ package params
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp"
+	"github.com/gjermundgaraba/interchain-attestation/rollupsimapp"
 )
 
 func InitSDKConfig() {

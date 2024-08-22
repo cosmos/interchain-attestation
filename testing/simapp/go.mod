@@ -1,10 +1,10 @@
-module github.com/gjermundgaraba/pessimistic-validation/simapp
+module github.com/gjermundgaraba/interchain-attestation/simapp
 
 go 1.23.0
 
 replace (
-	github.com/gjermundgaraba/pessimistic-validation/configmodule => ../../configmodule
-	github.com/gjermundgaraba/pessimistic-validation/core => ../../core
+	github.com/gjermundgaraba/interchain-attestation/configmodule => ../../configmodule
+	github.com/gjermundgaraba/interchain-attestation/core => ../../core
 )
 
 require (
@@ -28,8 +28,8 @@ require (
 	github.com/cosmos/gogoproto v1.5.0 // indirect
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
 	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1
-	github.com/gjermundgaraba/pessimistic-validation/configmodule v0.0.0
-	github.com/gjermundgaraba/pessimistic-validation/core v0.0.0
+	github.com/gjermundgaraba/interchain-attestation/configmodule v0.0.0
+	github.com/gjermundgaraba/interchain-attestation/core v0.0.0
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/cobra v1.8.1

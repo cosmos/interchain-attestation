@@ -1,8 +1,8 @@
-module github.com/gjermundgaraba/pessimistic-validation/configmodule
+module github.com/gjermundgaraba/interchain-attestation/configmodule
 
 go 1.23.0
 
-replace github.com/gjermundgaraba/pessimistic-validation/core => ../core
+replace github.com/gjermundgaraba/interchain-attestation/core => ../core
 
 require (
 	cosmossdk.io/api v0.7.5
@@ -19,7 +19,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.9
 	github.com/cosmos/gogoproto v1.5.0
 	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1 // indirect; indirect;
-	github.com/gjermundgaraba/pessimistic-validation/core v0.0.0
+	github.com/gjermundgaraba/interchain-attestation/core v0.0.0
 	github.com/golang/protobuf v1.5.4
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/stretchr/testify v1.9.0

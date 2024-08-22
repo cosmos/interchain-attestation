@@ -1,4 +1,4 @@
-module github.com/gjermundgaraba/pessimistic-validation/core
+module github.com/gjermundgaraba/interchain-attestation/core
 
 go 1.23.0
 

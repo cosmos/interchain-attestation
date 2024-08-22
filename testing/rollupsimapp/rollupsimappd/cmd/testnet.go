@@ -15,7 +15,7 @@ import (
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/math/unsafe"
-	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp"
+	"github.com/gjermundgaraba/interchain-attestation/rollupsimapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

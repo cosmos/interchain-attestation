@@ -4,12 +4,12 @@ import (
 	"crypto/sha256"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
 )
 
 var _ exported.ClientMessage = (*AttestationClaim)(nil)
 
-func NewPessimisticClaims(attestation []types.Attestation) *AttestationClaim {
+func NewAttestationClaim(attestation []types.Attestation) *AttestationClaim {
 	return &AttestationClaim{
 		Attestations: attestation,
 	}

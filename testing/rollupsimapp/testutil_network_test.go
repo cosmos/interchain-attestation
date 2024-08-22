@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp"
+	"github.com/gjermundgaraba/interchain-attestation/rollupsimapp"
 
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 )

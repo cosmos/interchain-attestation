@@ -9,7 +9,7 @@ import (
 	host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
 	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
 	ibctesting "github.com/cosmos/ibc-go/v9/testing"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/config"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
 )

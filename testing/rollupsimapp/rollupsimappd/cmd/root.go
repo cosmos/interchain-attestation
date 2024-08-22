@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	attestationlightclient "github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
+	attestationlightclient "github.com/gjermundgaraba/interchain-attestation/core/lightclient"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -9,7 +9,7 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp"
+	"github.com/gjermundgaraba/interchain-attestation/rollupsimapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"

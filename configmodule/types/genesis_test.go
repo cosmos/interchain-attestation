@@ -1,7 +1,7 @@
 package types_test
 
 import (
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
 	"github.com/stretchr/testify/require"
 	"testing"
 )

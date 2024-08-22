@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/gjermundgaraba/pessimistic-validation/simapp/params"
+	"github.com/gjermundgaraba/interchain-attestation/simapp/params"
 	"os"
 
-	"github.com/gjermundgaraba/pessimistic-validation/simapp"
-	"github.com/gjermundgaraba/pessimistic-validation/simapp/simappd/cmd"
+	"github.com/gjermundgaraba/interchain-attestation/simapp"
+	"github.com/gjermundgaraba/interchain-attestation/simapp/simappd/cmd"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )

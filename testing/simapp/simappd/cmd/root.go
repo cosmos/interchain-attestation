@@ -10,7 +10,7 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"github.com/gjermundgaraba/pessimistic-validation/simapp"
+	"github.com/gjermundgaraba/interchain-attestation/simapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"

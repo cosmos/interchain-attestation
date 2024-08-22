@@ -4,7 +4,7 @@ import (
 	"context"
 	"cosmossdk.io/errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
 )
 
 type msgServer struct {

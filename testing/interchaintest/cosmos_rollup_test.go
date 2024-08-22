@@ -3,7 +3,7 @@ package attestationinterchaintest
 import (
 	"cosmossdk.io/math"
 	"fmt"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"google.golang.org/grpc"

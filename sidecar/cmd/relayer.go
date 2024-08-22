@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/cosmos"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/relayer"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/relayer"
 	"github.com/spf13/cobra"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"

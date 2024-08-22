@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp/params"
+	"github.com/gjermundgaraba/interchain-attestation/rollupsimapp/params"
 	"os"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp"
-	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp/rollupsimappd/cmd"
+	"github.com/gjermundgaraba/interchain-attestation/rollupsimapp"
+	"github.com/gjermundgaraba/interchain-attestation/rollupsimapp/rollupsimappd/cmd"
 )
 
 func main() {

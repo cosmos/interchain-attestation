@@ -16,8 +16,8 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
 	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
 	testifysuite "github.com/stretchr/testify/suite"
 	"testing"
 	"time"
@@ -41,7 +41,7 @@ var (
 	defaultHeight = clienttypes.NewHeight(1, 42)
 )
 
-type PessimisticLightClientTestSuite struct {
+type AttestationLightClientTestSuite struct {
 	testifysuite.Suite
 
 	lightClientModule lightclient.LightClientModule
@@ -55,11 +55,11 @@ type PessimisticLightClientTestSuite struct {
 	encCfg moduletestutil.TestEncodingConfig
 }
 
-func TestPessimisticLightClientTestSuite(t *testing.T) {
-	testifysuite.Run(t, new(PessimisticLightClientTestSuite))
+func TestAttestationLightClientTestSuite(t *testing.T) {
+	testifysuite.Run(t, new(AttestationLightClientTestSuite))
 }
 
-func (s *PessimisticLightClientTestSuite) SetupTest() {
+func (s *AttestationLightClientTestSuite) SetupTest() {
 	key := storetypes.NewKVStoreKey(ibcexported.StoreKey)
 	s.storeProvider = clienttypes.NewStoreProvider(key)
 	s.testCtx = testutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))

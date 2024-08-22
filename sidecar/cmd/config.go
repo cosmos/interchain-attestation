@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/config"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
 	"github.com/spf13/cobra"
 )
 

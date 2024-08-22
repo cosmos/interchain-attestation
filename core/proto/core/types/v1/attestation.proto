@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "ibc/core/client/v1/client.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/gjermundgaraba/pessimistic-validation/core/types";
+option go_package = "github.com/gjermundgaraba/interchain-attestation/core/types";
 
 message Attestation {
   bytes attestator_id = 1;

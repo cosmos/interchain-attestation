@@ -1,8 +1,8 @@
 package cosmos
 
 import (
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/attestator"
-	"github.com/gjermundgaraba/pessimistic-validation/sidecar/config"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/attestator"
+	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
 	clientwrapper "github.com/strangelove-ventures/cometbft-client/client"
 	"go.uber.org/zap"
 	"time"

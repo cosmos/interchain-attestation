@@ -2,7 +2,7 @@ package attestator
 
 import (
 	"context"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
 )
 
 // TODO: Document

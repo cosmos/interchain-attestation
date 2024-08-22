@@ -5,7 +5,7 @@ import (
 	addresscodec "cosmossdk.io/core/address"
 	"cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/gjermundgaraba/pessimistic-validation/configmodule/types"
+	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
 )
 
 type Keeper struct {

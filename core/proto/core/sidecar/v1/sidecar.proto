@@ -4,7 +4,7 @@ package core.sidecar.v1;
 import "gogoproto/gogo.proto";
 import "core/types/v1/attestation.proto";
 
-option go_package = "github.com/gjermundgaraba/pessimistic-validation/core/types";
+option go_package = "github.com/gjermundgaraba/interchain-attestation/core/types";
 
 // TODO: Document
 service Sidecar {

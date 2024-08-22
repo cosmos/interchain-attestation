@@ -29,7 +29,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/gjermundgaraba/pessimistic-validation/rollupsimapp"
+	"github.com/gjermundgaraba/interchain-attestation/rollupsimapp"
 )
 
 // initCometBFTConfig helps to override default CometBFT Config values.

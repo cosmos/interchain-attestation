@@ -5,11 +5,11 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 	tmclienttypes "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
-	"github.com/gjermundgaraba/pessimistic-validation/core/lightclient"
-	"github.com/gjermundgaraba/pessimistic-validation/core/types"
+	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
+	"github.com/gjermundgaraba/interchain-attestation/core/types"
 )
 
-func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
+func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 	var attestators []mockAttestator
 	var clientMsg exported.ClientMessage
 	var attestatorsHandler mockAttestatorsHandler
@@ -22,49 +22,49 @@ func (s *PessimisticLightClientTestSuite) TestVerifyClientMessage() {
 		expError string
 	}{
 		{
-			"valid pessimistic attestations",
+			"valid attestations",
 			10,
 			5,
 			func(_ *types.Attestation) {},
 			"",
 		},
 		{
-			"valid pessimistic attestations: single attestator",
+			"valid attestations: single attestator",
 			1,
 			5,
 			func(_ *types.Attestation) {},
 			"",
 		},
 		{
-			"valid pessimistic attestations: single packet commitment",
+			"valid attestations: single packet commitment",
 			10,
 			1,
 			func(_ *types.Attestation) {},
 			"",
 		},
 		{
-			"valid pessimistic attestations: zero commitments",
+			"valid attestations: zero commitments",
 			10,
 			0,
 			func(_ *types.Attestation) {},
 			"",
 		},
 		{
-			"valid pessimistic attestations: many attestators",
+			"valid attestations: many attestators",
 			100,
 			5,
 			func(_ *types.Attestation) {},
 			"",
 		},
 		{
-			"valid pessimistic attestations: many packet commitments",
+			"valid attestations: many packet commitments",
 			10,
 			100,
 			func(_ *types.Attestation) {},
 			"",
 		},
 		{
-			"valid pessimistic attestations: many attestators and packet commitments",
+			"valid attestations: many attestators and packet commitments",
 			100,
 			100,
 			func(_ *types.Attestation) {},
