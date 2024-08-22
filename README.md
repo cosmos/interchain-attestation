@@ -14,33 +14,40 @@ You can find project information and contribute to the project here: https://dor
 ## Current status
 The project is under development and is not yet ready for production use.
 
-## Pessimistic Validation
+## Interchain Attestation
 
-Pessimistic validation is where you validate all the blocks on a counterparty chain, rather than optimistically trust it or waiting for dispute periods.
-This is essentially the way most full L1 blockchains works today, but with a twist: 
-a rollup can still run as an optimistic rollup and the receiver chain can
-pessimistically validate the rollup chain with a partial set from their own validators.
-In addition, the pessimistic validation can be used for non-rollup chains that are not easily provable (like Ethereum or Solana) as long
-as the validator set on the receiving chain are able to come to consensus on the state of their counterparty chain.
+Interchain Attestation enables IBC connectivity (with no intermediary chains) with any chain where you can't/don't have a light client.
 
-![Pessimistic Validation high-level overview diagram](docs/images/pessimistic-validation-hl-overview.png)
+Interchain Attestation solves the problem where you can't, for whatever reason, trust the counterparty with a "normal" light client. 
+Instead, it allows a chain's validators to attest to the state of the counterparty - moving the security to someone you already trust.
 
-One important aspect of Pessimistic Validation to make it reasonable for a large chain to run is to have the ability 
-to have configurable security. This means that the receiving chain can decide how many validators (and stake) they 
-want to put behind the validation of the counterparty chain.
+![No IBC for you.png](docs/images/No%20IBC%20for%20you.png)
 
-![Configurable security diagram](docs/images/configurable-security.png)
+This enables any chain to connect with IBC, as long as it can implement the IBC protocol (e.g. smart contracts), 
+and the validators using Interchain Attestation are attesting to the state of the counterparty IBC implementation.
 
-Specifically for optimistic rollups, to bridge assets you normally need to wait for the dispute period to pass before you can trust the rollup
-and the assets bridged over. This is because the rollup chain can be rolled back if a fraud proof is submitted within the dispute period.
+![Attestion enables IBC.png](docs/images/Attestion%20enables%20IBC.png)
 
-Anyone can however validate the rollup themselves with a full node, but it doesn't help the receiving chain unless 
-it can either validate it itself or a have a trusted party validate it.
+Interchain Attestion is based on using validators with existing economic security to attest to the state of the counterparty chain.
+We move the security assumption over to the receiving validator set (e.g. Cosmos Hub/Osmosis/whatever), away from the one we can't trust (like a single sequencer).
 
-The goal of pessimistic validation is to allow a receiving chain to have a partial set of its validators validate their 
-counterparty chain and sign off on the state and heights they trust. 
-This way the receiving chain can trust the counterparty chain without having to wait for the dispute period to pass, 
-and assets can be bridged over quickly.
+![Attest.png](docs/images/Attest.png)
+
+In addition, the Attestation light client is based on attesting to IBC packets, rather than full state.
+This makes it much easier to implement new chains and support consensus algorithms that doesn't (yet?) have a light client implementation.
+
+The Attestation light client verifies the signatures of the attestors (validators) and stores the packet commitments to be able to verify the packet later.
+
+![Packet commitments.png](docs/images/Packet%20commitments.png)
+
+Not all scenarios warrant all validators running a full node and attesting to every chain it connects to, 
+so Interchain Attestation also has a config module that allows for configurable security requirements.
+
+The architecture is using a combination of a sidecar process, ABCI++ Vote Extensions, and a light client to enable the attestation process.
+
+![High level architecture.png](docs/images/High%20level%20architecture.png)
+
+A talk about the project can be found here: https://www.youtube.com/watch?v=loNyUjSgR8M
 
 ## Background
 
