@@ -1,3 +1,4 @@
 package voteextension
 
-const SidecarAddressEnv = "SIDE_CAR_ADDRESS"
+const SidecarAddressEnv = "ATTESTATION_SIDECAR_ADDRESS"
+const SidecarConfigPathEnv = "ATTESTATION_SIDECAR_CONFIG_PATH"

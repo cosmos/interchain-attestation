@@ -72,7 +72,6 @@ func (cs *ClientState) verifyAttestationClaim(
 	firstSignableBytes := GetSignableBytes(cdc, attestationClaim.Attestations[0].AttestedData)
 
 	// check that the attestations are all the same
-	// TODO: Could we just verify that the "signable" bytes are all the same?
 	for i, attestation := range attestationClaim.Attestations {
 		attestator := string(attestation.AttestatorId)
 

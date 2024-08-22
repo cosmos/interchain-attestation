@@ -6,7 +6,6 @@ import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/gjermundgaraba/pessimistic-validation/configmodule/types";
 
-// TODO: Document
 message Attestator {
   bytes attestator_id = 1;
 

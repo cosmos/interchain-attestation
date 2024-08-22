@@ -48,9 +48,7 @@ mock-da-image:
 
 interchaintest:
 	@echo "Running interchaintest tests"
-	@cd interchaintest && go test -race -count=1 -v -run E2ETestSuite/TestIBC ./...
-	@sleep 5
-	@cd interchaintest && go test -race -count=1 -v -run E2ETestSuite/TestSidecar ./...
+	@cd interchaintest && go test -race -count=1 -v -run E2ETestSuite/TestCosmosRollupAttestation ./...
 
 ###############################################################################
 ###                                  Serve                                  ###

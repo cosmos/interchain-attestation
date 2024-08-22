@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/config"
 	"github.com/spf13/cobra"
 )
@@ -36,8 +37,8 @@ func InitConfigCmd() *cobra.Command {
 				return err
 			}
 
-			cmd.Printf("Example config file created at %s\n", configFilePath)
-			cmd.Println("Please update it with your configuration")
+			fmt.Printf("Example config file created at %s\n", configFilePath)
+			fmt.Println("Please update it with your configuration")
 
 			return nil
 		},

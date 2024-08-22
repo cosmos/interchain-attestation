@@ -20,16 +20,17 @@ var _ ve.HasVoteExtension = AppModule{}
 func (a AppModule) ExtendVote(ctx sdk.Context, vote *abci.RequestExtendVote) (*abci.ResponseExtendVote, error) {
 	ctx.Logger().Info("AttestationVoteExtension: ExtendVote")
 
-	if a.sidecarAddress == "" {
+	sidecarAddress := a.GetSidecarAddress(ctx)
+	if sidecarAddress == "" {
 		ctx.Logger().Info("AttestationVoteExtension: ExtendVote (no sidecar address set)")
 		return &abci.ResponseExtendVote{}, nil
 	}
 
 	if a.sidecarGrpcClient == nil || a.sidecarGrpcClient.GetState() != connectivity.Ready {
 		var err error
-		a.sidecarGrpcClient, err = grpc.NewClient(a.sidecarAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		a.sidecarGrpcClient, err = grpc.NewClient(sidecarAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-			ctx.Logger().Error("AttestationVoteExtension: ExtendVote (failed to create client)", "error", err)
+			ctx.Logger().Error("AttestationVoteExtension: ExtendVote (failed to create client)", "sidecarAddress", sidecarAddress,  "error", err)
 			return &abci.ResponseExtendVote{}, nil // TODO: Should this return the error or not? We need to check what the correct handling is
 		}
 	}
@@ -37,7 +38,7 @@ func (a AppModule) ExtendVote(ctx sdk.Context, vote *abci.RequestExtendVote) (*a
 	sidecarClient := types.NewSidecarClient(a.sidecarGrpcClient)
 	resp, err := sidecarClient.GetAttestations(ctx, &types.GetAttestationsRequest{})
 	if err != nil {
-		ctx.Logger().Error("AttestationVoteExtension: ExtendVote (failed to get attestations from sidecar)", "error", err)
+		ctx.Logger().Error("AttestationVoteExtension: ExtendVote (failed to get attestations from sidecar)", "sidecarAddress", sidecarAddress, "error", err)
 		return &abci.ResponseExtendVote{}, nil // TODO: Should this return the error or not? We need to check what the correct handling is
 	}
 

@@ -49,7 +49,7 @@ func NewRootCmd() *cobra.Command {
 
 	rootCmd := &cobra.Command{
 		Use:           "simappd",
-		Short:         "pessimistic simulation app",
+		Short:         "attestation simulation app",
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs

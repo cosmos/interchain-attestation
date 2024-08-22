@@ -30,7 +30,7 @@ func (r *Relayer) CreateConnections(ctx context.Context, chainConfig config.Cosm
 	// Open try on counterparty
 	counterpartyConnectionID, err := r.ConnectionOpenTry(ctx, counterpartyChainConfig, chainConfig, connectionID, updatedClientStateHeight)
 	if err != nil {
-		return "", "", errors.Errorf("failed to open try connection on %s: %w", counterpartyChainConfig.ChainID, err)
+		return "", "", errors.Errorf("failed to open try connection on %s (proof height %d): %w", counterpartyChainConfig.ChainID, updatedClientStateHeight, err)
 	}
 
 	updatedClientStateHeight, err = r.UpdateClient(ctx, chainConfig, counterpartyChainConfig)
@@ -40,7 +40,7 @@ func (r *Relayer) CreateConnections(ctx context.Context, chainConfig config.Cosm
 
 	// Open ack on chain
 	if err := r.ConnectionOpenAck(ctx, chainConfig, connectionID, counterpartyChainConfig, counterpartyConnectionID, updatedClientStateHeight); err != nil {
-		return "", "", errors.Errorf("failed to open ack connection on %s: %w", chainConfig.ChainID, err)
+		return "", "", errors.Errorf("failed to open ack connection on %s (proof height %d): %w", chainConfig.ChainID, updatedClientStateHeight, err)
 	}
 
 	updatedClientStateHeight, err = r.UpdateClient(ctx, counterpartyChainConfig, chainConfig)
@@ -50,7 +50,7 @@ func (r *Relayer) CreateConnections(ctx context.Context, chainConfig config.Cosm
 
 	// Open confirm on counterparty
 	if err := r.ConnectionOpenConfirm(ctx, counterpartyChainConfig, counterpartyConnectionID, chainConfig, connectionID, updatedClientStateHeight); err != nil {
-		return "", "", errors.Errorf("failed to open confirm connection on %s: %w", counterpartyChainConfig.ChainID, err)
+		return "", "", errors.Errorf("failed to open confirm connection on %s (proof height %d): %w", counterpartyChainConfig.ChainID, updatedClientStateHeight, err)
 	}
 
 	return connectionID, counterpartyConnectionID, nil

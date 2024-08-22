@@ -65,7 +65,7 @@ func CreateSigningKeyCmd() *cobra.Command {
 				return err
 			}
 
-			cmd.Printf("Generated %s and %s, as well as updated the config file with the path to the private key\n", pubKeyFullPath, privKeyFullPath)
+			fmt.Printf("Generated %s and %s, as well as updated the config file with the path to the private key\n", pubKeyFullPath, privKeyFullPath)
 
 			return nil
 		},

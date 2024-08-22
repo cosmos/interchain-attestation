@@ -1,17 +1,24 @@
-package pessimisticinterchaintest
+package attestationinterchaintest
 
 import (
+	"bytes"
 	"context"
+	"cosmossdk.io/math"
+	"encoding/json"
 	"fmt"
+	"github.com/gjermundgaraba/pessimistic-validation/sidecar/config"
+	"github.com/pelletier/go-toml/v2"
+	"path"
 	"strings"
+	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
+	attestationve "github.com/gjermundgaraba/pessimistic-validation/core/voteextension"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/ethereum"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
-	interchaintestrelayer "github.com/strangelove-ventures/interchaintest/v8/relayer"
 	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
 	testifysuite "github.com/stretchr/testify/suite"
 	"go.uber.org/zap/zaptest"
@@ -19,7 +26,7 @@ import (
 
 // Not const because we need to give them as pointers later
 var (
-	simappVals = 4
+	simappVals = 1 // TODO: Set to more than one, once we figure out a good coordination/aggregation strategy
 	simappFullNodes = 0
 	rollupsimappVals = 1
 	rollupsimappFullNodes = 0
@@ -50,6 +57,13 @@ var (
 	rollupsimappChainID = "rollupsimapp-1"
 )
 
+const (
+	relayerKeyName = "relayer"
+	relayerMnemonic = "worry enable range three surprise skull arctic flame swear crush bunker panel stumble nature strike candy mango junior jealous add sea title unaware alpha"
+
+	nodeSidecarConfigFileName = "sidecar-config.json"
+)
+
 type E2ETestSuite struct {
 	testifysuite.Suite
 
@@ -66,6 +80,10 @@ type E2ETestSuite struct {
 	eth   *ethereum.EthereumChain
 }
 
+func TestE2ETestSuite(t *testing.T) {
+	testifysuite.Run(t, new(E2ETestSuite))
+}
+
 func (s *E2ETestSuite) SetupSuite() {
 	s.ctx = context.Background()
 
@@ -74,9 +92,8 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.ic = ic
 	cf := s.getChainFactory()
 	chains, err := cf.Chains(s.T().Name())
-	s.NoError(err)
+	s.Require().NoError(err)
 	s.simapp, s.rollupsimapp, s.eth = chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain), chains[2].(*ethereum.EthereumChain)
-
 
 	for _, chain := range chains {
 		ic.AddChain(chain)
@@ -84,39 +101,122 @@ func (s *E2ETestSuite) SetupSuite() {
 
 	client, network := interchaintest.DockerSetup(s.T())
 
-	rf := interchaintest.NewBuiltinRelayerFactory(
-		ibc.CosmosRly,
-		zaptest.NewLogger(s.T()),
-		interchaintestrelayer.CustomDockerImage("ghcr.io/gjermundgaraba/relayer", "pessimistic-rollkit", "100:1000"),
-		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
-	)
-	r := rf.Build(s.T(), client, network)
-	s.r = r
-
-	ic.AddRelayer(r, "relayer")
-	s.ibcPath = "ibc-path"
-	ic.AddLink(interchaintest.InterchainLink{
-		Chain1:  s.simapp,
-		Chain2:  s.rollupsimapp,
-		Relayer: r,
-		Path:    s.ibcPath,
-	})
-
 	rep := testreporter.NewNopReporter()
 	eRep := rep.RelayerExecReporter(s.T())
 	s.eRep = eRep
+
 
 	err = ic.Build(s.ctx, eRep, interchaintest.InterchainBuildOptions{
 		TestName:         s.T().Name(),
 		Client:           client,
 		NetworkID:        network,
-		SkipPathCreation: false,
+		SkipPathCreation: true,
 	})
-	s.NoError(err)
+	s.Require().NoError(err)
+
+	s.setupSidecars()
+
+	// Create relayer users
+	var userFunds = math.NewInt(10_000_000_000)
+	_, err = interchaintest.GetAndFundTestUserWithMnemonic(s.ctx, relayerKeyName, relayerMnemonic, userFunds, s.rollupsimapp)
+	s.Require().NoError(err)
+	_, err = interchaintest.GetAndFundTestUserWithMnemonic(s.ctx, relayerKeyName, relayerMnemonic, userFunds, s.simapp)
+	s.Require().NoError(err)
 
 	s.T().Cleanup(func() {
 		_ = ic.Close()
 	})
+}
+
+func (s *E2ETestSuite) setupSidecars() {
+	chainConfigs := []config.CosmosChainConfig{
+		{
+			ChainID:        rollupsimappChainID,
+			RPC:            s.rollupsimapp.GetRPCAddress(),
+			ClientID:       "07-tendermint-0", // TODO: All the client IDs should come from the creation of the light clients
+			Attestation:    true,
+			ClientToUpdate: "10-attestation-0",
+			AddressPrefix:  "rollup",
+			KeyringBackend: "test",
+			KeyName:        relayerKeyName,
+			Gas:            "auto",
+			GasPrices:      "0.025stake",
+			GasAdjustment:  1.5,
+		},
+		{
+			ChainID:        simappChainID,
+			RPC:            s.simapp.GetRPCAddress(),
+			ClientID:       "10-attestation-0",
+			Attestation:    false,
+			ClientToUpdate: "", // Not needed
+			AddressPrefix:  "simapp",
+			KeyringBackend: "test",
+			KeyName:        relayerKeyName,
+			Gas:            "auto",
+			GasPrices:      "0.025stake",
+			GasAdjustment:  1.5,
+		},
+	}
+
+	for i, val := range s.simapp.Validators {
+		s.Require().Len(val.Sidecars, 1)
+		sidecar := val.Sidecars[0]
+
+		attestorID := fmt.Sprintf("attestator-%d", i)
+		sidecarConfig := config.Config{
+			CosmosChains:          chainConfigs,
+			AttestatorID:          attestorID,
+			SigningPrivateKeyPath: "dummy", // Will be updated when we create the key
+		}
+
+		byteWriter := new(bytes.Buffer)
+		err := toml.NewEncoder(byteWriter).Encode(sidecarConfig)
+		s.Require().NoError(err)
+		err = sidecar.WriteFile(s.ctx, byteWriter.Bytes(), "config.toml")
+		s.Require().NoError(err)
+
+		stdOut, stdErr, err := sidecar.Exec(s.ctx, []string{
+			"/bin/sh",
+			"-c",
+			fmt.Sprintf("echo %s | attestation-sidecar keys add %s --recover --keyring-backend test --home /home/sidecar --address-prefix rollup",
+				relayerMnemonic,
+				relayerKeyName),
+		}, []string{})
+		s.Require().NoError(err, string(stdOut), string(stdErr))
+
+		// Create the attestator signing key
+		stdOut, stdErr, err = sidecar.Exec(s.ctx, []string{"attestation-sidecar", "signing-keys", "create", "--home", "/home/sidecar"}, []string{})
+		s.Require().NoError(err, string(stdOut), string(stdErr))
+
+		// Generate registration file
+		stdOut, stdErr, err = sidecar.Exec(s.ctx, []string{
+			"attestation-sidecar",
+			"generate-register-attestator-json",
+			"--home",
+			"/home/sidecar",
+		}, []string{})
+		s.Require().NoError(err, string(stdOut), string(stdErr))
+		registrationFileName := fmt.Sprintf("register-attestator-%d.json", i)
+		err = val.WriteFile(s.ctx, stdOut, registrationFileName)
+		s.Require().NoError(err)
+
+		_, err = val.ExecTx(s.ctx, "validator", "attestationconfig", "register-attestator", path.Join(val.HomeDir(), registrationFileName))
+		s.Require().NoError(err)
+
+		err = sidecar.CreateContainer(s.ctx)
+		s.Require().NoError(err)
+
+		err = sidecar.StartContainer(s.ctx)
+		s.Require().NoError(err)
+
+		nodeSidecarConfig := attestationve.SidecarConfig{
+			SidecarAddress: fmt.Sprintf("%s:6969", sidecar.HostName()),
+		}
+		nodeSidecarConfigBz, err := json.Marshal(nodeSidecarConfig)
+		s.Require().NoError(err)
+		err = val.WriteFile(s.ctx, nodeSidecarConfigBz, nodeSidecarConfigFileName)
+		s.Require().NoError(err)
+	}
 }
 
 func (s *E2ETestSuite) TearDownSuite() {
@@ -154,9 +254,8 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 				ConfigFileOverrides: nil,
 				EncodingConfig:      getEncodingConfig(),
 				ModifyGenesis:       cosmos.ModifyGenesis(genesis),
-				// TODO: Add a callback for each validator to adjust env and maybe other config things?
 				Env: []string{
-					"PESSIMIST_CONFIG_PATH=/var/cosmos-chain/hub/config/pessimist.yaml",
+					fmt.Sprintf("%s=/var/cosmos-chain/simapp/%s", attestationve.SidecarConfigPathEnv, nodeSidecarConfigFileName),
 				},
 				SidecarConfigs: []ibc.SidecarConfig{
 					{
@@ -168,7 +267,7 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 						},
 						HomeDir:          "",
 						Ports:            []string{"6969/tcp"},
-						StartCmd:         []string{"/usr/bin/attestationsidecar", "start", "--home", "/home/sidecar", "--listen-addr", "0.0.0.0:6969"},
+						StartCmd:         []string{"/usr/bin/attestation-sidecar", "--verbose", "start", "--home", "/home/sidecar", "--listen-addr", "0.0.0.0:6969"},
 						Env:              nil,
 						PreStart:         false,
 						ValidatorProcess: true,

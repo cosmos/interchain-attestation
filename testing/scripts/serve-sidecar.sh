@@ -73,7 +73,7 @@ echo "Setting up keys on sidecar keychain"
 echo "$ALICE_MNEMONIC" | $BINARY keys add alice --recover --home $SIDECAR_DIR --keyring-backend test --address-prefix simapp
 
 echo "Creating registration json"
-$BINARY generate-register-attestator-json --home $SIDECAR_DIR
+$BINARY generate-register-attestator-json --home $SIDECAR_DIR > register-attestator.json
 
 echo "Registering attestator"
 TX_HASH=$(simappd tx attestationconfig register-attestator register-attestator.json --from validator --chain-id simapp-1 --keyring-backend test --home /tmp/simapp-1 --gas auto --gas-adjustment 1.5 --gas-prices 0.025stake --output json -y | jq -r ".txhash")

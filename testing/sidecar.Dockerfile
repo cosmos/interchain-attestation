@@ -19,8 +19,8 @@ RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd sidecar && go mod downloa
 RUN --mount=type=cache,mode=0755,target=/go/pkg/mod cd sidecar && make build
 
 FROM alpine:3.20
-COPY --from=builder /code/sidecar/build/attestationsidecar /usr/bin/attestationsidecar
+COPY --from=builder /code/sidecar/build/attestation-sidecar /usr/bin/attestation-sidecar
 
 EXPOSE 6969
 
-ENTRYPOINT ["/usr/bin/attestationsidecar"]
+ENTRYPOINT ["/usr/bin/attestation-sidecar"]

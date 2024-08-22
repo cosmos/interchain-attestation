@@ -1,10 +1,10 @@
-package pessimisticinterchaintest
+package attestationinterchaintest
 
 import (
+	"attestationinterchaintest/types/counter"
 	"context"
 	"fmt"
 	"os"
-	"pessimisticinterchaintest/types/counter"
 	"regexp"
 
 	"cosmossdk.io/math"
@@ -18,7 +18,7 @@ import (
 
 func (s *E2ETestSuite) TestDeployContract() {
 	ctx := context.Background()
-	s.NotNil(s.ic)
+	s.Require().NotNil(s.ic)
 
 	startingEthBalance := math.NewInt(2 * ethereum.ETHER)
 	users := interchaintest.GetAndFundTestUsers(s.T(), s.ctx, s.T().Name(), startingEthBalance, s.eth)

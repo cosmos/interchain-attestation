@@ -170,14 +170,23 @@ func calculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdk.Msg
 	}
 
 	txSvcClient := txtypes.NewServiceClient(clientCtx)
-	simRes, err := txSvcClient.Simulate(context.Background(), &txtypes.SimulateRequest{
-		TxBytes: txBytes,
-	})
-	if err != nil {
-		return 0, errors.Errorf("failed to simulate tx: %w", err)
+
+	var gas uint64
+	if err := WaitUntilCondition(10*time.Second, 2*time.Second, func() (bool, error) {
+		simRes, err := txSvcClient.Simulate(context.Background(), &txtypes.SimulateRequest{
+			TxBytes: txBytes,
+		})
+		if err != nil {
+			return false, nil
+		}
+
+		gas = uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
+		return true, nil
+	}); err != nil {
+		return 0, errors.Errorf("failed to wait for simulation: %w", err)
 	}
 
-	return uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed)), nil
+	return gas, nil
 }
 
 func (r *Relayer) waitForTX(clientCtx client.Context, txHash string) (*sdk.TxResponse, error) {
@@ -202,7 +211,7 @@ func (r *Relayer) waitForTX(clientCtx client.Context, txHash string) (*sdk.TxRes
 		}
 
 		r.logger.Info("Transaction succeeded on chain", zap.String("tx_hash", txHash), zap.String("chain_id", clientCtx.ChainID))
-		time.Sleep(1 * time.Second) // for good measure
+		time.Sleep(5 * time.Second) // for good measure
 		return txResp, nil
 	}
 }

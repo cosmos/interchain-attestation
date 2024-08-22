@@ -1,4 +1,4 @@
-package pessimisticinterchaintest
+package attestationinterchaintest
 
 import (
 	"context"

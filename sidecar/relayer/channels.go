@@ -38,7 +38,7 @@ func (r *Relayer) CreateChannels(
 	// Open try on counterparty
 	counterpartyChannelID, err := r.ChannelOpenTry(ctx, counterpartyChainConfig, counterpartyPortID, version, counterpartyConnectionID, chainConfig, portID, version, channelID, updatedClientStateHeight)
 	if err != nil {
-		return "", "", errors.Errorf("failed to open try channel on %s: %w", counterpartyChainConfig.ChainID, err)
+		return "", "", errors.Errorf("failed to open try channel on %s (proof height %d): %w", counterpartyChainConfig.ChainID, updatedClientStateHeight, err)
 	}
 
 	updatedClientStateHeight, err = r.UpdateClient(ctx, chainConfig, counterpartyChainConfig)
@@ -48,7 +48,7 @@ func (r *Relayer) CreateChannels(
 
 	// Open ack on chain
 	if err := r.ChannelOpenAck(ctx, chainConfig, portID, channelID, version, counterpartyChainConfig, portID, counterpartyChannelID, updatedClientStateHeight); err != nil {
-		return "", "", errors.Errorf("failed to open ack channel on %s: %w", chainConfig.ChainID, err)
+		return "", "", errors.Errorf("failed to open ack channel on %s (proof height %d): %w", chainConfig.ChainID, updatedClientStateHeight, err)
 	}
 
 	updatedClientStateHeight, err = r.UpdateClient(ctx, counterpartyChainConfig, chainConfig)
@@ -58,7 +58,7 @@ func (r *Relayer) CreateChannels(
 
 	// Open confirm on counterparty
 	if err := r.ChannelOpenConfirm(ctx, counterpartyChainConfig, counterpartyPortID, counterpartyChannelID, chainConfig, portID, channelID, updatedClientStateHeight); err != nil {
-		return "", "", errors.Errorf("failed to open confirm channel on %s: %w", counterpartyChainConfig.ChainID, err)
+		return "", "", errors.Errorf("failed to open confirm channel on %s (proof height %d): %w", counterpartyChainConfig.ChainID, updatedClientStateHeight, err)
 	}
 
 	return channelID, counterpartyChannelID, nil

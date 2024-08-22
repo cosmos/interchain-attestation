@@ -12,7 +12,6 @@ func (suite *KeeperTestSuite) TestGRPCQueryParams() {
 }
 
 func (suite *KeeperTestSuite) TestGRPCQueryAttestors() {
-	// TODO: Test with more than one attestator and using pagination
 	attestatorID := suite.registerAttestator()
 
 	resp, err := suite.queryClient.Attestators(suite.ctx, &types.QueryAttestatorsRequest{})

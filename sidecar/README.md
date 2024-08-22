@@ -14,10 +14,10 @@ $ make install
 ## Start the sidecar
 
 ```bash
-$ attestationsidecar start
+$ attestation-sidecar start
 ```
 
-If you start the sidecar without a config file existing, it will generate one for you in `~/.attestationsidecar/config.toml` 
+If you start the sidecar without a config file existing, it will generate one for you in `~/.attestation-sidecar/config.toml` 
 with an example chain configuration.
 
 TODO: Show example
@@ -27,7 +27,7 @@ TODO: Show example
 `--listen-addr` - the address for the grpc server to listen on. Defaults to localhost:6969
 
 ```bash
-$ attestationsidecar start --listen-addr 0.0.0.0:1337
+$ attestation-sidecar start --listen-addr 0.0.0.0:1337
 ```
 
 ## Configuration

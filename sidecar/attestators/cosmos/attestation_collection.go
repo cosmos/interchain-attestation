@@ -50,6 +50,15 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 		PacketCommitments: packetCommitments,
 	}
 
+	c.logger.Debug("Signing attestation data",
+		zap.String("chain_id", c.config.ChainID),
+		zap.String("client_id", c.config.ClientID),
+		zap.String("client_to_update", c.config.ClientToUpdate),
+		zap.Int64("height", revHeight),
+		zap.Time("timestamp", blockAtHeight.Block.Time),
+		zap.Int("packet_commitments", len(packetCommitments)),
+	)
+
 	signableBytes := lightclient.GetSignableBytes(c.codec.Marshaler, attestationData)
 	signature, err := c.signer(signableBytes)
 	if err != nil {

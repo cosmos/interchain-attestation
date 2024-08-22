@@ -2,20 +2,18 @@ package cmd
 
 import (
 	"encoding/base64"
+	"fmt"
 	"github.com/cometbft/cometbft/libs/json"
 	"github.com/gjermundgaraba/pessimistic-validation/core/types"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators"
 	"github.com/gjermundgaraba/pessimistic-validation/sidecar/attestators/cosmos"
 	"github.com/spf13/cobra"
-	"os"
 )
-
-const registerAttestatorJSONFileName = "register-attestator.json"
 
 func GenerateRegisterAttestatorJSONCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "generate-register-attestator-json",
-		Short: "generate a json file used to register an attestator on-chain",
+		Short: "generate json used to register an attestator on-chain",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			config := GetConfig(cmd)
 
@@ -43,11 +41,7 @@ func GenerateRegisterAttestatorJSONCmd() *cobra.Command {
 				return err
 			}
 
-			if err := os.WriteFile(registerAttestatorJSONFileName, jsonBz, 0644); err != nil {
-				return err
-			}
-
-			cmd.Printf("Generated %s\n", registerAttestatorJSONFileName)
+			fmt.Println(string(jsonBz))
 
 			return nil
 		},

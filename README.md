@@ -1,21 +1,18 @@
-# Pessimistic Validation
+# Interchain Attestation
 
-Short-term goal: to allow optimistic rollups to IBC without having to wait for the dispute period.
+(Previously known as Pessimistic Validation)
 
-Long-term goal: to allow any chain (even one without provable merkle trees or single-slot finality) 
-that can implement IBC able to connect to the Cosmos Ecosystem. Including Ethereum. 
+Interchain Attestation is a project to enable IBC everywhere. In particular, IBC for chains that can't/don't have a 
+light client implementation that can be used with IBC. It enables IBC for any chain that can implement IBC, and
+let another chain safely validate it (for instance by running a full node). This then includes optimistic rollups,
+Ethereum, Solana, and more.
 
-This project was originally built for Celestia's Infinite Space Bazaar. 
-You can find the original working proof of concept code here: 
-https://github.com/gjermundgaraba/pessimistic-validation/tree/9bc691c585697921b84c5467b13996389e6d119f
-
-The project is getting some funding from Dorahacks ATOM Economic Zone Quadratic Grant rounds.
+The project is partially funded by the Dorahacks ATOM Economic Zone Quadratic Grant rounds.
 You can find project information and contribute to the project here: https://dorahacks.io/aez
 
-## Current status
-The project is under development and being rewritten for a more production ready design and architecture.
 
-Architectural decisions are in progress to nail down a production-ready design, and development is happening to test the ideas.
+## Current status
+The project is under development and is not yet ready for production use.
 
 ## Pessimistic Validation
 
@@ -45,3 +42,10 @@ counterparty chain and sign off on the state and heights they trust.
 This way the receiving chain can trust the counterparty chain without having to wait for the dispute period to pass, 
 and assets can be bridged over quickly.
 
+## Background
+
+This project was originally built for Celestia's Infinite Space Bazaar to solve the problem of 
+waiting for the dispute period to pass when bridging assets from an optimistic rollup to a receiving chain.
+
+You can find the original working proof of concept code here:
+https://github.com/gjermundgaraba/pessimistic-validation/tree/9bc691c585697921b84c5467b13996389e6d119f

@@ -19,11 +19,8 @@ service Msg {
   // configmodule module parameters.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  // TODO: Document
   rpc RegisterAttestator(MsgRegisterAttestator)
       returns (MsgRegisterAttestatorResponse);
-
-  // TODO: Update attestator (including public key and chains to attestate)
 }
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
@@ -45,7 +42,6 @@ message MsgUpdateParams {
 // MsgUpdateParams message.
 message MsgUpdateParamsResponse {}
 
-// TODO: Document
 message MsgRegisterAttestator {
   option (cosmos.msg.v1.signer) = "validator_address";
 
@@ -56,8 +52,6 @@ message MsgRegisterAttestator {
 
   google.protobuf.Any attestation_public_key = 3
       [ (cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey" ];
-
-  // TODO: Register chains to attestate as well
 }
 
 message MsgRegisterAttestatorResponse {}

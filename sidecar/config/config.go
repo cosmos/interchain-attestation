@@ -31,6 +31,7 @@ type CosmosChainConfig struct {
 	ClientToUpdate      string `toml:"client_to_update"`
 
 	// Relaying and tx related stuff
+	// TODO: Maybe put this stuff into some sub structs to make it clear it is for relaying
 	AddressPrefix  string  `toml:"address_prefix"`
 	KeyringBackend string  `toml:"keyring_backend"`
 	KeyName        string  `toml:"key_name"`

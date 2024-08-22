@@ -2,9 +2,11 @@ package voteextension
 
 import (
 	"cosmossdk.io/core/appmodule"
+	"github.com/cometbft/cometbft/libs/json"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	clientkeeper "github.com/cosmos/ibc-go/v9/modules/core/02-client/keeper"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -13,6 +15,10 @@ import (
 )
 
 const ModuleName = "attestationvoteextension"
+
+type SidecarConfig struct {
+	SidecarAddress string `json:"sidecar_address"`
+}
 
 var _ module.AppModuleBasic = (*AppModuleBasic)(nil)
 var _ appmodule.AppModule = (*AppModule)(nil)
@@ -57,8 +63,34 @@ func NewAppModule(clientKeeper *clientkeeper.Keeper, cdc codec.Codec) AppModule 
 	}
 }
 
+func (a AppModule) GetSidecarAddress(ctx sdk.Context) string  {
+	if a.sidecarAddress == "" {
+		ctx.Logger().Info("GetSidecarAddress: no sidecar address set")
+		sidecarConfigPath := os.Getenv(SidecarConfigPathEnv)
+		if sidecarConfigPath == "" {
+			ctx.Logger().Info("GetSidecarAddress: no sidecar config path set")
+			return ""
+		}
+
+		sidecarConfigBz, err := os.ReadFile(sidecarConfigPath)
+		if err != nil {
+			ctx.Logger().Error("GetSidecarAddress: failed to read sidecar config", "path", sidecarConfigPath, "error", err)
+			return ""
+		}
+		var sidecarConfig SidecarConfig
+		if err = json.Unmarshal(sidecarConfigBz, &sidecarConfig); err != nil {
+			ctx.Logger().Error("GetSidecarAddress: failed to unmarshal sidecar config", "error", err)
+			return ""
+		}
+		a.sidecarAddress = sidecarConfig.SidecarAddress
+	}
+
+	return a.sidecarAddress
+}
+
 // IsAppModule implements the appmodule.AppModule interface.
 func (AppModuleBasic) IsAppModule() {}
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
 func (AppModuleBasic) IsOnePerModuleType() {}
+
