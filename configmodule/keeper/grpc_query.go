@@ -2,17 +2,19 @@ package keeper
 
 import (
 	"context"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 type queryServer struct{ k Keeper }
 
 var _ types.QueryServer = queryServer{}
-
 
 func NewQueryServer(k Keeper) types.QueryServer {
 	return queryServer{k: k}
@@ -50,7 +52,7 @@ func (q queryServer) Attestators(ctx context.Context, req *types.QueryAttestator
 
 	return &types.QueryAttestatorsResponse{
 		Attestators: attestators,
-		Pagination: pageRes,
+		Pagination:  pageRes,
 	}, nil
 }
 

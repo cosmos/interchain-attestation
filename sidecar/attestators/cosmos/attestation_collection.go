@@ -2,11 +2,14 @@ package cosmos
 
 import (
 	"context"
-	chantypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
-	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
+
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
+
+	chantypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
+
+	"github.com/cosmos/interchain-attestation/core/lightclient"
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation, error) {
@@ -24,9 +27,9 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 		}
 		commitments = &chantypes.QueryPacketCommitmentsResponse{
 			Commitments: []*chantypes.PacketState{},
-			Height:      c.config.GetClientHeight(uint64(resp.Response.LastBlockHeight-1)),
+			Height:      c.config.GetClientHeight(uint64(resp.Response.LastBlockHeight - 1)),
 		}
-		//return types.Attestation{}, errors.Errorf("failed to query packet commitments for client id %s on chain id %s: %w", c.config.ClientID, c.config.ChainID, err)
+		// return types.Attestation{}, errors.Errorf("failed to query packet commitments for client id %s on chain id %s: %w", c.config.ClientID, c.config.ChainID, err)
 	}
 
 	height := commitments.Height

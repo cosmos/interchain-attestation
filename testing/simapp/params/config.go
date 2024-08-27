@@ -2,6 +2,7 @@ package params
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/cosmos/interchain-attestation/simapp"
 )
 

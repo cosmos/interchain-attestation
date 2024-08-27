@@ -24,7 +24,7 @@ cd ..
 # move proto files to the right places
 #
 # Note: Proto files are suffixed with the current binary version.
-cp -r github.com/gjermundgaraba/interchain-attestation/configmodule/* ./
+cp -r github.com/cosmos/interchain-attestation/configmodule/* ./
 rm -rf github.com
 
 ./scripts/protocgen-pulsar.sh

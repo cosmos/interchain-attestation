@@ -1,19 +1,20 @@
-package attestationinterchaintest
+package interchaintest
 
 import (
-	"attestationinterchaintest/types/counter"
 	"context"
 	"fmt"
 	"os"
 	"regexp"
 
-	"cosmossdk.io/math"
-
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 
+	"cosmossdk.io/math"
+
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/ethereum"
+
+	"github.com/cosmos/interchain-attestation/interchaintest/types/counter"
 )
 
 func (s *E2ETestSuite) TestDeployContract() {

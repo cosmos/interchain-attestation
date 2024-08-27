@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "core/types/v1/attestation.proto";
 import "core/lightclient/v1/clientmsg.proto";
 
-option go_package = "github.com/gjermundgaraba/interchain-attestation/core/voteextension";
+option go_package = "github.com/cosmos/interchain-attestation/core/voteextension";
 
 message VoteExtension {
   // one attestation for every chain configured in the sidecar

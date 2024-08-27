@@ -6,9 +6,6 @@ import (
 	"os"
 	"testing"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	cmtjson "github.com/cometbft/cometbft/libs/json"
-	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
@@ -29,6 +26,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+	cmtjson "github.com/cometbft/cometbft/libs/json"
+	cmttypes "github.com/cometbft/cometbft/types"
 )
 
 // SetupOptions defines arguments that are passed into `Simapp` constructor.

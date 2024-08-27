@@ -2,7 +2,8 @@ package keeper
 
 import (
 	"context"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 func (k Keeper) SetNewAttestator(ctx context.Context, attestator types.Attestator) error {

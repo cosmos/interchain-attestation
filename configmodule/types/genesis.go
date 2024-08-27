@@ -24,7 +24,7 @@ func (gs GenesisState) Validate() error {
 
 	if err := gs.Params.Validate(); err != nil {
 		return nil
-		//return fmt.Errorf("params failed validation: %w", err)
+		// return fmt.Errorf("params failed validation: %w", err)
 	}
 
 	return nil

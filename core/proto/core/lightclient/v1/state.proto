@@ -6,7 +6,7 @@ import "cosmos_proto/cosmos.proto";
 import "google/protobuf/timestamp.proto";
 import "ibc/core/client/v1/client.proto";
 
-option go_package = "github.com/gjermundgaraba/interchain-attestation/core/lightclient";
+option go_package = "github.com/cosmos/interchain-attestation/core/lightclient";
 
 // ClientState tracks the validation setup required for a light client
 message ClientState {

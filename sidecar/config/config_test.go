@@ -1,12 +1,12 @@
 package config
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestConfig_Validate(t *testing.T) {
-
 	tests := []struct {
 		name   string
 		config Config
@@ -61,8 +61,8 @@ func TestConfig_Validate(t *testing.T) {
 			config: Config{
 				CosmosChains: []CosmosChainConfig{
 					{
-						ChainID:             "",
-						RPC:                 "http://localhost:26657",
+						ChainID: "",
+						RPC:     "http://localhost:26657",
 					},
 				},
 				AttestatorID:          "test-attestator-id",
@@ -109,8 +109,8 @@ func TestConfig_Validate(t *testing.T) {
 			config: Config{
 				CosmosChains: []CosmosChainConfig{
 					{
-						ChainID:             "chain1",
-						RPC:                 "",
+						ChainID: "chain1",
+						RPC:     "",
 					},
 				},
 				AttestatorID:          "test-attestator-id",
@@ -216,7 +216,6 @@ func TestConfig_Validate(t *testing.T) {
 			} else {
 				require.EqualError(t, err, tt.expErr)
 			}
-
 		})
 	}
 }

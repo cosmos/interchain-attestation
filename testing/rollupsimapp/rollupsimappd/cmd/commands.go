@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 
-	cmtcfg "github.com/cometbft/cometbft/config"
 	dbm "github.com/cosmos/cosmos-db"
 	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
 	rollconf "github.com/rollkit/rollkit/config"
@@ -28,6 +27,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+
+	cmtcfg "github.com/cometbft/cometbft/config"
 
 	"github.com/cosmos/interchain-attestation/rollupsimapp"
 )

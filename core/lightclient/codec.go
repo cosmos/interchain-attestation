@@ -2,6 +2,7 @@ package lightclient
 
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 )
 

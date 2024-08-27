@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/cmd"
 	"os"
+
+	"github.com/cosmos/interchain-attestation/sidecar/cmd"
 )
 
 func main() {

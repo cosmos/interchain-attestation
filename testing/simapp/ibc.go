@@ -3,6 +3,7 @@ package simapp
 import (
 	"cosmossdk.io/core/appmodule"
 	storetypes "cosmossdk.io/store/types"
+
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -10,6 +11,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -27,6 +29,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
 	solomachine "github.com/cosmos/ibc-go/v9/modules/light-clients/06-solomachine"
 	ibctm "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
+
 	attestationconfigkeeper "github.com/cosmos/interchain-attestation/configmodule/keeper"
 	attestationlightclient "github.com/cosmos/interchain-attestation/core/lightclient"
 	attestationve "github.com/cosmos/interchain-attestation/core/voteextension"

@@ -1,4 +1,4 @@
-module attestationinterchaintest
+module github.com/cosmos/interchain-attestation/interchaintest
 
 go 1.23.0
 
@@ -20,7 +20,6 @@ replace (
 require (
 	cosmossdk.io/math v1.3.0
 	github.com/cosmos/cosmos-sdk v0.50.9
-	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1
 	github.com/cosmos/interchain-attestation/core v0.0.0
 	github.com/cosmos/interchain-attestation/sidecar v0.0.0
 	github.com/ethereum/go-ethereum v1.14.7
@@ -85,6 +84,7 @@ require (
 	github.com/cosmos/gogoproto v1.5.0 // indirect
 	github.com/cosmos/iavl v1.2.0 // indirect
 	github.com/cosmos/ibc-go/modules/capability v1.0.1 // indirect
+	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.3 // indirect
 	github.com/crate-crypto/go-kzg-4844 v1.0.0 // indirect

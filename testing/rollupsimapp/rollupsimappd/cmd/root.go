@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	attestationlightclient "github.com/cosmos/interchain-attestation/core/lightclient"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -9,7 +8,6 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"github.com/cosmos/interchain-attestation/rollupsimapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -20,6 +18,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	attestationlightclient "github.com/cosmos/interchain-attestation/core/lightclient"
+	"github.com/cosmos/interchain-attestation/rollupsimapp"
 )
 
 // NewRootCmd creates a new root command for rollupsimappd. It is called once in the main function.

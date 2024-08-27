@@ -1,11 +1,13 @@
 package config
 
 import (
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
-	"github.com/pelletier/go-toml/v2"
-	"gitlab.com/tozd/go/errors"
 	"os"
 	"path"
+
+	"github.com/pelletier/go-toml/v2"
+	"gitlab.com/tozd/go/errors"
+
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 )
 
 const (
@@ -22,13 +24,13 @@ type Config struct {
 
 // TODO: Document the config properly in the readme with examples
 type CosmosChainConfig struct {
-	ChainID string `toml:"chain_id"`
+	ChainID  string `toml:"chain_id"`
 	RPC      string `toml:"rpc"`
 	ClientID string `toml:"client_id"`
 
 	// Attestation related stuff
-	Attestation         bool   `toml:"attestation"`
-	ClientToUpdate      string `toml:"client_to_update"`
+	Attestation    bool   `toml:"attestation"`
+	ClientToUpdate string `toml:"client_to_update"`
 
 	// Relaying and tx related stuff
 	// TODO: Maybe put this stuff into some sub structs to make it clear it is for relaying

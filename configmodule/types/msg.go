@@ -3,6 +3,7 @@ package types
 import (
 	"cosmossdk.io/core/address"
 	errorsmod "cosmossdk.io/errors"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,10 +11,9 @@ import (
 )
 
 var (
-	_ sdk.Msg = &MsgRegisterAttestator{}
+	_ sdk.Msg                            = &MsgRegisterAttestator{}
 	_ codectypes.UnpackInterfacesMessage = (*MsgRegisterAttestator)(nil)
 )
-
 
 func (msg MsgRegisterAttestator) Validate(ac address.Codec) error {
 	_, err := ac.StringToBytes(msg.ValidatorAddress)

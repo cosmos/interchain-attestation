@@ -2,12 +2,17 @@ package configmodule
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+
+	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
-	"encoding/json"
-	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -17,12 +22,11 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	modulev1 "github.com/gjermundgaraba/interchain-attestation/configmodule/api/configmodule/module/v1"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/client/cli"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/keeper"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
-	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
+
+	modulev1 "github.com/cosmos/interchain-attestation/configmodule/api/configmodule/module/v1"
+	"github.com/cosmos/interchain-attestation/configmodule/client/cli"
+	"github.com/cosmos/interchain-attestation/configmodule/keeper"
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 // ConsensusVersion defines the current attestationconfig module consensus version.
@@ -203,14 +207,14 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 // ----------------------------------------------------------------------------
 
 func (am AppModule) GenerateGenesisState(input *module.SimulationState) {
-	//TODO implement me
+	// TODO implement me
 }
 
 func (am AppModule) RegisterStoreDecoder(registry simtypes.StoreDecoderRegistry) {
-	//TODO implement me
+	// TODO implement me
 }
 
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
-	//TODO implement me
+	// TODO implement me
 	return []simtypes.WeightedOperation{}
 }

@@ -2,30 +2,33 @@ package attestators
 
 import (
 	"context"
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
-	"github.com/dgraph-io/badger/v4"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/attestator"
-	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/dgraph-io/badger/v4"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+
+	"github.com/cosmos/interchain-attestation/core/types"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/attestator"
 )
 
 const (
-	mockChainID = "mockChainID"
-	mockClientID = "mockClientID"
-	mockClientToUpdate = "mockClientToUpdate"
-	mockAttestatorID = "mockAttestatorID"
+	mockChainID             = "mockChainID"
+	mockClientID            = "mockClientID"
+	mockClientToUpdate      = "mockClientToUpdate"
+	mockAttestatorID        = "mockAttestatorID"
 	mockAttestatorSignature = "mockAttestatorSignature"
 )
 
 var mockPacketCommits = [][]byte{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
 
 type MockChainAttestator struct {
-	CurrentHeight      uint64
-	Timestamp time.Time
+	CurrentHeight uint64
+	Timestamp     time.Time
 
 	lock sync.Mutex
 }
@@ -69,8 +72,8 @@ func TestCoordinator_Run(t *testing.T) {
 		chainAttestators: map[string]attestator.Attestator{
 			mockChainID: mockChainAttestator,
 		},
-		logger: zap.NewNop(),
-		db:     db,
+		logger:            zap.NewNop(),
+		db:                db,
 		queryLoopDuration: 50 * time.Millisecond,
 	}
 

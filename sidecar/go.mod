@@ -1,8 +1,8 @@
-module github.com/gjermundgaraba/interchain-attestation/sidecar
+module github.com/cosmos/interchain-attestation/sidecar
 
 go 1.23.0
 
-replace github.com/gjermundgaraba/interchain-attestation/core => ../core
+replace github.com/cosmos/interchain-attestation/core => ../core
 
 require (
 	cosmossdk.io/core v0.11.1 // indirect
@@ -14,7 +14,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.9
 	github.com/cosmos/gogoproto v1.5.0
 	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1
-	github.com/gjermundgaraba/interchain-attestation/core v0.0.0
+	github.com/cosmos/interchain-attestation/core v0.0.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/spf13/cobra v1.8.1

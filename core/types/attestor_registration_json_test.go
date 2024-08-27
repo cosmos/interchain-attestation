@@ -1,12 +1,15 @@
 package types_test
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 func TestUnmarshalAttestationJSON(t *testing.T) {

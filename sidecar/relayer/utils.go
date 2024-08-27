@@ -3,9 +3,11 @@ package relayer
 import (
 	"context"
 	"fmt"
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
-	"gitlab.com/tozd/go/errors"
 	"time"
+
+	"gitlab.com/tozd/go/errors"
+
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 )
 
 func GetClientType(clientID string) (ClientType, error) {

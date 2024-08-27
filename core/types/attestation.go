@@ -2,6 +2,7 @@ package types
 
 import (
 	"crypto/sha256"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 

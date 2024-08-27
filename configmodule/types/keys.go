@@ -12,6 +12,6 @@ const (
 
 var (
 	// ParamsKey is the prefix for configmodule parameters
-	ParamsKey = collections.NewPrefix(0)
+	ParamsKey      = collections.NewPrefix(0)
 	AttestatorsKey = collections.NewPrefix(1)
 )

@@ -3,16 +3,18 @@ package attestators
 import (
 	"context"
 	"fmt"
-	"github.com/cosmos/gogoproto/proto"
-	"github.com/dgraph-io/badger/v4"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/attestator"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
-	"go.uber.org/zap"
-	"golang.org/x/sync/errgroup"
 	"sync"
 	"time"
+
+	"github.com/cosmos/gogoproto/proto"
+	"github.com/dgraph-io/badger/v4"
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
+
+	"github.com/cosmos/interchain-attestation/core/types"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/attestator"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/cosmos"
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 const (
@@ -30,7 +32,7 @@ type coordinator struct {
 	logger *zap.Logger
 	db     *badger.DB
 
-	chainAttestators    map[string]attestator.Attestator
+	chainAttestators  map[string]attestator.Attestator
 	queryLoopDuration time.Duration
 }
 
@@ -64,7 +66,7 @@ func NewCoordinator(logger *zap.Logger, db *badger.DB, sidecarConfig config.Conf
 	return &coordinator{
 		logger:            logger,
 		db:                db,
-		chainAttestators:    chainProvers,
+		chainAttestators:  chainProvers,
 		queryLoopDuration: defaultMinQueryLoopDuration,
 	}, nil
 }
@@ -76,7 +78,6 @@ func (c *coordinator) GetLatestAttestations() ([]types.Attestation, error) {
 
 	for _, chainAttestator := range c.chainAttestators {
 		wg.Add(1)
-		chainAttestator := chainAttestator
 		go func(chainAttestator attestator.Attestator) {
 			defer wg.Done()
 
@@ -130,9 +131,7 @@ func (c *coordinator) GetAttestationForHeight(chainID string, height uint64) (ty
 		if err != nil {
 			return err
 		}
-		return item.Value(func(val []byte) error {
-			return attestation.Unmarshal(val)
-		})
+		return item.Value(attestation.Unmarshal)
 	}); err != nil {
 		return attestation, err
 	}
@@ -148,7 +147,6 @@ func (c *coordinator) Run(ctx context.Context) error {
 	for _, chainProver := range c.chainAttestators {
 		c.logger.Info("Starting chain prover loop", zap.String("chain_id", chainProver.ChainID()))
 
-		chainProver := chainProver
 		eg.Go(func() error {
 			err := c.collectionLoop(runCtx, chainProver)
 			runCtxCancel() // Signal the other chain processors to exit.

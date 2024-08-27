@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/interchain-attestation/rollupsimapp"
-
 	"github.com/cosmos/cosmos-sdk/testutil/network"
+
+	"github.com/cosmos/interchain-attestation/rollupsimapp"
 )
 
 type IntegrationTestSuite struct {

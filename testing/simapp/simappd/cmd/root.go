@@ -10,7 +10,6 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"github.com/cosmos/interchain-attestation/simapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -21,6 +20,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/cosmos/interchain-attestation/simapp"
 )
 
 // NewRootCmd creates a new root command for simappd. It is called once in the main function.

@@ -2,24 +2,17 @@ package cosmos
 
 import (
 	"context"
+	"time"
+
+	"gitlab.com/tozd/go/errors"
+
 	querytypes "github.com/cosmos/cosmos-sdk/types/query"
+
 	connectiontypes "github.com/cosmos/ibc-go/v9/modules/core/03-connection/types"
 	chantypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
-	"gitlab.com/tozd/go/errors"
-	"time"
 )
 
 const PaginationDelay = 10 * time.Millisecond
-
-func (c *Attestator) queryLatestHeight(ctx context.Context) (int64, error) {
-	stat, err := c.cometClient.Status(ctx)
-	if err != nil {
-		return -1, err
-	} else if stat.SyncInfo.CatchingUp {
-		return -1, errors.Errorf("node at %s running chain %s not caught up", c.config.RPC, c.config.ChainID)
-	}
-	return stat.SyncInfo.LatestBlockHeight, nil
-}
 
 func (c *Attestator) queryConnectionsForClient(ctx context.Context, clientID string) ([]string, error) {
 	qc := connectiontypes.NewQueryClient(c.clientConn)
@@ -30,12 +23,7 @@ func (c *Attestator) queryConnectionsForClient(ctx context.Context, clientID str
 		return nil, err
 	}
 
-	var connectionPaths []string
-	for _, connectionID := range connections.ConnectionPaths {
-		connectionPaths = append(connectionPaths, connectionID)
-	}
-
-	return connectionPaths, nil
+	return connections.ConnectionPaths, nil
 }
 
 func (c *Attestator) queryPacketCommitments(ctx context.Context, clientID string) (*chantypes.QueryPacketCommitmentsResponse, error) {
@@ -65,9 +53,7 @@ func (c *Attestator) queryPacketCommitments(ctx context.Context, clientID string
 			return nil, err
 		}
 
-		for _, channel := range res.Channels {
-			channels = append(channels, channel)
-		}
+		channels = append(channels, res.Channels...)
 
 		next := res.GetPagination().GetNextKey()
 		if len(next) == 0 {

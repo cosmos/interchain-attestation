@@ -2,29 +2,34 @@ package cmd
 
 import (
 	"context"
+	"os"
+	"path/filepath"
+	"slices"
+
+	"github.com/spf13/cobra"
+	"gitlab.com/tozd/go/errors"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
-	"github.com/spf13/cobra"
-	"gitlab.com/tozd/go/errors"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"os"
-	"path/filepath"
-	"slices"
+
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/cosmos"
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
-const (
-	ContextKeyConfig  = "config"
-	ContextKeyHomedir = "homedir"
-	ContextKeyLogger  = "logger"
+type SidecarContextKey string
 
-	flagVerbose = "verbose"
+const (
+	ContextKeyConfig  = SidecarContextKey("config")
+	ContextKeyHomedir = SidecarContextKey("homedir")
+	ContextKeyLogger  = SidecarContextKey("logger")
+
+	flagVerbose       = "verbose"
 	flagAddressPrefix = "address-prefix"
 
 	defaultAppFolderName = ".attestation-sidecar"
@@ -101,7 +106,7 @@ func RootCmd() *cobra.Command {
 				cfg.SetBech32PrefixForAccount(addressPrefix, accountPubKeyPrefix)
 				cfg.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
 				cfg.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)
-				//cfg.Seal()
+				// cfg.Seal()
 				codecConfig := cosmos.NewCodecConfig()
 				keyringBackend, _ := cmd.Flags().GetString(flags.FlagKeyringBackend)
 				kr, err := keyring.New("attestation-sidecar", keyringBackend, homedir, os.Stdin, codecConfig.Marshaler)

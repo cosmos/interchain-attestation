@@ -1,13 +1,11 @@
 package rollupsimapp
 
 import (
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	ibcfeekeeper "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/keeper"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v9/modules/apps/transfer/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
 	"io"
 
 	dbm "github.com/cosmos/cosmos-db"
+	sequencerkeeper "github.com/decentrio/rollkit-sdk/x/sequencer/keeper"
+	rollkitstakingkeeper "github.com/decentrio/rollkit-sdk/x/staking/keeper"
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/depinject"
@@ -40,8 +38,12 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	sequencerkeeper "github.com/decentrio/rollkit-sdk/x/sequencer/keeper"
-	rollkitstakingkeeper "github.com/decentrio/rollkit-sdk/x/staking/keeper"
+
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v9/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
+
 	attestationconfigkeeper "github.com/cosmos/interchain-attestation/configmodule/keeper"
 )
 
@@ -69,12 +71,12 @@ type RollupSimApp struct {
 	DistrKeeper           distrkeeper.Keeper
 	GovKeeper             *govkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
-	CrisisKeeper         *crisiskeeper.Keeper
-	UpgradeKeeper        *upgradekeeper.Keeper
-	ParamsKeeper         paramskeeper.Keeper
-	AuthzKeeper          authzkeeper.Keeper
-	FeeGrantKeeper       feegrantkeeper.Keeper
-	CircuitBreakerKeeper circuitkeeper.Keeper
+	CrisisKeeper          *crisiskeeper.Keeper
+	UpgradeKeeper         *upgradekeeper.Keeper
+	ParamsKeeper          paramskeeper.Keeper
+	AuthzKeeper           authzkeeper.Keeper
+	FeeGrantKeeper        feegrantkeeper.Keeper
+	CircuitBreakerKeeper  circuitkeeper.Keeper
 
 	// IBC
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -89,7 +91,7 @@ type RollupSimApp struct {
 	AttestationConfigKeeper attestationconfigkeeper.Keeper
 
 	// Rollkit keepers
-	StakingKeeper         *rollkitstakingkeeper.Keeper
+	StakingKeeper   *rollkitstakingkeeper.Keeper
 	SequencerKeeper sequencerkeeper.Keeper
 
 	// simulation manager
@@ -232,7 +234,6 @@ func NewRollupSimApp(
 	if err := app.registerIBCModules(appOpts); err != nil {
 		panic(err)
 	}
-
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {

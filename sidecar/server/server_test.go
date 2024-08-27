@@ -3,34 +3,39 @@ package server_test
 import (
 	"context"
 	"fmt"
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/attestator"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/server"
-	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"math/rand"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+
+	"github.com/cosmos/interchain-attestation/core/types"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/attestator"
+	"github.com/cosmos/interchain-attestation/sidecar/server"
 )
 
 const (
-	mockChainID  = "mockChainID"
-	mockClientID = "mockClientID"
+	mockChainID           = "mockChainID"
+	mockClientID          = "mockClientID"
 	mockChainAttestatorID = "mockChainAttestatorID"
-	mockSignature = "mockSignature"
+	mockSignature         = "mockSignature"
 )
 
 type mockCoordinator struct{}
 
 type mockChainAttestator struct{}
 
-var _ attestators.Coordinator = &mockCoordinator{}
-var _ attestator.Attestator = &mockChainAttestator{}
+var (
+	_ attestators.Coordinator = &mockCoordinator{}
+	_ attestator.Attestator   = &mockChainAttestator{}
+)
 
 func (m mockCoordinator) GetChainProver(_ string) attestator.Attestator {
 	return &mockChainAttestator{}
@@ -44,7 +49,7 @@ func (m mockCoordinator) GetLatestAttestations() ([]types.Attestation, error) {
 	return []types.Attestation{
 		{
 			AttestatorId: []byte(mockChainAttestatorID),
-			AttestedData: types.IBCData {
+			AttestedData: types.IBCData{
 				ChainId:           mockChainID,
 				ClientId:          mockClientID,
 				Height:            clienttypes.NewHeight(1, 42),
@@ -57,7 +62,7 @@ func (m mockCoordinator) GetLatestAttestations() ([]types.Attestation, error) {
 }
 
 func (m mockCoordinator) GetAttestationForHeight(chainID string, height uint64) (types.Attestation, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 

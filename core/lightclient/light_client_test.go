@@ -2,25 +2,31 @@ package lightclient_test
 
 import (
 	"context"
+	"fmt"
+	"testing"
+	"time"
+
+	testifysuite "github.com/stretchr/testify/suite"
+
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
-	"fmt"
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	cmttime "github.com/cometbft/cometbft/types/time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdkcrypto "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmttime "github.com/cometbft/cometbft/types/time"
+
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
 	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
-	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	testifysuite "github.com/stretchr/testify/suite"
-	"testing"
-	"time"
+
+	"github.com/cosmos/interchain-attestation/core/lightclient"
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 const (
@@ -47,12 +53,12 @@ type AttestationLightClientTestSuite struct {
 	lightClientModule lightclient.LightClientModule
 	storeProvider     clienttypes.StoreProvider
 
-	mockAttestators []mockAttestator
+	mockAttestators        []mockAttestator
 	mockAttestatorsHandler mockAttestatorsHandler
 
-	ctx    sdk.Context
+	ctx     sdk.Context
 	testCtx testutil.TestContext
-	encCfg moduletestutil.TestEncodingConfig
+	encCfg  moduletestutil.TestEncodingConfig
 }
 
 func TestAttestationLightClientTestSuite(t *testing.T) {
@@ -79,7 +85,7 @@ type mockAttestator struct {
 }
 
 type mockAttestatorsHandler struct {
-	attestators map[string]mockAttestator
+	attestators            map[string]mockAttestator
 	sufficientAttestations func() (bool, error)
 }
 
@@ -217,4 +223,3 @@ func getConsensusState(store storetypes.KVStore, cdc codec.BinaryCodec, height i
 	}
 	return consensusState
 }
-

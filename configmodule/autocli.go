@@ -1,11 +1,13 @@
 package configmodule
 
 import (
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	_ "cosmossdk.io/api/cosmos/crypto/ed25519" // register to that it shows up in protoregistry.GlobalTypes
+	_ "cosmossdk.io/api/cosmos/crypto/ed25519"   // register to that it shows up in protoregistry.GlobalTypes
 	_ "cosmossdk.io/api/cosmos/crypto/secp256k1" // register to that it shows up in protoregistry.GlobalTypes
 	_ "cosmossdk.io/api/cosmos/crypto/secp256r1" // register to that it shows up in protoregistry.GlobalTypes
-	configmodulev1 "github.com/gjermundgaraba/interchain-attestation/configmodule/api/configmodule/v1"
+
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+
+	configmodulev1 "github.com/cosmos/interchain-attestation/configmodule/api/configmodule/v1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.
@@ -25,9 +27,9 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Short:     "Query all attestators",
 				},
 				{
-					RpcMethod: "Attestator",
-					Use:       "attestator [attestator_id]",
-					Short:     "Query attestator by attestator id",
+					RpcMethod:      "Attestator",
+					Use:            "attestator [attestator_id]",
+					Short:          "Query attestator by attestator id",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "attestator_id"}},
 				},
 			},

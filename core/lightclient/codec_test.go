@@ -1,12 +1,15 @@
 package lightclient_test
 
 import (
+	"testing"
+
+	"github.com/cosmos/gogoproto/proto"
+	"github.com/stretchr/testify/require"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/cosmos/gogoproto/proto"
-	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
-	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/cosmos/interchain-attestation/core/lightclient"
 )
 
 func TestCodec(t *testing.T) {
@@ -18,7 +21,7 @@ func TestCodec(t *testing.T) {
 		name            string
 		toMarshalFrom   proto.Message
 		toUnmarshalInto proto.Message
-	} {
+	}{
 		{
 			"ClientState",
 			initialClientState,
@@ -37,8 +40,6 @@ func TestCodec(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		t.Run(tc.name, func(t *testing.T) {
 			bz, err := encodingCfg.Codec.Marshal(tc.toMarshalFrom)
 			require.NoError(t, err)

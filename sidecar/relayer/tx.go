@@ -2,6 +2,13 @@ package relayer
 
 import (
 	"context"
+	"os"
+	"time"
+
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
+	"gitlab.com/tozd/go/errors"
+	"go.uber.org/zap"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -11,12 +18,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	gogogrpc "github.com/cosmos/gogoproto/grpc"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
-	"gitlab.com/tozd/go/errors"
-	"go.uber.org/zap"
-	"os"
-	"time"
+
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 func (r *Relayer) createClientCtx(ctx context.Context, chainConfig config.CosmosChainConfig) (client.Context, error) {
@@ -29,7 +32,7 @@ func (r *Relayer) createClientCtx(ctx context.Context, chainConfig config.Cosmos
 	cfg.SetBech32PrefixForAccount(chainConfig.AddressPrefix, accountPubKeyPrefix)
 	cfg.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
 	cfg.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)
-	//cfg.Seal()
+	// cfg.Seal()
 
 	kr, err := keyring.New("attestation-sidecar", chainConfig.KeyringBackend, r.homedir, os.Stdin, r.cdc)
 	if err != nil {
@@ -156,7 +159,6 @@ func (r *Relayer) sendTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.M
 	var msgTypes []string
 	for _, msg := range msgs {
 		msgTypes = append(msgTypes, sdk.MsgTypeURL(msg))
-
 	}
 	r.logger.Info("Successfully broadcast tx", zap.Strings("msgs", msgTypes))
 

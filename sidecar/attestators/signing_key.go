@@ -1,12 +1,14 @@
 package attestators
 
 import (
+	"os"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
-	"os"
+
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 const (
@@ -15,7 +17,7 @@ const (
 )
 
 type AttestatorSigningKey struct {
-	PubKey cryptotypes.PubKey
+	PubKey  cryptotypes.PubKey
 	PrivKey cryptotypes.PrivKey
 }
 
@@ -25,7 +27,7 @@ func GenerateAttestatorSigningKey() (AttestatorSigningKey, error) {
 
 	return AttestatorSigningKey{
 		PrivKey: privKey,
-		PubKey: pubKey,
+		PubKey:  pubKey,
 	}, nil
 }
 
@@ -55,7 +57,7 @@ func AttestatorSigningKeyFromJSON(cdc codec.Codec, privKeyJSON []byte) (Attestat
 
 	return AttestatorSigningKey{
 		PrivKey: privKey,
-		PubKey: pubKey,
+		PubKey:  pubKey,
 	}, nil
 }
 

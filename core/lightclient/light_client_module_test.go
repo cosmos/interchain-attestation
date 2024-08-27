@@ -1,13 +1,16 @@
 package lightclient_test
 
 import (
+	"time"
+
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
+
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
-	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	"time"
+
+	"github.com/cosmos/interchain-attestation/core/lightclient"
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 func (s *AttestationLightClientTestSuite) TestLightClientModule_Initialize() {
@@ -45,8 +48,6 @@ func (s *AttestationLightClientTestSuite) TestLightClientModule_Initialize() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest() // to reset the store and such
 
