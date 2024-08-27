@@ -6,7 +6,7 @@ import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v9/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
-	attestationconfigtypes "github.com/gjermundgaraba/interchain-attestation/configmodule/types"
+	attestationconfigtypes "github.com/cosmos/interchain-attestation/configmodule/types"
 	"time"
 
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -79,8 +79,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	_ "github.com/gjermundgaraba/interchain-attestation/configmodule" // import for side effects
-	attestationconfigmodulev1 "github.com/gjermundgaraba/interchain-attestation/configmodule/api/configmodule/module/v1"
+	_ "github.com/cosmos/interchain-attestation/configmodule" // import for side effects
+	attestationconfigmodulev1 "github.com/cosmos/interchain-attestation/configmodule/api/configmodule/module/v1"
 )
 
 const AccountAddressPrefix = "simapp"

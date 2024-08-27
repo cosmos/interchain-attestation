@@ -1,10 +1,10 @@
-module github.com/gjermundgaraba/interchain-attestation/rollupsimapp
+module github.com/cosmos/interchain-attestation/rollupsimapp
 
 go 1.23.0
 
 replace (
-	github.com/gjermundgaraba/interchain-attestation/configmodule => ../../configmodule
-	github.com/gjermundgaraba/interchain-attestation/core => ../../core
+	github.com/cosmos/interchain-attestation/configmodule => ../../configmodule
+	github.com/cosmos/interchain-attestation/core => ../../core
 )
 
 require (
@@ -26,9 +26,9 @@ require (
 	github.com/cosmos/gogoproto v1.5.0 // indirect
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
 	github.com/cosmos/ibc-go/v9 v9.0.0-beta.1
+	github.com/cosmos/interchain-attestation/configmodule v0.0.0
+	github.com/cosmos/interchain-attestation/core v0.0.0
 	github.com/decentrio/rollkit-sdk v0.2.0-rc0
-	github.com/gjermundgaraba/interchain-attestation/configmodule v0.0.0
-	github.com/gjermundgaraba/interchain-attestation/core v0.0.0
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/rollkit/cosmos-sdk-starter v0.0.0-20240711025550-2ec636be897c
 	github.com/rollkit/rollkit v0.13.6
