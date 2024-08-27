@@ -3,7 +3,8 @@ package keeper_test
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 func (suite *KeeperTestSuite) TestMsgUpdateParams() {
@@ -76,7 +77,7 @@ func (suite *KeeperTestSuite) TestMsgRegisterAttestator() {
 			"valid message",
 			&types.MsgRegisterAttestator{
 				ValidatorAddress:     testValidatorAddress,
-				AttestatorId:           attestatorID,
+				AttestatorId:         attestatorID,
 				AttestationPublicKey: pubKeyAny,
 			},
 			"",

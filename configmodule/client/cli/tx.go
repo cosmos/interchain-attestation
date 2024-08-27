@@ -1,16 +1,20 @@
 package cli
 
 import (
-	"cosmossdk.io/core/address"
 	"fmt"
+	"strings"
+
+	"github.com/spf13/cobra"
+
+	"cosmossdk.io/core/address"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
-	coretypes "github.com/gjermundgaraba/interchain-attestation/core/types"
-	"github.com/spf13/cobra"
-	"strings"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
+	coretypes "github.com/cosmos/interchain-attestation/core/types"
 )
 
 func TxCmd(valAddrCodec address.Codec) *cobra.Command {
@@ -74,7 +78,7 @@ It is the public key that matches with the sidecar private key used to sign atte
 
 			msg := &types.MsgRegisterAttestator{
 				ValidatorAddress:     valStr,
-				AttestatorId:           attestationRegistration.AttestatorID,
+				AttestatorId:         attestationRegistration.AttestatorID,
 				AttestationPublicKey: attestationRegistration.AttestationPublicKey,
 			}
 

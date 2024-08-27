@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
-	"github.com/spf13/cobra"
 	"os"
 	"path"
+
+	"github.com/spf13/cobra"
+
+	"github.com/cosmos/interchain-attestation/sidecar/attestators"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/cosmos"
 )
 
 const (
@@ -54,10 +56,10 @@ func CreateSigningKeyCmd() *cobra.Command {
 			pubKeyFullPath := path.Join(homedir, attestators.DefaultSigningPubKeyFileName)
 			privKeyFullPath := path.Join(homedir, attestators.DefaultSigningPrivKeyFileName)
 
-			if err := os.WriteFile(pubKeyFullPath, pubKeyJSON, 0644); err != nil {
+			if err := os.WriteFile(pubKeyFullPath, pubKeyJSON, 0o600); err != nil {
 				return err
 			}
-			if err := os.WriteFile(privKeyFullPath, privKeyJSON, 0644); err != nil {
+			if err := os.WriteFile(privKeyFullPath, privKeyJSON, 0o600); err != nil {
 				return err
 			}
 			config.SigningPrivateKeyPath = privKeyFullPath

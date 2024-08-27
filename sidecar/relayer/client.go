@@ -2,21 +2,27 @@ package relayer
 
 import (
 	"context"
+	"time"
+
+	"gitlab.com/tozd/go/errors"
+	"go.uber.org/zap"
+
 	"cosmossdk.io/math"
-	"github.com/cometbft/cometbft/light"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/cometbft/cometbft/light"
+
 	ibcclientutils "github.com/cosmos/ibc-go/v9/modules/core/02-client/client/utils"
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v9/modules/core/23-commitment/types"
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 	tmclient "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v9/testing"
-	attestationlightclient "github.com/gjermundgaraba/interchain-attestation/core/lightclient"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
-	"gitlab.com/tozd/go/errors"
-	"go.uber.org/zap"
-	"time"
+
+	attestationlightclient "github.com/cosmos/interchain-attestation/core/lightclient"
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 type ClientType int
@@ -44,6 +50,9 @@ func (r *Relayer) CreateClients(ctx context.Context, chainConfig config.CosmosCh
 
 func (r *Relayer) CreateSingleClient(ctx context.Context, chainConfig config.CosmosChainConfig, clientType ClientType, counterpartyChainConfig config.CosmosChainConfig) (string, error) {
 	clientState, consensusState, err := r.CreateClientAndConsensusState(ctx, clientType, counterpartyChainConfig)
+	if err != nil {
+		return "", err
+	}
 
 	clientCtx, err := r.createClientCtx(ctx, chainConfig)
 	if err != nil {

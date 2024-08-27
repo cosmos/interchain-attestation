@@ -2,13 +2,10 @@ package cosmos
 
 import (
 	"context"
-	"cosmossdk.io/store/rootmulti"
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/proto/tendermint/crypto"
-	coretypes "github.com/cometbft/cometbft/rpc/core/types"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	legacyerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
+	"reflect"
+	"strconv"
+	"strings"
+
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	sltypes "github.com/strangelove-ventures/cometbft-client/abci/types"
 	clientwrapper "github.com/strangelove-ventures/cometbft-client/client"
@@ -21,9 +18,16 @@ import (
 	"google.golang.org/grpc/encoding/proto"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"reflect"
-	"strconv"
-	"strings"
+
+	"cosmossdk.io/store/rootmulti"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	legacyerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/proto/tendermint/crypto"
+	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 )
 
 // The code below is borrowed from the Go Realyer and modified a bit
@@ -233,6 +237,6 @@ func convertProofOps(proofOps *sltypes.ProofOps) *crypto.ProofOps {
 }
 
 func (c *ClientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }

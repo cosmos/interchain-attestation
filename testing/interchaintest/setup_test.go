@@ -1,34 +1,38 @@
-package attestationinterchaintest
+package interchaintest
 
 import (
 	"bytes"
 	"context"
-	"cosmossdk.io/math"
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/interchain-attestation/sidecar/config"
-	"github.com/pelletier/go-toml/v2"
 	"path"
 	"strings"
 	"testing"
 
+	"github.com/pelletier/go-toml/v2"
+	testifysuite "github.com/stretchr/testify/suite"
+	"go.uber.org/zap/zaptest"
+
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
-	attestationve "github.com/cosmos/interchain-attestation/core/voteextension"
+
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/ethereum"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
-	testifysuite "github.com/stretchr/testify/suite"
-	"go.uber.org/zap/zaptest"
+
+	attestationve "github.com/cosmos/interchain-attestation/core/voteextension"
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 // Not const because we need to give them as pointers later
 var (
-	simappVals = 1 // TODO: Set to more than one, once we figure out a good coordination/aggregation strategy
-	simappFullNodes = 0
-	rollupsimappVals = 1
+	simappVals            = 1 // TODO: Set to more than one, once we figure out a good coordination/aggregation strategy
+	simappFullNodes       = 0
+	rollupsimappVals      = 1
 	rollupsimappFullNodes = 0
 
 	votingPeriod     = "15s"
@@ -53,12 +57,12 @@ var (
 		},
 	}
 
-	simappChainID = "simapp-1"
+	simappChainID       = "simapp-1"
 	rollupsimappChainID = "rollupsimapp-1"
 )
 
 const (
-	relayerKeyName = "relayer"
+	relayerKeyName  = "relayer"
 	relayerMnemonic = "worry enable range three surprise skull arctic flame swear crush bunker panel stumble nature strike candy mango junior jealous add sea title unaware alpha"
 
 	nodeSidecarConfigFileName = "sidecar-config.json"
@@ -67,17 +71,13 @@ const (
 type E2ETestSuite struct {
 	testifysuite.Suite
 
-	ctx     context.Context
-	ic      *interchaintest.Interchain
-	network string
-	r 	 	ibc.Relayer
-	eRep   	*testreporter.RelayerExecReporter
+	ctx  context.Context
+	ic   *interchaintest.Interchain
+	eRep *testreporter.RelayerExecReporter
 
-	ibcPath string
-
-	simapp *cosmos.CosmosChain
+	simapp       *cosmos.CosmosChain
 	rollupsimapp *cosmos.CosmosChain
-	eth   *ethereum.EthereumChain
+	eth          *ethereum.EthereumChain
 }
 
 func TestE2ETestSuite(t *testing.T) {
@@ -105,7 +105,6 @@ func (s *E2ETestSuite) SetupSuite() {
 	eRep := rep.RelayerExecReporter(s.T())
 	s.eRep = eRep
 
-
 	err = ic.Build(s.ctx, eRep, interchaintest.InterchainBuildOptions{
 		TestName:         s.T().Name(),
 		Client:           client,
@@ -117,7 +116,7 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.setupSidecars()
 
 	// Create relayer users
-	var userFunds = math.NewInt(10_000_000_000)
+	userFunds := math.NewInt(10_000_000_000)
 	_, err = interchaintest.GetAndFundTestUserWithMnemonic(s.ctx, relayerKeyName, relayerMnemonic, userFunds, s.rollupsimapp)
 	s.Require().NoError(err)
 	_, err = interchaintest.GetAndFundTestUserWithMnemonic(s.ctx, relayerKeyName, relayerMnemonic, userFunds, s.simapp)

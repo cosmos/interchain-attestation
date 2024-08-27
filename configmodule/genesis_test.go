@@ -1,13 +1,16 @@
 package configmodule_test
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
-	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/cosmos/interchain-attestation/configmodule"
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 func TestGenesis(t *testing.T) {
@@ -19,14 +22,15 @@ func TestGenesis(t *testing.T) {
 	pubKey := secp256k1.GenPrivKey().PubKey()
 	require.NotNil(t, pubKey)
 	pubKeyAny, err := codectypes.NewAnyWithValue(pubKey)
+	require.NoError(t, err)
 
 	testCases := []struct {
-		name string
+		name    string
 		genesis types.GenesisState
 		// expectedError bool // TODO: Add later when this can fail
-	} {
+	}{
 		{
-			name: "default",
+			name:    "default",
 			genesis: *types.DefaultGenesisState(),
 		},
 		{
@@ -35,7 +39,7 @@ func TestGenesis(t *testing.T) {
 				Params: &types.Params{},
 				Attestators: []types.Attestator{
 					{
-						AttestatorId:      []byte("test-attestator-id"),
+						AttestatorId:    []byte("test-attestator-id"),
 						PublicKey:       pubKeyAny,
 						ConsensusPubkey: consPubKeyAny,
 					},

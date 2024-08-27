@@ -1,17 +1,19 @@
 package types_test
 
 import (
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 func TestGenesisValidate(t *testing.T) {
 	tests := []struct {
-		name string
-		genesis *types.GenesisState
+		name     string
+		genesis  *types.GenesisState
 		expError string
-	} {
+	}{
 		{
 			"valid: default genesis state",
 			types.DefaultGenesisState(),

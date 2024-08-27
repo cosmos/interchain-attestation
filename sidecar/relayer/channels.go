@@ -3,15 +3,19 @@ package relayer
 import (
 	"context"
 	"fmt"
+
+	"gitlab.com/tozd/go/errors"
+	"go.uber.org/zap"
+
 	"github.com/cometbft/cometbft/rpc/client"
+
 	channeltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v9/modules/core/23-commitment/types"
 	host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
 	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
 	ibctesting "github.com/cosmos/ibc-go/v9/testing"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
-	"gitlab.com/tozd/go/errors"
-	"go.uber.org/zap"
+
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 func (r *Relayer) CreateChannels(
@@ -264,9 +268,12 @@ func (r *Relayer) GenerateChannelHandshakeProof(ctx context.Context, chainConfig
 	path := fmt.Sprintf("store/%s/key", ibcexported.StoreKey)
 	key := host.ChannelKey(portID, channelID)
 	resp, err := clientCtx.Client.ABCIQueryWithOptions(ctx, path, key, client.ABCIQueryOptions{
-		Height: int64(proofHeight-1),
+		Height: int64(proofHeight - 1),
 		Prove:  true,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	merkleProof, err := commitmenttypes.ConvertProofs(resp.Response.ProofOps)
 	if err != nil {

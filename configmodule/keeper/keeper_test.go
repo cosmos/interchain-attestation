@@ -1,9 +1,13 @@
 package keeper_test
 
 import (
+	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+
 	storetypes "cosmossdk.io/store/types"
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	cmttime "github.com/cometbft/cometbft/types/time"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
@@ -17,12 +21,13 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/keeper"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/testutil"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/suite"
-	"testing"
+
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmttime "github.com/cometbft/cometbft/types/time"
+
+	"github.com/cosmos/interchain-attestation/configmodule/keeper"
+	"github.com/cosmos/interchain-attestation/configmodule/testutil"
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 const testValidatorAddress = "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8"

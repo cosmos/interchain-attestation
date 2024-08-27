@@ -3,16 +3,19 @@ package relayer
 import (
 	"context"
 	"fmt"
+
+	"gitlab.com/tozd/go/errors"
+	"go.uber.org/zap"
+
 	"github.com/cometbft/cometbft/rpc/client"
+
 	connectiontypes "github.com/cosmos/ibc-go/v9/modules/core/03-connection/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v9/modules/core/23-commitment/types"
 	host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
 	ibctesting "github.com/cosmos/ibc-go/v9/testing"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
-	"gitlab.com/tozd/go/errors"
-	"go.uber.org/zap"
+
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 func (r *Relayer) CreateConnections(ctx context.Context, chainConfig config.CosmosChainConfig, counterpartyChainConfig config.CosmosChainConfig) (string, string, error) {
@@ -111,7 +114,7 @@ func (r *Relayer) ConnectionOpenTry(
 
 	txf := r.createTxFactory(clientCtx, chainConfig)
 
-	counterpartyPrefix := commitmenttypes.NewMerklePrefix([]byte(exported.StoreKey))
+	counterpartyPrefix := commitmenttypes.NewMerklePrefix([]byte(ibcexported.StoreKey))
 	msg := connectiontypes.NewMsgConnectionOpenTry(
 		chainConfig.ClientID,
 		counterpartyConnectionID,
@@ -215,9 +218,12 @@ func (r *Relayer) GenerateConnectionHandshakeProof(ctx context.Context, chainCon
 	path := fmt.Sprintf("store/%s/key", ibcexported.StoreKey)
 	key := host.ConnectionKey(connectionID)
 	resp, err := clientCtx.Client.ABCIQueryWithOptions(ctx, path, key, client.ABCIQueryOptions{
-		Height: int64(proofHeight-1),
+		Height: int64(proofHeight - 1),
 		Prove:  true,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	merkleProof, err := commitmenttypes.ConvertProofs(resp.Response.ProofOps)
 	if err != nil {

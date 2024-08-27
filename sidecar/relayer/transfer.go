@@ -2,12 +2,15 @@ package relayer
 
 import (
 	"context"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	transfertypes "github.com/cosmos/ibc-go/v9/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v9/testing"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
-	"time"
+
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 func (r *Relayer) Transfer(ctx context.Context, fromChainConfig config.CosmosChainConfig, channelID string, to string, amount string) (channeltypes.Packet, error) {

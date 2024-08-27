@@ -2,11 +2,13 @@ package lightclient_test
 
 import (
 	"fmt"
+
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 	tmclienttypes "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
-	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
+
+	"github.com/cosmos/interchain-attestation/core/lightclient"
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
@@ -15,11 +17,11 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 	var attestatorsHandler mockAttestatorsHandler
 
 	tests := []struct {
-		name     string
+		name                      string
 		numberOfAttestator        int
 		numberOfPacketCommitments int
 		malleate                  func(*types.Attestation)
-		expError string
+		expError                  string
 	}{
 		{
 			"valid attestations",
@@ -118,7 +120,7 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 			func(attestation *types.Attestation) {
 				attestation.AttestedData.PacketCommitments[0] = []byte{0x01}
 				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
-			}                                                                                                                   ,
+			},
 			"attestations must all be the same",
 		},
 		{

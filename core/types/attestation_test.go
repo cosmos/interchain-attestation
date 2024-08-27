@@ -2,13 +2,17 @@ package types_test
 
 import (
 	"crypto/rand"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/types/module/testutil"
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/types/module/testutil"
+
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 const (
@@ -40,7 +44,7 @@ func TestGetSignableBytes(t *testing.T) {
 		}
 
 		for j := 0; j < 10; j++ {
-			for _ , signer := range signers {
+			for _, signer := range signers {
 				bz := types.GetSignableBytes(cdc, attestationData)
 				require.NotNil(t, bz)
 

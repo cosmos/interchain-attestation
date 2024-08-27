@@ -2,7 +2,8 @@ package attestator
 
 import (
 	"context"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
+
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 // TODO: Document

@@ -3,8 +3,10 @@ package keeper
 import (
 	"context"
 	"fmt"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
+
+	"github.com/cosmos/interchain-attestation/core/lightclient"
 )
 
 type AttestatorHandler struct{ k Keeper }
@@ -30,7 +32,7 @@ func (a AttestatorHandler) GetPublicKey(ctx context.Context, attestatorId []byte
 }
 
 func (a AttestatorHandler) SufficientAttestations(ctx context.Context, attestatorIds [][]byte) (bool, error) {
-	//TODO implement me
+	// TODO implement me
 	// Just return true for now until we implement the actual logic
 	return true, nil
 }

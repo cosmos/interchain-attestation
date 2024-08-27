@@ -1,24 +1,26 @@
 package types
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"os"
+
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"os"
 )
 
 type AttestatorRegistration struct {
-	AttestatorID []byte
+	AttestatorID         []byte
 	AttestationPublicKey *codectypes.Any
 }
 
 type AttestatorRegistrationJson struct {
-	AttestatorID string `json:"attestator-id"`
+	AttestatorID         string          `json:"attestator-id"`
 	AttestationPublicKey json.RawMessage `json:"attestation-public-key"`
 }
 
@@ -61,7 +63,7 @@ func UnmarshalAttestationRegistrationJSON(cdc codec.Codec, bz []byte) (Attestato
 	}
 
 	return AttestatorRegistration{
-		AttestatorID: attestatorID,
+		AttestatorID:         attestatorID,
 		AttestationPublicKey: publicKeyAny,
 	}, nil
 }

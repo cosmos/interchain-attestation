@@ -1,2 +1,0 @@
-package lightclient_test
-

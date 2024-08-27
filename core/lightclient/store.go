@@ -1,10 +1,13 @@
 package lightclient
 
 import (
+	"fmt"
+
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
-	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
+
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
@@ -76,4 +79,3 @@ func setPacketCommitmentState(clientStore storetypes.KVStore, packetCommitments 
 func getPacketCommitmentStore(clientStore storetypes.KVStore) storetypes.KVStore {
 	return prefix.NewStore(clientStore, []byte(PacketCommitmentStoreKey))
 }
-

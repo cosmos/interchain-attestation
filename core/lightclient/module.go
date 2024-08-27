@@ -1,16 +1,20 @@
 package lightclient
 
 import (
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+
 	"cosmossdk.io/core/appmodule"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
 
-var _ module.AppModuleBasic = (*AppModuleBasic)(nil)
-var _ appmodule.AppModule   = (*AppModule)(nil)
+var (
+	_ module.AppModuleBasic = (*AppModuleBasic)(nil)
+	_ appmodule.AppModule   = (*AppModule)(nil)
+)
 
 type AppModuleBasic struct{}
 

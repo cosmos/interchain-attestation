@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/cosmos/interchain-attestation/rollupsimapp/params"
 	"os"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
 	"github.com/cosmos/interchain-attestation/rollupsimapp"
+	"github.com/cosmos/interchain-attestation/rollupsimapp/params"
 	"github.com/cosmos/interchain-attestation/rollupsimapp/rollupsimappd/cmd"
 )
 

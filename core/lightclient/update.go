@@ -2,10 +2,13 @@ package lightclient
 
 import (
 	"bytes"
+
 	errorsmod "cosmossdk.io/errors"
 	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 )
 
@@ -137,16 +140,4 @@ func (cs *ClientState) UpdateState(ctx sdk.Context, cdc codec.BinaryCodec, clien
 	setPacketCommitmentState(clientStore, packetCommitements)
 
 	return []exported.Height{height}
-}
-
-func byteSlicesAreEqual(slice1, slice2 [][]byte) bool {
-	if len(slice1) != len(slice2) {
-		return false
-	}
-	for i := range slice1 {
-		if !bytes.Equal(slice1[i], slice2[i]) {
-			return false
-		}
-	}
-	return true
 }

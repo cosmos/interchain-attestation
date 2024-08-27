@@ -1,12 +1,15 @@
 package types_test
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
-	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 func TestAttestatorValidate(t *testing.T) {
@@ -21,20 +24,21 @@ func TestAttestatorValidate(t *testing.T) {
 	require.NoError(t, err)
 
 	notConsKeyAny, err := codectypes.NewAnyWithValue(&types.MsgRegisterAttestator{
-		ValidatorAddress: "tt",
-		AttestatorId: []byte("tt"),
+		ValidatorAddress:     "tt",
+		AttestatorId:         []byte("tt"),
 		AttestationPublicKey: pubKeyAny,
 	})
+	require.NoError(t, err)
 
 	testCases := []struct {
-		name     string
+		name       string
 		attestator types.Attestator
-		expErr string
-	} {
+		expErr     string
+	}{
 		{
 			"valid attestator",
 			types.Attestator{
-				AttestatorId:      []byte("attestator id"),
+				AttestatorId:    []byte("attestator id"),
 				PublicKey:       consPubKeyAny,
 				ConsensusPubkey: consPubKeyAny,
 			},
@@ -43,7 +47,7 @@ func TestAttestatorValidate(t *testing.T) {
 		{
 			"attestator id is nil",
 			types.Attestator{
-				AttestatorId:      nil,
+				AttestatorId:    nil,
 				PublicKey:       consPubKeyAny,
 				ConsensusPubkey: consPubKeyAny,
 			},
@@ -52,7 +56,7 @@ func TestAttestatorValidate(t *testing.T) {
 		{
 			"public key is nil",
 			types.Attestator{
-				AttestatorId:      []byte("attestator id"),
+				AttestatorId:    []byte("attestator id"),
 				PublicKey:       nil,
 				ConsensusPubkey: consPubKeyAny,
 			},
@@ -61,7 +65,7 @@ func TestAttestatorValidate(t *testing.T) {
 		{
 			"invalid pub key",
 			types.Attestator{
-				AttestatorId:      []byte("attestator id"),
+				AttestatorId:    []byte("attestator id"),
 				PublicKey:       notConsKeyAny,
 				ConsensusPubkey: consPubKeyAny,
 			},
@@ -70,8 +74,8 @@ func TestAttestatorValidate(t *testing.T) {
 		{
 			"consensus pubkey is nil",
 			types.Attestator{
-				AttestatorId: []byte("attestator id"),
-				PublicKey: consPubKeyAny,
+				AttestatorId:    []byte("attestator id"),
+				PublicKey:       consPubKeyAny,
 				ConsensusPubkey: nil,
 			},
 			"consensus pubkey cannot be empty: invalid attestator",
@@ -79,8 +83,8 @@ func TestAttestatorValidate(t *testing.T) {
 		{
 			"invalid cons pubkey",
 			types.Attestator{
-				AttestatorId: []byte("attestator id"),
-				PublicKey: consPubKeyAny,
+				AttestatorId:    []byte("attestator id"),
+				PublicKey:       consPubKeyAny,
 				ConsensusPubkey: notConsKeyAny,
 			},
 			"expecting consensus pubkey to be cryptotypes.PubKey, got <nil>: invalid type",

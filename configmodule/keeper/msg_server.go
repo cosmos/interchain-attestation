@@ -2,9 +2,12 @@ package keeper
 
 import (
 	"context"
+
 	"cosmossdk.io/errors"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 type msgServer struct {
@@ -22,7 +25,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 func (m msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	// Check if the provided authority is the same as the keeper's authority
 	if m.authority != msg.Authority {
-		return nil,  errors.Wrapf(types.ErrUnauthorized, "invalid authority; expected %s, got %s", m.authority, msg.Authority)
+		return nil, errors.Wrapf(types.ErrUnauthorized, "invalid authority; expected %s, got %s", m.authority, msg.Authority)
 	}
 
 	if err := msg.Params.Validate(); err != nil {
@@ -52,7 +55,7 @@ func (m msgServer) RegisterAttestator(ctx context.Context, msg *types.MsgRegiste
 	}
 
 	attestator := types.Attestator{
-		AttestatorId:      msg.AttestatorId,
+		AttestatorId:    msg.AttestatorId,
 		PublicKey:       msg.AttestationPublicKey,
 		ConsensusPubkey: validator.ConsensusPubkey,
 	}

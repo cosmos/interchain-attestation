@@ -1,11 +1,13 @@
 package cosmos
 
 import (
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/attestator"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
+	"time"
+
 	clientwrapper "github.com/strangelove-ventures/cometbft-client/client"
 	"go.uber.org/zap"
-	"time"
+
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/attestator"
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 var _ attestator.Attestator = &Attestator{}
@@ -18,8 +20,8 @@ type Attestator struct {
 	codec       CodecConfig
 
 	attestatorID string
-	config config.CosmosChainConfig
-	signer func(msg []byte) ([]byte, error)
+	config       config.CosmosChainConfig
+	signer       func(msg []byte) ([]byte, error)
 }
 
 func NewCosmosAttestator(logger *zap.Logger, attestatorID string, config config.CosmosChainConfig, signer func(msg []byte) ([]byte, error)) (*Attestator, error) {
@@ -43,8 +45,8 @@ func NewCosmosAttestator(logger *zap.Logger, attestatorID string, config config.
 		codec:       codec,
 
 		attestatorID: attestatorID,
-		config: config,
-		signer: signer,
+		config:       config,
+		signer:       signer,
 	}, nil
 }
 

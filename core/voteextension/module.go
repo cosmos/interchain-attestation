@@ -1,17 +1,22 @@
 package voteextension
 
 import (
+	"os"
+
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"google.golang.org/grpc"
+
 	"cosmossdk.io/core/appmodule"
-	"github.com/cometbft/cometbft/libs/json"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
+	"github.com/cometbft/cometbft/libs/json"
+
 	clientkeeper "github.com/cosmos/ibc-go/v9/modules/core/02-client/keeper"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"google.golang.org/grpc"
-	"os"
 )
 
 const ModuleName = "attestationvoteextension"
@@ -20,8 +25,10 @@ type SidecarConfig struct {
 	SidecarAddress string `json:"sidecar_address"`
 }
 
-var _ module.AppModuleBasic = (*AppModuleBasic)(nil)
-var _ appmodule.AppModule = (*AppModule)(nil)
+var (
+	_ module.AppModuleBasic = (*AppModuleBasic)(nil)
+	_ appmodule.AppModule   = (*AppModule)(nil)
+)
 
 type AppModuleBasic struct{}
 
@@ -63,7 +70,7 @@ func NewAppModule(clientKeeper *clientkeeper.Keeper, cdc codec.Codec) AppModule 
 	}
 }
 
-func (a AppModule) GetSidecarAddress(ctx sdk.Context) string  {
+func (a AppModule) GetSidecarAddress(ctx sdk.Context) string {
 	if a.sidecarAddress == "" {
 		ctx.Logger().Info("GetSidecarAddress: no sidecar address set")
 		sidecarConfigPath := os.Getenv(SidecarConfigPathEnv)
@@ -93,4 +100,3 @@ func (AppModuleBasic) IsAppModule() {}
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
 func (AppModuleBasic) IsOnePerModuleType() {}
-

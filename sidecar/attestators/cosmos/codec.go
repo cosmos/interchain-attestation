@@ -5,18 +5,20 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	transfertypes "github.com/cosmos/ibc-go/v9/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v9/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
 	tmclient "github.com/cosmos/ibc-go/v9/modules/light-clients/07-tendermint"
-	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
+
+	"github.com/cosmos/interchain-attestation/core/lightclient"
 )
 
 type CodecConfig struct {
 	InterfaceRegistry codectypes.InterfaceRegistry
 	Marshaler         codec.Codec
-	//TxConfig          client.TxConfig // Add if we need to do txs at some point
+	// TxConfig          client.TxConfig // Add if we need to do txs at some point
 }
 
 func NewCodecConfig() CodecConfig {
@@ -34,6 +36,6 @@ func NewCodecConfig() CodecConfig {
 	return CodecConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Marshaler:         cdc,
-		//TxConfig:          nil,
+		// TxConfig:          nil,
 	}
 }

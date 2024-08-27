@@ -8,14 +8,11 @@ import (
 	"os"
 	"path/filepath"
 
-	cmtconfig "github.com/cometbft/cometbft/config"
-	cmttime "github.com/cometbft/cometbft/types/time"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/math/unsafe"
-	"github.com/cosmos/interchain-attestation/rollupsimapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -35,6 +32,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	cmtconfig "github.com/cometbft/cometbft/config"
+	cmttime "github.com/cometbft/cometbft/types/time"
+
+	"github.com/cosmos/interchain-attestation/rollupsimapp"
 )
 
 var (

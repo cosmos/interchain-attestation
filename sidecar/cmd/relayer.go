@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/relayer"
 	"github.com/spf13/cobra"
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
+
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/cosmos"
+	"github.com/cosmos/interchain-attestation/sidecar/relayer"
 )
 
 func RelayerCmd() *cobra.Command {
@@ -39,9 +40,9 @@ func CreateCommand() *cobra.Command {
 
 func CreateClientCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "clients [chain-id] [client-type] [counterparty-chain-id] [counterparty-client-type]",
+		Use:   "clients [chain-id] [client-type] [counterparty-chain-id] [counterparty-client-type]",
 		Short: "create client for a chain",
-		Args: cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			chainID := args[0]
 			clientTypeStr := args[1]
@@ -95,7 +96,7 @@ func CreateConnectionsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "connections [chain-id] [counterparty-chain-id]",
 		Short: "create connections between two chains",
-		Args: cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			chainID := args[0]
 			counterPartyChainID := args[1]
@@ -135,7 +136,7 @@ func CreateChannelsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "channels [chain-id] [connection-id] [port-id] [version] [counterparty-chain-id] [counterparty-connection-id] [counterparty-port-id]",
 		Short: "create channels between two chains",
-		Args: cobra.ExactArgs(7),
+		Args:  cobra.ExactArgs(7),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			chainID := args[0]
 			connectionID := args[1]
@@ -180,7 +181,7 @@ func TransferCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "transfer [from-chain-id] [source-channel-id] [to] [amount]",
 		Short: "do an ibc transfer",
-		Args: cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fromChainID := args[0]
 			sourceChannelID := args[1]
@@ -209,7 +210,6 @@ func TransferCmd() *cobra.Command {
 			return nil
 		},
 	}
-
 
 	return cmd
 }

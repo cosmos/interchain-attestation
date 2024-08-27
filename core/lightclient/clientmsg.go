@@ -2,9 +2,12 @@ package lightclient
 
 import (
 	"crypto/sha256"
+
 	"github.com/cosmos/cosmos-sdk/codec"
+
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
+
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 var _ exported.ClientMessage = (*AttestationClaim)(nil)
@@ -20,7 +23,7 @@ func (m *AttestationClaim) ClientType() string {
 }
 
 func (m *AttestationClaim) ValidateBasic() error {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 

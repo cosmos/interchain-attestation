@@ -1,13 +1,15 @@
 package cmd
 
 import (
+	"path"
+
 	"github.com/dgraph-io/badger/v4"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/server"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"path"
+
+	"github.com/cosmos/interchain-attestation/sidecar/attestators"
+	"github.com/cosmos/interchain-attestation/sidecar/server"
 )
 
 const (
@@ -40,7 +42,7 @@ func StartCmd() *cobra.Command {
 
 				return nil
 			})
-			
+
 			eg.Go(func() error {
 				if err := coordinator.Run(cmd.Context()); err != nil {
 					logger.Error("coordinator.Run crashed", zap.Error(err))

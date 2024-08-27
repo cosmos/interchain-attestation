@@ -3,10 +3,12 @@ package attestators_test
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/interchain-attestation/sidecar/attestators"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/cosmos"
 )
 
 func TestAttestatorSigningKeyJSON(t *testing.T) {

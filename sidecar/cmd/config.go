@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
+
 	"github.com/spf13/cobra"
+
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 )
 
 const (

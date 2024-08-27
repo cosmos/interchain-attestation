@@ -1,19 +1,23 @@
 package lightclient_test
 
 import (
-	sdkmath "cosmossdk.io/math"
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
-	"github.com/gjermundgaraba/interchain-attestation/core/lightclient"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	sdkmath "cosmossdk.io/math"
+
+	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+
+	"github.com/cosmos/interchain-attestation/core/lightclient"
 )
 
 func TestClientState_Validate(t *testing.T) {
 	testCases := []struct {
-		name    string
+		name        string
 		clientState *lightclient.ClientState
-		expError string
-	} {
+		expError    string
+	}{
 		{
 			"valid: initial client state",
 			initialClientState,
@@ -93,6 +97,3 @@ func TestClientState_Validate(t *testing.T) {
 		})
 	}
 }
-
-
-

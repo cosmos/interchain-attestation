@@ -3,11 +3,14 @@ package cmd
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/cometbft/cometbft/libs/json"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators/cosmos"
+
 	"github.com/spf13/cobra"
+
+	"github.com/cometbft/cometbft/libs/json"
+
+	"github.com/cosmos/interchain-attestation/core/types"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators/cosmos"
 )
 
 func GenerateRegisterAttestatorJSONCmd() *cobra.Command {
@@ -31,8 +34,8 @@ func GenerateRegisterAttestatorJSONCmd() *cobra.Command {
 				return err
 			}
 
-			attestatorRegistrationJSON := types.AttestatorRegistrationJson {
-				AttestatorID:           attestatorIDBase64,
+			attestatorRegistrationJSON := types.AttestatorRegistrationJson{
+				AttestatorID:         attestatorIDBase64,
 				AttestationPublicKey: pubKey,
 			}
 

@@ -1,13 +1,16 @@
 package types_test
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
-	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 func TestMsgRegisterAttestatorValidate(t *testing.T) {
@@ -17,10 +20,11 @@ func TestMsgRegisterAttestatorValidate(t *testing.T) {
 	require.NoError(t, err)
 
 	notAPubKey, err := codectypes.NewAnyWithValue(&types.MsgRegisterAttestator{
-		ValidatorAddress: "tt",
-		AttestatorId: []byte("tt"),
+		ValidatorAddress:     "tt",
+		AttestatorId:         []byte("tt"),
 		AttestationPublicKey: pubKeyAny,
 	})
+	require.NoError(t, err)
 
 	testCases := []struct {
 		name     string
@@ -30,54 +34,54 @@ func TestMsgRegisterAttestatorValidate(t *testing.T) {
 		{
 			"valid message",
 			types.MsgRegisterAttestator{
-				ValidatorAddress: "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8",
-				AttestatorId:      []byte("attestator id"),
-				AttestationPublicKey:       pubKeyAny,
+				ValidatorAddress:     "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8",
+				AttestatorId:         []byte("attestator id"),
+				AttestationPublicKey: pubKeyAny,
 			},
 			"",
 		},
 		{
 			"validator is empty",
 			types.MsgRegisterAttestator{
-				ValidatorAddress: "",
-				AttestatorId:      []byte("attestator id"),
-				AttestationPublicKey:       pubKeyAny,
+				ValidatorAddress:     "",
+				AttestatorId:         []byte("attestator id"),
+				AttestationPublicKey: pubKeyAny,
 			},
 			"invalid validator address: empty address string is not allowed: invalid address",
 		},
 		{
 			"invalid validator address",
 			types.MsgRegisterAttestator{
-				ValidatorAddress: "invalid",
-				AttestatorId:      []byte("attestator id"),
-				AttestationPublicKey:       pubKeyAny,
+				ValidatorAddress:     "invalid",
+				AttestatorId:         []byte("attestator id"),
+				AttestationPublicKey: pubKeyAny,
 			},
 			"invalid validator address: decoding bech32 failed: invalid bech32 string length 7: invalid address",
 		},
 		{
 			"nil attestator id",
 			types.MsgRegisterAttestator{
-				ValidatorAddress: "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8",
-				AttestatorId:      nil,
-				AttestationPublicKey:       pubKeyAny,
+				ValidatorAddress:     "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8",
+				AttestatorId:         nil,
+				AttestationPublicKey: pubKeyAny,
 			},
 			"attestator id cannot be empty: invalid request",
 		},
 		{
 			"nil attestation public key",
 			types.MsgRegisterAttestator{
-				ValidatorAddress: "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8",
-				AttestatorId:      []byte("attestator id"),
-				AttestationPublicKey:       nil,
+				ValidatorAddress:     "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8",
+				AttestatorId:         []byte("attestator id"),
+				AttestationPublicKey: nil,
 			},
 			"public key cannot be empty: invalid request",
 		},
 		{
 			"invalid attestation public key",
 			types.MsgRegisterAttestator{
-				ValidatorAddress: "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8",
-				AttestatorId:      []byte("attestator id"),
-				AttestationPublicKey:       notAPubKey,
+				ValidatorAddress:     "cosmosvaloper1gp957czryfgyvxwn3tfnyy2f0t9g2p4pqeemx8",
+				AttestatorId:         []byte("attestator id"),
+				AttestationPublicKey: notAPubKey,
 			},
 			"expecting attestation public key to be cryptotypes.PubKey, got <nil>: invalid type",
 		},

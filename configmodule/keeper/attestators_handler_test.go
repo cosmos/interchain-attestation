@@ -1,6 +1,6 @@
 package keeper_test
 
-import "github.com/gjermundgaraba/interchain-attestation/configmodule/keeper"
+import "github.com/cosmos/interchain-attestation/configmodule/keeper"
 
 func (suite *KeeperTestSuite) TestGetPublicKey() {
 	attestatorsHandler := keeper.NewAttestatorHandler(suite.keeper)

@@ -4,8 +4,10 @@ import (
 	"cosmossdk.io/collections"
 	addresscodec "cosmossdk.io/core/address"
 	"cosmossdk.io/core/store"
+
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/gjermundgaraba/interchain-attestation/configmodule/types"
+
+	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
 type Keeper struct {
@@ -19,8 +21,8 @@ type Keeper struct {
 
 	stakingKeeper types.StakingKeeper
 
-	Schema    collections.Schema
-	Params    collections.Item[types.Params]
+	Schema      collections.Schema
+	Params      collections.Item[types.Params]
 	Attestators collections.Map[[]byte, types.Attestator]
 }
 
@@ -40,7 +42,7 @@ func NewKeeper(
 		authority:             authority,
 		stakingKeeper:         stakingKeeper,
 		Params:                collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		Attestators:             collections.NewMap(sb, types.AttestatorsKey, "attestators", collections.BytesKey, codec.CollValue[types.Attestator](cdc)),
+		Attestators:           collections.NewMap(sb, types.AttestatorsKey, "attestators", collections.BytesKey, codec.CollValue[types.Attestator](cdc)),
 	}
 
 	schema, err := sb.Build()

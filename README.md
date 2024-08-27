@@ -12,7 +12,6 @@ Ethereum, Solana, and more.
 The project is partially funded by the Dorahacks ATOM Economic Zone Quadratic Grant rounds.
 You can find project information and contribute to the project here: https://dorahacks.io/aez
 
-
 ## Current status
 The project is under development and is not yet ready for production use.
 
@@ -57,15 +56,27 @@ A talk about the project can be found here: https://www.youtube.com/watch?v=loNy
 
 TODO: Add rest of prerequisites
 
+* Just
 * Go
 * Docker (for e2e tests)
+* golangci-lint
 
 ### Testing
 
 Each module has a unit test suite that can be run with `make test`.
 
+You can also run all unit tests with for all modules with `just test-unit`.
+
 In addition, there is an e2e test suite that can be run using `make interchaintest` (under `testing/`).
 Before running the test, however, you need to build the docker images (which is required for every change you make to the code) with `make docker-images`.
+
+### Linting
+
+You can lint all modules with `just lint`.
+
+### Proto generation
+
+If you make changes to the proto files, you need to regenerate the go code with `just proto-gen` (or `make proto-gen` in the module directories).
 
 ### Running locally
 
@@ -79,4 +90,4 @@ This project was originally built by Gjermund Garaba (https://github.com/gjermun
 for Celestia's Infinite Space Bazaar to solve the problem of waiting for the dispute period to pass when bridging assets from an optimistic rollup to a receiving chain.
 
 You can find the original working proof of concept code here:
-https://github.com/gjermundgaraba/interchain-attestation/tree/9bc691c585697921b84c5467b13996389e6d119f
+https://github.com/cosmos/interchain-attestation/tree/9bc691c585697921b84c5467b13996389e6d119f

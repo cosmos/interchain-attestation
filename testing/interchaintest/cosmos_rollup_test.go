@@ -1,13 +1,17 @@
-package attestationinterchaintest
+package interchaintest
 
 import (
-	"cosmossdk.io/math"
 	"fmt"
-	"github.com/cosmos/interchain-attestation/core/types"
-	"github.com/strangelove-ventures/interchaintest/v8"
-	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"cosmossdk.io/math"
+
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 func (s *E2ETestSuite) TestCosmosRollupAttestation() {

@@ -1,15 +1,18 @@
 package voteextension
 
 import (
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/json"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	attestationlightclient "github.com/gjermundgaraba/interchain-attestation/core/lightclient"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 	ve "vote-extensions.dev"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/json"
+
+	attestationlightclient "github.com/cosmos/interchain-attestation/core/lightclient"
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 var _ ve.HasVoteExtension = AppModule{}
@@ -30,7 +33,7 @@ func (a AppModule) ExtendVote(ctx sdk.Context, vote *abci.RequestExtendVote) (*a
 		var err error
 		a.sidecarGrpcClient, err = grpc.NewClient(sidecarAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-			ctx.Logger().Error("AttestationVoteExtension: ExtendVote (failed to create client)", "sidecarAddress", sidecarAddress,  "error", err)
+			ctx.Logger().Error("AttestationVoteExtension: ExtendVote (failed to create client)", "sidecarAddress", sidecarAddress, "error", err)
 			return &abci.ResponseExtendVote{}, nil // TODO: Should this return the error or not? We need to check what the correct handling is
 		}
 	}
@@ -114,7 +117,7 @@ func (a AppModule) PrepareProposal(ctx sdk.Context, proposal *abci.RequestPrepar
 		}
 
 		for _, attestation := range voteExtension.Attestations {
-			claim, ok := clientClaims[attestation.AttestedData.ClientToUpdate];
+			claim, ok := clientClaims[attestation.AttestedData.ClientToUpdate]
 			if !ok {
 				claim = &attestationlightclient.AttestationClaim{}
 				clientClaims[attestation.AttestedData.ClientToUpdate] = claim

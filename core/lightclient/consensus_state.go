@@ -1,10 +1,12 @@
 package lightclient
 
 import (
+	"time"
+
 	errorsmod "cosmossdk.io/errors"
+
 	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
-	"time"
 )
 
 var _ exported.ConsensusState = (*ConsensusState)(nil)
@@ -17,7 +19,7 @@ func NewConsensusState(
 	timestamp time.Time,
 ) *ConsensusState {
 	return &ConsensusState{
-		Timestamp:         timestamp,
+		Timestamp: timestamp,
 	}
 }
 
@@ -33,4 +35,3 @@ func (m *ConsensusState) ValidateBasic() error {
 
 	return nil
 }
-

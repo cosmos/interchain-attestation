@@ -2,17 +2,18 @@ package server
 
 import (
 	"context"
-	"github.com/gjermundgaraba/interchain-attestation/core/types"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/attestators"
+	"net"
+
 	"gitlab.com/tozd/go/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"net"
+
+	"github.com/cosmos/interchain-attestation/core/types"
+	"github.com/cosmos/interchain-attestation/sidecar/attestators"
 )
 
 type Server struct {
 	types.UnimplementedSidecarServer
-	listener net.Listener
 
 	logger      *zap.Logger
 	coordinator attestators.Coordinator
@@ -23,7 +24,7 @@ var _ types.SidecarServer = &Server{}
 
 func NewServer(logger *zap.Logger, coordinator attestators.Coordinator) *Server {
 	return &Server{
-		logger: logger,
+		logger:      logger,
 		coordinator: coordinator,
 	}
 }
