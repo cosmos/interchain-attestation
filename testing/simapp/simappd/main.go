@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/gjermundgaraba/interchain-attestation/simapp/params"
+	"github.com/cosmos/interchain-attestation/simapp/params"
 	"os"
 
-	"github.com/gjermundgaraba/interchain-attestation/simapp"
-	"github.com/gjermundgaraba/interchain-attestation/simapp/simappd/cmd"
+	"github.com/cosmos/interchain-attestation/simapp"
+	"github.com/cosmos/interchain-attestation/simapp/simappd/cmd"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )

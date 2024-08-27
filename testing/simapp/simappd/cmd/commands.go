@@ -11,7 +11,7 @@ import (
 
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
-	"github.com/gjermundgaraba/interchain-attestation/simapp"
+	"github.com/cosmos/interchain-attestation/simapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"

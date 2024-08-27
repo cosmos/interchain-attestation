@@ -11,8 +11,8 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v9/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
-	attestationconfigkeeper "github.com/gjermundgaraba/interchain-attestation/configmodule/keeper"
-	attestationve "github.com/gjermundgaraba/interchain-attestation/core/voteextension"
+	attestationconfigkeeper "github.com/cosmos/interchain-attestation/configmodule/keeper"
+	attestationve "github.com/cosmos/interchain-attestation/core/voteextension"
 	"io"
 	ve "vote-extensions.dev"
 

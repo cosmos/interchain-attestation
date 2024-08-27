@@ -6,7 +6,7 @@ import (
 	"cosmossdk.io/math"
 	"encoding/json"
 	"fmt"
-	"github.com/gjermundgaraba/interchain-attestation/sidecar/config"
+	"github.com/cosmos/interchain-attestation/sidecar/config"
 	"github.com/pelletier/go-toml/v2"
 	"path"
 	"strings"
@@ -14,7 +14,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
-	attestationve "github.com/gjermundgaraba/interchain-attestation/core/voteextension"
+	attestationve "github.com/cosmos/interchain-attestation/core/voteextension"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/ethereum"
