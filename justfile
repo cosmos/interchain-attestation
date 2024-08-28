@@ -1,12 +1,12 @@
 
 lint:
     @echo "Running golangci-lint in all packages"
-    cd core && golangci-lint run -c ../.golangci.yml
-    cd configmodule && golangci-lint run -c ../.golangci.yml
-    cd sidecar && golangci-lint run -c ../.golangci.yml
-    cd testing/simapp && golangci-lint run -c ../../.golangci.yml
-    cd testing/rollupsimapp && golangci-lint run -c ../../.golangci.yml
-    cd testing/interchaintest && golangci-lint run -c ../../.golangci.yml
+    cd core && golangci-lint run
+    cd configmodule && golangci-lint run
+    cd sidecar && golangci-lint run
+    cd testing/simapp && golangci-lint run
+    cd testing/rollupsimapp && golangci-lint run
+    cd testing/interchaintest && golangci-lint run
 
 tidy:
     @echo "Running go mod tidy in all packages"
@@ -28,5 +28,9 @@ test-unit:
     cd configmodule && make test
     cd sidecar && make test
 
-test-e2e:
-    cd testing && make interchaintest
+test-e2e image-version="local":
+    if [[ "{{image-version}}" = "local" ]]; then just build-docker-images; fi
+    cd testing && DOCKER_IMAGE_VERSION={{image-version}} make interchaintest
+
+build-docker-images:
+    cd testing && make docker-images

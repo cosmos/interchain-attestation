@@ -27,20 +27,20 @@ generate-abi:
 docker-images: simapp-image rollupsimapp-image sidecar-image mock-da-image
 
 simapp-image:
-	@echo "Building simapp:local docker image"
-	docker build -t simapp:local -f simapp.Dockerfile ../
+	@echo "Building ghcr.io/cosmos/interchain-attestation-simapp:local docker image"
+	docker build -t ghcr.io/cosmos/interchain-attestation-simapp:local -f simapp.Dockerfile ../
 
 rollupsimapp-image:
-	@echo "Building rollupsimapp:local docker image"
-	docker build -t rollupsimapp:local -f rollupsimapp.Dockerfile ../
+	@echo "Building ghcr.io/cosmos/interchain-attestation-rollupsimapp:local docker image"
+	docker build -t ghcr.io/cosmos/interchain-attestation-rollupsimapp:local -f rollupsimapp.Dockerfile ../
 
 sidecar-image:
-	@echo "Building attestationsidecar:local docker image"
-	docker build -t attestationsidecar:local -f sidecar.Dockerfile ../
+	@echo "Building ghcr.io/cosmos/interchain-attestation-sidecar:local docker image"
+	docker build -t ghcr.io/cosmos/interchain-attestation-sidecar:local -f sidecar.Dockerfile ../
 
 mock-da-image:
-	@echo "Building mock-da:local docker image"
-	docker build -t mock-da:local -f mock-da.Dockerfile .
+	@echo "Building ghcr.io/cosmos/interchain-attestation-mock-da:local docker image"
+	docker build -t ghcr.io/cosmos/interchain-attestation-mock-da:local -f mock-da.Dockerfile .
 
 ###############################################################################
 ###                                Testing                                  ###

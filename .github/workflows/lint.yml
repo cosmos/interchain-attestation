@@ -1,0 +1,40 @@
+name: "Linting"
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module:
+          - core
+          - configmodule
+          - sidecar
+          - testing/interchaintest
+          - testing/simapp
+          - testing/rollupsimapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.23
+          cache-dependency-path: | #We need all of them cached because many modules are shared
+            core/go.sum
+            configmodule/go.sum
+            sidecar/go.sum
+            testing/interchaintest/go.sum
+            testing/simapp/go.sum
+            testing/rollupsimapp/go.sum
+
+      - name: Lint ${{ matrix.module }}
+        uses: golangci/golangci-lint-action@v6.1.0
+        with:
+          version: v1.60
+          args: --timeout 5m
+          working-directory: ${{ matrix.module }}

@@ -67,8 +67,9 @@ Each module has a unit test suite that can be run with `make test`.
 
 You can also run all unit tests with for all modules with `just test-unit`.
 
-In addition, there is an e2e test suite that can be run using `make interchaintest` (under `testing/`).
-Before running the test, however, you need to build the docker images (which is required for every change you make to the code) with `make docker-images`.
+In addition, there is an e2e test suite that can be run using `just test-e2e`.
+The recipe takes an optional argument for which image-versions (docker tag) to use (e.g. `just test-e2e latest`).
+If no argument is provided, it will default to `local` and also build the docker images locally with the local tag.
 
 ### Linting
 
@@ -83,7 +84,7 @@ If you make changes to the proto files, you need to regenerate the go code with 
 You can spin up a local testnet using `make serve` (under `testing/`. This spins up two chains, configures a sidecar process, and sets up an IBC connection with clients, connections and channels.
 
 To stop all the processes, run `make kill-all`.
-
+ 
 ## Background
 
 This project was originally built by Gjermund Garaba (https://github.com/gjermundgaraba/, https://twitter.com/gjermundgaraba)

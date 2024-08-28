@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"path"
 	"strings"
 	"testing"
@@ -226,19 +227,25 @@ func (s *E2ETestSuite) TearDownSuite() {
 }
 
 func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
+	version := os.Getenv("DOCKER_IMAGE_VERSION")
+	if version == "" {
+		version = "local"
+	}
+	fmt.Println("Using docker image version:", version)
+
 	return interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(s.T()), []*interchaintest.ChainSpec{
 		{
 			Name:      "simapp",
 			ChainName: "simapp",
-			Version:   "local",
+			Version:   version,
 			ChainConfig: ibc.ChainConfig{
 				Type:    "cosmos",
 				Name:    "simapp",
 				ChainID: simappChainID,
 				Images: []ibc.DockerImage{
 					{
-						Repository: "simapp",
-						Version:    "local",
+						Repository: "ghcr.io/cosmos/interchain-attestation-simapp",
+						Version:    version,
 						UidGid:     "1025:1025",
 					},
 				},
@@ -260,8 +267,8 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 					{
 						ProcessName: "attestationsidecar",
 						Image: ibc.DockerImage{
-							Repository: "attestationsidecar",
-							Version:    "local",
+							Repository: "ghcr.io/cosmos/interchain-attestation-sidecar",
+							Version:    version,
 							UidGid:     "1025:1025",
 						},
 						HomeDir:          "",
@@ -279,15 +286,15 @@ func (s *E2ETestSuite) getChainFactory() *interchaintest.BuiltinChainFactory {
 		{
 			Name:      "rollupsimapp",
 			ChainName: "rollupsimapp",
-			Version:   "local",
+			Version:   version,
 			ChainConfig: ibc.ChainConfig{
 				Type:    "cosmos",
 				Name:    "rollupsimapp",
 				ChainID: rollupsimappChainID,
 				Images: []ibc.DockerImage{
 					{
-						Repository: "rollupsimapp",
-						Version:    "local",
+						Repository: "ghcr.io/cosmos/interchain-attestation-rollupsimapp",
+						Version:    version,
 						UidGid:     "1025:1025",
 					},
 				},
@@ -364,8 +371,8 @@ da_address = \"http://%s:%s\""`+" >> /var/cosmos-chain/rollupsimapp/config/confi
 					{
 						ProcessName: "mock-da",
 						Image: ibc.DockerImage{
-							Repository: "mock-da",
-							Version:    "local",
+							Repository: "ghcr.io/cosmos/interchain-attestation-mock-da",
+							Version:    version,
 							UidGid:     "1025:1025",
 						},
 						HomeDir:          "",
