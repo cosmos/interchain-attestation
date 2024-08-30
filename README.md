@@ -27,7 +27,7 @@ Instead, it allows a chain's validators to attest to the state of the counterpar
 This enables any chain to connect with IBC, as long as it can implement the IBC protocol (e.g. smart contracts), 
 and the validators using Interchain Attestation are attesting to the state of the counterparty IBC implementation.
 
-![Attestion enables IBC.png](docs/images/Attestion%20enables%20IBC.png)
+![Attestion enables IBC.png](docs/static/img/attestation-enables-ibc.png)
 
 Interchain Attestion is based on using validators with existing economic security to attest to the state of the counterparty chain.
 We move the security assumption over to the receiving validator set (e.g. Cosmos Hub/Osmosis/whatever), away from the one we can't trust (like a single sequencer).
@@ -46,7 +46,7 @@ so Interchain Attestation also has a config module that allows for configurable 
 
 The architecture is using a combination of a sidecar process, ABCI++ Vote Extensions, and a light client to enable the attestation process.
 
-![High level architecture.png](docs/images/High%20level%20architecture.png)
+![High level architecture.png](docs/static/img/architecture.png)
 
 A talk about the project can be found here: https://www.youtube.com/watch?v=loNyUjSgR8M
 
