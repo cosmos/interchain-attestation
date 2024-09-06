@@ -21,3 +21,19 @@
   align-items: center;
   justify-content: center;
 }
+
+.logoSvg {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.introSection {
+  text-align: center;
+  margin: 0 auto;
+  padding: 2rem 0;
+  width: 100%;
+}

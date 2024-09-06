@@ -1,3 +1,11 @@
+build:
+    @echo "Building all the components"
+    cd core && make build
+    cd configmodule && make build
+    cd sidecar && make build
+    cd testing/simapp && make build
+    cd testing/rollupsimapp && make build
+    cd testing/interchaintest && go build ./...
 
 lint:
     @echo "Running golangci-lint in all packages"
@@ -34,3 +42,11 @@ test-e2e image-version="local":
 
 build-docker-images:
     cd testing && make docker-images
+
+install-simapps:
+    @echo "Installing simapps"
+    cd testing && make install-simapps
+
+serve:
+    @echo "Spinning up a test environment"
+    cd testing && make serve
