@@ -8,11 +8,8 @@ export GO111MODULE = on
 ###                                  Build                                  ###
 ###############################################################################
 
-build-sidecar:
-	go build -mod=readonly -o build/ ./sidecar
-
-install-sidecar:
-	go install -mod=readonly ./sidecar
+build:
+	go build -mod=readonly ./...
 
 ###############################################################################
 ###                               	Utilities                               ###
@@ -43,8 +40,7 @@ proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
-	@$(protoImage) sh ./scripts/protocgen.sh
-	@go mod tidy
+	$(protoImage) ls -la#@go mod tidy
 
 proto-format:
 	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
