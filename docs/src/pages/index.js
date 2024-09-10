@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
@@ -9,13 +10,23 @@ import styles from './index.module.css';
 
 function HomepageHeader() {
   const { colorMode } = useColorMode();
+  const [isMounted, setIsMounted] = useState(false);
+
   const LogoSvg = colorMode === 'dark'
-        ? require('@site/static/img/logo-with-name-and-tagline-dark.svg').default
-        : require('@site/static/img/logo-with-name-and-tagline.svg').default;
+      ? require('@site/static/img/logo-with-name-and-tagline-dark.svg').default
+      : require('@site/static/img/logo-with-name-and-tagline.svg').default;
+
+  useEffect(() => {
+      setIsMounted(true); // Set mounted flag to true after the initial render
+  }, []);
+
+  if (!isMounted) {
+      return null; // Return null until colorMode is loaded
+  }
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-          <LogoSvg className={styles.logoSvg} role="img"></LogoSvg>
+          <LogoSvg id={colorMode} className={styles.logoSvg} role="img"></LogoSvg>
       </div>
     </header>
   );
