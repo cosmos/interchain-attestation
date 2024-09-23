@@ -1,3 +1,5 @@
+full-check: proto-gen tidy lint build test-unit build-docker-images test-e2e
+
 build:
     @echo "Building all the components"
     cd core && make build
@@ -15,6 +17,15 @@ lint:
     cd testing/simapp && golangci-lint run
     cd testing/rollupsimapp && golangci-lint run
     cd testing/interchaintest && golangci-lint run
+
+lint-fix:
+    @echo "Running golangci-lint in all packages"
+    cd core && golangci-lint run --fix
+    cd configmodule && golangci-lint run --fix
+    cd sidecar && golangci-lint run --fix
+    cd testing/simapp && golangci-lint run --fix
+    cd testing/rollupsimapp && golangci-lint run --fix
+    cd testing/interchaintest && golangci-lint run --fix
 
 tidy:
     @echo "Running go mod tidy in all packages"

@@ -40,7 +40,8 @@ proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
-	$(protoImage) ls -la#@go mod tidy
+	@$(protoImage) sh ./scripts/protocgen.sh
+	@go mod tidy
 
 proto-format:
 	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;

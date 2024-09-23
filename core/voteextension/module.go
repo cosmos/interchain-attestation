@@ -15,8 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/cometbft/cometbft/libs/json"
-
-	clientkeeper "github.com/cosmos/ibc-go/v9/modules/core/02-client/keeper"
 )
 
 const ModuleName = "attestationvoteextension"
@@ -52,7 +50,7 @@ type AppModule struct {
 
 	// TODO: Should we just move this stuff into a keeper, or is it fine here?
 	sidecarAddress string
-	clientKeeper   *clientkeeper.Keeper
+	clientKeeper   ClientKeeper
 	cdc            codec.Codec
 
 	// Create lazily
@@ -60,7 +58,7 @@ type AppModule struct {
 }
 
 // NewAppModule creates a new attestation vote extension AppModule
-func NewAppModule(clientKeeper *clientkeeper.Keeper, cdc codec.Codec) AppModule {
+func NewAppModule(clientKeeper ClientKeeper, cdc codec.Codec) AppModule {
 	sidecarAddress := os.Getenv(SidecarAddressEnv)
 
 	return AppModule{
