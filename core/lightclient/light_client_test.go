@@ -6,14 +6,13 @@ import (
 	"testing"
 	"time"
 
-	testifysuite "github.com/stretchr/testify/suite"
+	suite "github.com/stretchr/testify/suite"
 
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	sdkcrypto "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -48,9 +47,10 @@ var (
 )
 
 type AttestationLightClientTestSuite struct {
-	testifysuite.Suite
+	suite.Suite
 
 	lightClientModule lightclient.LightClientModule
+	trustedUpdateFunc lightclient.TrustedClientUpdateFunc
 	storeProvider     clienttypes.StoreProvider
 
 	mockAttestators        []mockAttestator
@@ -62,7 +62,7 @@ type AttestationLightClientTestSuite struct {
 }
 
 func TestAttestationLightClientTestSuite(t *testing.T) {
-	testifysuite.Run(t, new(AttestationLightClientTestSuite))
+	suite.Run(t, new(AttestationLightClientTestSuite))
 }
 
 func (s *AttestationLightClientTestSuite) SetupTest() {
@@ -75,13 +75,11 @@ func (s *AttestationLightClientTestSuite) SetupTest() {
 	s.mockAttestators = generateAttestators(10)
 	s.mockAttestatorsHandler = NewMockAttestatorsHandler(s.mockAttestators)
 
-	s.lightClientModule = lightclient.NewLightClientModule(s.encCfg.Codec, s.storeProvider, s.mockAttestatorsHandler)
+	s.lightClientModule, s.trustedUpdateFunc = lightclient.NewLightClientModule(s.encCfg.Codec, s.storeProvider, s.mockAttestatorsHandler)
 }
 
 type mockAttestator struct {
-	id         []byte
-	publicKey  sdkcrypto.PubKey
-	privateKey sdkcrypto.PrivKey
+	id []byte
 }
 
 type mockAttestatorsHandler struct {
@@ -104,34 +102,8 @@ func NewMockAttestatorsHandler(attestators []mockAttestator) mockAttestatorsHand
 	}
 }
 
-func (m mockAttestatorsHandler) GetPublicKey(ctx context.Context, attestatorId []byte) (sdkcrypto.PubKey, error) {
-	attestator, ok := m.attestators[string(attestatorId)]
-	if !ok {
-		return nil, fmt.Errorf("attestator not found")
-	}
-	return attestator.publicKey, nil
-}
-
 func (m mockAttestatorsHandler) SufficientAttestations(_ context.Context, _ [][]byte) (bool, error) {
 	return m.sufficientAttestations()
-}
-
-func (m mockAttestatorsHandler) getMockAttestator(attestatorId []byte) mockAttestator {
-	attestator, ok := m.attestators[string(attestatorId)]
-	if !ok {
-		panic("attestator not found")
-	}
-	return attestator
-}
-
-func (m mockAttestatorsHandler) reSignAttestation(cdc codec.BinaryCodec, attestation *types.Attestation) {
-	attestator := m.getMockAttestator(attestation.AttestatorId)
-	signableBytes := lightclient.GetSignableBytes(cdc, attestation.AttestedData)
-	signature, err := attestator.privateKey.Sign(signableBytes)
-	if err != nil {
-		panic(err)
-	}
-	attestation.Signature = signature
 }
 
 func generateAttestators(n int) []mockAttestator {
@@ -140,15 +112,13 @@ func generateAttestators(n int) []mockAttestator {
 		privKey := secp256k1.GenPrivKey()
 		valAddr := sdk.ValAddress(privKey.PubKey().Address())
 		attestators[i] = mockAttestator{
-			id:         valAddr,
-			publicKey:  privKey.PubKey(),
-			privateKey: privKey,
+			id: valAddr,
 		}
 	}
 	return attestators
 }
 
-func generateClientMsg(cdc codec.BinaryCodec, attestators []mockAttestator, numberOfPacketCommitments int, modifiers ...func(dataToAttestTo *types.IBCData)) *lightclient.AttestationClaim {
+func generateClientMsg(_ codec.BinaryCodec, attestators []mockAttestator, numberOfPacketCommitments int, modifiers ...func(dataToAttestTo *types.IBCData)) *lightclient.AttestationClaim {
 	attestations := make([]types.Attestation, len(attestators))
 	packetCommitments := generatePacketCommitments(numberOfPacketCommitments)
 	timestamp := time.Now()
@@ -170,17 +140,9 @@ func generateClientMsg(cdc codec.BinaryCodec, attestators []mockAttestator, numb
 			modifier(&attestationData)
 		}
 
-		signableBytes := lightclient.GetSignableBytes(cdc, attestationData)
-
-		signature, err := attestator.privateKey.Sign(signableBytes)
-		if err != nil {
-			panic(err)
-		}
-
 		attestations[i] = types.Attestation{
 			AttestatorId: attestator.id,
 			AttestedData: attestationData,
-			Signature:    signature,
 		}
 	}
 	return &lightclient.AttestationClaim{

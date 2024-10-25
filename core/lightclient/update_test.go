@@ -99,7 +99,6 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 					RevisionNumber: 1,
 					RevisionHeight: 100000,
 				}
-				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
 			"attestations must all be the same",
 		},
@@ -109,7 +108,6 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 			5,
 			func(attestation *types.Attestation) {
 				attestation.AttestedData.Timestamp = attestation.AttestedData.Timestamp.Add(10)
-				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
 			"attestations must all be the same",
 		},
@@ -119,7 +117,6 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 			5,
 			func(attestation *types.Attestation) {
 				attestation.AttestedData.PacketCommitments[0] = []byte{0x01}
-				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
 			"attestations must all be the same",
 		},
@@ -129,7 +126,6 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 			5,
 			func(attestation *types.Attestation) {
 				attestation.AttestedData.PacketCommitments = append(attestation.AttestedData.PacketCommitments, []byte{0x01})
-				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
 			"attestations must all be the same",
 		},
@@ -139,7 +135,6 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 			5,
 			func(attestation *types.Attestation) {
 				attestation.AttestedData.ChainId = "different chain id"
-				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
 			"attestations must all be the same",
 		},
@@ -149,7 +144,6 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 			5,
 			func(attestation *types.Attestation) {
 				attestation.AttestedData.ClientId = "different client id"
-				attestatorsHandler.reSignAttestation(s.encCfg.Codec, attestation)
 			},
 			"attestations must all be the same",
 		},
@@ -160,7 +154,6 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 			func(_ *types.Attestation) {
 				for _, attestation := range clientMsg.(*lightclient.AttestationClaim).Attestations {
 					attestation.AttestedData.PacketCommitments[1] = attestation.AttestedData.PacketCommitments[0]
-					attestatorsHandler.reSignAttestation(s.encCfg.Codec, &attestation)
 				}
 			},
 			"duplicate packet commitment",
@@ -173,26 +166,6 @@ func (s *AttestationLightClientTestSuite) TestVerifyClientMessage() {
 				clientMsg.(*lightclient.AttestationClaim).Attestations = append(clientMsg.(*lightclient.AttestationClaim).Attestations, *attestation)
 			},
 			"duplicate attestation from",
-		},
-		{
-			"invalid client message: invalid signature over different bytes",
-			10,
-			5,
-			func(attestation *types.Attestation) {
-				var err error
-				attestation.Signature, err = attestators[0].privateKey.Sign([]byte("different bytes"))
-				s.Require().NoError(err)
-			},
-			"invalid signature from attestator",
-		},
-		{
-			"invalid client message: invalid signature",
-			10,
-			5,
-			func(attestation *types.Attestation) {
-				attestation.Signature = []byte{0x01}
-			},
-			"invalid signature from attestator",
 		},
 		{
 			"insufficient number of attestators in claim",

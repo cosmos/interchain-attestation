@@ -11,11 +11,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	if err := k.Params.Set(ctx, *data.Params); err != nil {
 		panic(err)
 	}
-	for _, attestator := range data.Attestators {
-		if err := k.Attestators.Set(ctx, attestator.AttestatorId, attestator); err != nil {
-			panic(err)
-		}
-	}
 }
 
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
@@ -24,17 +19,7 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 		panic(err)
 	}
 
-	iterator, err := k.Attestators.Iterate(ctx, nil)
-	if err != nil {
-		panic(err)
-	}
-	attestators, err := iterator.Values()
-	if err != nil {
-		panic(err)
-	}
-
 	return &types.GenesisState{
-		Params:      &params,
-		Attestators: attestators,
+		Params: &params,
 	}
 }

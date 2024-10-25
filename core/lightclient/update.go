@@ -10,6 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
+
+	"github.com/cosmos/interchain-attestation/core/types"
 )
 
 // VerifyClientMessage checks if the clientMessage is the correct type and verifies the message
@@ -72,33 +74,17 @@ func (cs *ClientState) verifyAttestationClaim(
 	}
 
 	// Used to check against all the other attestations to make sure they match
-	firstSignableBytes := GetSignableBytes(cdc, attestationClaim.Attestations[0].AttestedData)
+	firstAttestationBytes := types.GetDeterministicAttestationBytes(cdc, attestationClaim.Attestations[0].AttestedData)
 
 	// check that the attestations are all the same
 	for i, attestation := range attestationClaim.Attestations {
-		attestator := string(attestation.AttestatorId)
-
-		// verify signature
-		var signableBytes []byte
-		if i == 0 {
-			signableBytes = firstSignableBytes
-		} else {
-			signableBytes = GetSignableBytes(cdc, attestation.AttestedData)
-		}
-		pubKey, err := attestatorsHandler.GetPublicKey(ctx, attestation.AttestatorId)
-		if err != nil {
-			return errorsmod.Wrapf(ErrInvalidClientMsg, "failed to get public key for attestator %s: %s", attestator, err)
-		}
-		if verified := pubKey.VerifySignature(signableBytes, attestation.Signature); !verified {
-			return errorsmod.Wrapf(ErrInvalidClientMsg, "invalid signature from attestator %s", attestator)
-		}
-
-		// for the rest we just verify against the first attestation, so we skip the first one
+		// we are going to equals check against the first one, so we skip it here
 		if i == 0 {
 			continue
 		}
 
-		if !bytes.Equal(firstSignableBytes, signableBytes) {
+		attestationBytes := types.GetDeterministicAttestationBytes(cdc, attestation.AttestedData)
+		if !bytes.Equal(firstAttestationBytes, attestationBytes) {
 			return errorsmod.Wrapf(ErrInvalidClientMsg, "attestations must all be the same")
 		}
 	}

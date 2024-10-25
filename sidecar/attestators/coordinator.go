@@ -39,11 +39,6 @@ type coordinator struct {
 var _ Coordinator = &coordinator{}
 
 func NewCoordinator(logger *zap.Logger, db *badger.DB, sidecarConfig config.Config) (Coordinator, error) {
-	attestatorSigningKey, err := AttestatorSigningKeyFromConfig(cosmos.NewCodecConfig().Marshaler, sidecarConfig)
-	if err != nil {
-		return nil, err
-	}
-
 	chainProvers := make(map[string]attestator.Attestator)
 	for _, cosmosConfig := range sidecarConfig.CosmosChains {
 		if !cosmosConfig.Attestation {
@@ -55,7 +50,6 @@ func NewCoordinator(logger *zap.Logger, db *badger.DB, sidecarConfig config.Conf
 			logger,
 			sidecarConfig.AttestatorID,
 			cosmosConfig,
-			attestatorSigningKey.Sign,
 		)
 		if err != nil {
 			return nil, err

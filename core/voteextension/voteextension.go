@@ -178,8 +178,14 @@ func (a AppModule) ProcessProposal(ctx sdk.Context, req *abci.RequestProcessProp
 // TODO: Document
 // Contract: We do not need to check if vote extensions are enabled as that is dealt with by the top level handler
 func (a AppModule) PreBlocker(ctx sdk.Context, req *abci.RequestFinalizeBlock, i int) error {
-	// Extract "fake tx" and send an update client msg to the light client
+	// If something panics here, don't panic the app
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.Logger().Error("AttestationVoteExtension: PreBlocker (panic recovered)", "panic", r)
+		}
+	}()
 
+	// Extract "fake tx" and send an update client msg to the light client
 	ctx.Logger().Info("AttestationVoteExtension: PreBlocker")
 
 	if len(req.Txs) == 0 {
@@ -195,7 +201,7 @@ func (a AppModule) PreBlocker(ctx sdk.Context, req *abci.RequestFinalizeBlock, i
 	}
 
 	for _, clientUpdate := range clientUpdates.ClientUpdates {
-		if err := a.clientKeeper.UpdateClient(ctx, clientUpdate.ClientToUpdate, &clientUpdate.AttestationClaim); err != nil {
+		if err := a.trustedUpdateClientFunc(ctx, clientUpdate.ClientToUpdate, &clientUpdate.AttestationClaim); err != nil {
 			ctx.Logger().Error("failed to update client", "error", err, "client_id", clientUpdate.ClientToUpdate)
 		}
 

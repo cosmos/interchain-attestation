@@ -18,6 +18,8 @@ import (
 
 var _ exported.LightClientModule = (*LightClientModule)(nil)
 
+type TrustedClientUpdateFunc func(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) []exported.Height
+
 // LightClientModule implements the core IBC api.LightClientModule interface.
 type LightClientModule struct {
 	cdc                codec.BinaryCodec
@@ -26,12 +28,13 @@ type LightClientModule struct {
 }
 
 // NewLightClientModule creates and returns a new attestation LightClientModule.
-func NewLightClientModule(cdc codec.BinaryCodec, storeProvider clienttypes.StoreProvider, attestatorsHandler AttestatorsController) LightClientModule {
-	return LightClientModule{
+func NewLightClientModule(cdc codec.BinaryCodec, storeProvider clienttypes.StoreProvider, attestatorsHandler AttestatorsController) (LightClientModule, TrustedClientUpdateFunc) {
+	lcm := LightClientModule{
 		cdc:                cdc,
 		storeProvider:      storeProvider,
 		attestatorsHandler: attestatorsHandler,
 	}
+	return lcm, lcm.trustedUpdateState
 }
 
 // Initialize unmarshals the provided client and consensus states and performs basic validation.
@@ -86,8 +89,13 @@ func (l *LightClientModule) CheckForMisbehaviour(ctx sdk.Context, clientID strin
 func (l *LightClientModule) UpdateStateOnMisbehaviour(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) {
 }
 
-// UpdateState obtains the client state associated with the client identifier and calls into the clientState.UpdateState method.
+// UpdateState will always return an error, because it is only supposed to be called by validators in the trustedUpdateState call
 func (l *LightClientModule) UpdateState(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) []exported.Height {
+	panic(ErrInvalidUpdateMethod)
+}
+
+// TODO: Document
+func (l *LightClientModule) trustedUpdateState(ctx sdk.Context, clientID string, clientMsg exported.ClientMessage) []exported.Height {
 	clientStore := l.storeProvider.ClientStore(ctx, clientID)
 	clientState, found := getClientState(clientStore, l.cdc)
 	if !found {

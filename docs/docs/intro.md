@@ -18,8 +18,8 @@ and the validators using Interchain Attestation are attesting to the state of th
 
 High level, Interchain Attestation uses the validators to attest to the state of the counterparty chain. The validators
 are running a sidecar process, and a full node of the counterparty chain. The sidecar process reads the state of the
-counterparty chain, and the full node validates the state of the counterparty chain. The validators then sign the
-attestation, and the attestation is fetched, validated and aggregated by the node binary using ABCI++ Vote Extensions.
+counterparty chain, and the full node validates the state of the counterparty chain. The validators then fetch the
+attestation and aggregates them in the node binary using ABCI++ Vote Extensions.
 
 ![How it works on a high level](../static/img/attest.png)
 

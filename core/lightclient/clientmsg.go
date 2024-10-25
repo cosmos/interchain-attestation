@@ -1,10 +1,6 @@
 package lightclient
 
 import (
-	"crypto/sha256"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
 
 	"github.com/cosmos/interchain-attestation/core/types"
@@ -25,10 +21,4 @@ func (m *AttestationClaim) ClientType() string {
 func (m *AttestationClaim) ValidateBasic() error {
 	// TODO implement me
 	panic("implement me")
-}
-
-func GetSignableBytes(cdc codec.BinaryCodec, dataToAttestTo types.IBCData) []byte {
-	packetBytes := cdc.MustMarshal(&dataToAttestTo)
-	hash := sha256.Sum256(packetBytes)
-	return hash[:]
 }

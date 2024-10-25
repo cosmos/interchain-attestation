@@ -26,7 +26,6 @@ require (
 	cosmossdk.io/api v0.7.5 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/depinject v1.0.0 // indirect
-	cosmossdk.io/log v1.3.1 // indirect
 	cosmossdk.io/x/tx v0.13.4 // indirect
 	cosmossdk.io/x/upgrade v0.1.4 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -159,6 +158,6 @@ require (
 )
 
 require (
-	github.com/golang/mock v1.6.0
+	cosmossdk.io/log v1.3.1
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8
 )

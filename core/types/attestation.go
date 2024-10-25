@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
-func GetSignableBytes(cdc codec.BinaryCodec, dataToAttestTo IBCData) []byte {
+func GetDeterministicAttestationBytes(cdc codec.BinaryCodec, dataToAttestTo IBCData) []byte {
 	packetBytes := cdc.MustMarshal(&dataToAttestTo)
 	hash := sha256.Sum256(packetBytes)
 	return hash[:]

@@ -15,6 +15,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/cometbft/cometbft/libs/json"
+
+	lightclient "github.com/cosmos/interchain-attestation/core/lightclient"
 )
 
 const ModuleName = "attestationvoteextension"
@@ -49,22 +51,22 @@ type AppModule struct {
 	AppModuleBasic
 
 	// TODO: Should we just move this stuff into a keeper, or is it fine here?
-	sidecarAddress string
-	clientKeeper   ClientKeeper
-	cdc            codec.Codec
+	sidecarAddress          string
+	trustedUpdateClientFunc lightclient.TrustedClientUpdateFunc
+	cdc                     codec.Codec
 
 	// Create lazily
 	sidecarGrpcClient *grpc.ClientConn
 }
 
 // NewAppModule creates a new attestation vote extension AppModule
-func NewAppModule(clientKeeper ClientKeeper, cdc codec.Codec) AppModule {
+func NewAppModule(trustedUpdateClientFunc lightclient.TrustedClientUpdateFunc, cdc codec.Codec) AppModule {
 	sidecarAddress := os.Getenv(SidecarAddressEnv)
 
 	return AppModule{
-		sidecarAddress: sidecarAddress,
-		clientKeeper:   clientKeeper,
-		cdc:            cdc,
+		sidecarAddress:          sidecarAddress,
+		trustedUpdateClientFunc: trustedUpdateClientFunc,
+		cdc:                     cdc,
 	}
 }
 
