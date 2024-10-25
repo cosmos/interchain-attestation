@@ -7,7 +7,6 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "google/protobuf/any.proto";
 import "configmodule/v1/params.proto";
-import "configmodule/v1/attestator.proto";
 
 option go_package = "github.com/cosmos/interchain-attestation/configmodule/types";
 
@@ -18,9 +17,6 @@ service Msg {
   // UpdateParams defines a governance operation for updating the
   // configmodule module parameters.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
-
-  rpc RegisterAttestator(MsgRegisterAttestator)
-      returns (MsgRegisterAttestatorResponse);
 }
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
@@ -41,17 +37,3 @@ message MsgUpdateParams {
 // MsgUpdateParamsResponse defines the response structure for executing a
 // MsgUpdateParams message.
 message MsgUpdateParamsResponse {}
-
-message MsgRegisterAttestator {
-  option (cosmos.msg.v1.signer) = "validator_address";
-
-  string validator_address = 1
-      [ (cosmos_proto.scalar) = "cosmos.ValidatorAddressString" ];
-
-  bytes attestator_id = 2;
-
-  google.protobuf.Any attestation_public_key = 3
-      [ (cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey" ];
-}
-
-message MsgRegisterAttestatorResponse {}

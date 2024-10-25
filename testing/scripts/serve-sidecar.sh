@@ -37,7 +37,6 @@ fi
 echo "Creating sidecar config"
 cat <<EOF > $SIDECAR_DIR/config.toml
 attestator_id = 'your-attestator-id'
-private_key_path = 'will-be-updated'
 
 [[cosmos_chain]]
 chain_id = 'rollupsimapp-1'
@@ -66,25 +65,8 @@ gas_adjustment = 1.5
 
 EOF
 
-echo "Creating signing key"
-$BINARY signing-keys create --home $SIDECAR_DIR
-
 echo "Setting up keys on sidecar keychain"
 echo "$ALICE_MNEMONIC" | $BINARY keys add alice --recover --home $SIDECAR_DIR --keyring-backend test --address-prefix simapp
-
-echo "Creating registration json"
-$BINARY generate-register-attestator-json --home $SIDECAR_DIR > register-attestator.json
-
-echo "Registering attestator"
-TX_HASH=$(simappd tx attestationconfig register-attestator register-attestator.json --from validator --chain-id simapp-1 --keyring-backend test --home /tmp/simapp-1 --gas auto --gas-adjustment 1.5 --gas-prices 0.025stake --output json -y | jq -r ".txhash")
-sleep 5
-RES_CODE=$(simappd q tx $TX_HASH --output json | jq -r ".code")
-if [ "$RES_CODE" != "0" ]; then
-  echo "Error: Attestator registration failed: $RES_CODE"
-  exit 1
-fi
-
-rm register-attestator.json
 
 echo "Creating light clients"
 $BINARY relayer create clients rollupsimapp-1 tendermint simapp-1 attestation --home $SIDECAR_DIR

@@ -6,9 +6,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/query"
-
 	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
 
@@ -31,40 +28,4 @@ func (q queryServer) Params(ctx context.Context, req *types.QueryParamsRequest) 
 	}
 
 	return &types.QueryParamsResponse{Params: params}, nil
-}
-
-func (q queryServer) Attestators(ctx context.Context, req *types.QueryAttestatorsRequest) (*types.QueryAttestatorsResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
-	}
-
-	attestators, pageRes, err := query.CollectionPaginate(
-		ctx,
-		q.k.Attestators,
-		req.Pagination,
-		func(_ []byte, value types.Attestator) (types.Attestator, error) {
-			return value, nil
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.QueryAttestatorsResponse{
-		Attestators: attestators,
-		Pagination:  pageRes,
-	}, nil
-}
-
-func (q queryServer) Attestator(ctx context.Context, req *types.QueryAttestatorRequest) (*types.QueryAttestatorResponse, error) {
-	if req == nil {
-		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
-	}
-
-	attestator, err := q.k.Attestators.Get(ctx, req.AttestatorId)
-	if err != nil {
-		return nil, sdkerrors.ErrNotFound
-	}
-
-	return &types.QueryAttestatorResponse{Attestator: attestator}, nil
 }

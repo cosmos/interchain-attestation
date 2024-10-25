@@ -25,7 +25,6 @@ const (
 	mockChainID           = "mockChainID"
 	mockClientID          = "mockClientID"
 	mockChainAttestatorID = "mockChainAttestatorID"
-	mockSignature         = "mockSignature"
 )
 
 type mockCoordinator struct{}
@@ -56,7 +55,6 @@ func (m mockCoordinator) GetLatestAttestations() ([]types.Attestation, error) {
 				Timestamp:         time.Now(),
 				PacketCommitments: [][]byte{{0x01}, {0x02}, {0x03}},
 			},
-			Signature: []byte(mockSignature),
 		},
 	}, nil
 }
@@ -101,7 +99,6 @@ func TestServe(t *testing.T) {
 	require.Equal(t, []byte(mockChainAttestatorID), resp.Attestations[0].AttestatorId)
 	require.Equal(t, mockChainID, resp.Attestations[0].AttestedData.ChainId)
 	require.Equal(t, mockClientID, resp.Attestations[0].AttestedData.ClientId)
-	require.Equal(t, mockSignature, string(resp.Attestations[0].Signature))
 
 	s.Stop()
 

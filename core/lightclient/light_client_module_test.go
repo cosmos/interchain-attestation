@@ -97,7 +97,29 @@ func (s *AttestationLightClientTestSuite) TestLightClientModule_VerifyClientMess
 	s.Require().Contains(err.Error(), "client not found")
 }
 
+// Since UpdateState should only be done by validators through the trustedUpdateFunc, the regular UpdateState should panic
 func (s *AttestationLightClientTestSuite) TestLightClientModule_UpdateState() {
+	clientID := createClientID(0)
+	clientStateBz := s.encCfg.Codec.MustMarshal(initialClientState)
+	consensusStateBz := s.encCfg.Codec.MustMarshal(initialConsensusState)
+
+	err := s.lightClientModule.Initialize(s.ctx, clientID, clientStateBz, consensusStateBz)
+	s.Require().NoError(err)
+
+	expectedHeight := clienttypes.NewHeight(1, defaultHeight.RevisionHeight+1)
+	expectedTimestamp := time.Now()
+
+	clientMsg := generateClientMsg(s.encCfg.Codec, s.mockAttestators, 10, func(attestedData *types.IBCData) {
+		attestedData.Height = expectedHeight
+		attestedData.Timestamp = expectedTimestamp
+	})
+
+	s.Require().Panics(func() {
+		s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
+	}, lightclient.ErrInvalidUpdateMethod)
+}
+
+func (s *AttestationLightClientTestSuite) TestLightClientModule_TrustedUpdateState() {
 	clientID := createClientID(0)
 	clientStateBz := s.encCfg.Codec.MustMarshal(initialClientState)
 	consensusStateBz := s.encCfg.Codec.MustMarshal(initialConsensusState)
@@ -114,7 +136,7 @@ func (s *AttestationLightClientTestSuite) TestLightClientModule_UpdateState() {
 			attestedData.Timestamp = expectedTimestamp
 		})
 
-		heights := s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
+		heights := s.trustedUpdateFunc(s.ctx, clientID, clientMsg)
 		s.Require().Equal([]exported.Height{expectedHeight}, heights)
 
 		s.assertClientState(clientID, expectedHeight, expectedTimestamp)
@@ -130,7 +152,7 @@ func (s *AttestationLightClientTestSuite) TestLightClientModule_UpdateState() {
 			attestedData.Timestamp = expectedTimestamp
 		})
 
-		heights := s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
+		heights := s.trustedUpdateFunc(s.ctx, clientID, clientMsg)
 		s.Require().Equal([]exported.Height{expectedHeight}, heights)
 
 		s.assertClientState(clientID, expectedHeight, expectedTimestamp)
@@ -152,7 +174,7 @@ func (s *AttestationLightClientTestSuite) TestLightClientModule_VerifyMembership
 	clientMsg := generateClientMsg(s.encCfg.Codec, s.mockAttestators, 5, func(attestedData *types.IBCData) {
 		attestedData.Height = clienttypes.NewHeight(1, defaultHeight.RevisionHeight+1)
 	})
-	s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
+	s.trustedUpdateFunc(s.ctx, clientID, clientMsg)
 
 	for _, packetCommitment := range clientMsg.Attestations[0].AttestedData.PacketCommitments {
 		err = s.lightClientModule.VerifyMembership(s.ctx, clientID, nil, 0, 0, nil, nil, packetCommitment)
@@ -168,7 +190,7 @@ func (s *AttestationLightClientTestSuite) TestLightClientModule_VerifyMembership
 	clientMsg = generateClientMsg(s.encCfg.Codec, s.mockAttestators, 0, func(attestedData *types.IBCData) {
 		attestedData.Height = clienttypes.NewHeight(1, clientMsg.Attestations[0].AttestedData.Height.RevisionHeight+1)
 	})
-	s.lightClientModule.UpdateState(s.ctx, clientID, clientMsg)
+	s.trustedUpdateFunc(s.ctx, clientID, clientMsg)
 
 	for _, packetCommitment := range oldPacketCommitments {
 		err = s.lightClientModule.VerifyMembership(s.ctx, clientID, nil, 0, 0, nil, nil, packetCommitment)

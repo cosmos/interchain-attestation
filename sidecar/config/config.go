@@ -15,9 +15,8 @@ const (
 )
 
 type Config struct {
-	AttestatorID          string              `toml:"attestator_id"`
-	SigningPrivateKeyPath string              `toml:"private_key_path"`
-	CosmosChains          []CosmosChainConfig `toml:"cosmos_chain"`
+	AttestatorID string              `toml:"attestator_id"`
+	CosmosChains []CosmosChainConfig `toml:"cosmos_chain"`
 
 	configFilePath string
 }
@@ -86,10 +85,6 @@ func (c Config) Validate() error {
 		if c.AttestatorID == "" {
 			return errors.New("attestator id cannot be empty if any chains have attestation true")
 		}
-
-		if c.SigningPrivateKeyPath == "" {
-			return errors.New("private key path cannot be empty if any chains have attestation true")
-		}
 	}
 
 	return nil
@@ -132,8 +127,7 @@ func InitConfig(homedir string, force bool) (string, error) {
 	}
 
 	config := Config{
-		AttestatorID:          "your-attestator-id",
-		SigningPrivateKeyPath: "/path/to/your/private/signing/key.json",
+		AttestatorID: "your-attestator-id",
 		CosmosChains: []CosmosChainConfig{
 			{
 				ChainID:        "chain-to-attest-1",

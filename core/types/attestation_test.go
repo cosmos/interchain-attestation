@@ -20,7 +20,7 @@ const (
 	mockClientID = "testclient-1"
 )
 
-func TestGetSignableBytes(t *testing.T) {
+func TestGetDeterministicBytes(t *testing.T) {
 	cdc := testutil.MakeTestEncodingConfig().Codec
 
 	for i := 0; i < 10; i++ {
@@ -36,7 +36,7 @@ func TestGetSignableBytes(t *testing.T) {
 			Timestamp:         time.Now(),
 			PacketCommitments: packetCommitments,
 		}
-		expectedSignableBytes := types.GetSignableBytes(cdc, attestationData)
+		expectedAttestationBytes := types.GetDeterministicAttestationBytes(cdc, attestationData)
 
 		var signers []*secp256k1.PrivKey
 		for j := 0; j < i; j++ {
@@ -45,11 +45,11 @@ func TestGetSignableBytes(t *testing.T) {
 
 		for j := 0; j < 10; j++ {
 			for _, signer := range signers {
-				bz := types.GetSignableBytes(cdc, attestationData)
+				bz := types.GetDeterministicAttestationBytes(cdc, attestationData)
 				require.NotNil(t, bz)
 
 				// verify bytes are the same every time
-				require.Equal(t, expectedSignableBytes, bz)
+				require.Equal(t, expectedAttestationBytes, bz)
 
 				signature, err := signer.Sign(bz)
 				require.NoError(t, err)

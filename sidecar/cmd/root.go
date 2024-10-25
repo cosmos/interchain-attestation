@@ -136,9 +136,7 @@ func RootCmd() *cobra.Command {
 		keysCmd,
 		StartCmd(),
 		ConfigCmd(),
-		SigningKeysCmd(),
 		RelayerCmd(),
-		GenerateRegisterAttestatorJSONCmd(),
 	)
 
 	userHomeDir, err := os.UserHomeDir()

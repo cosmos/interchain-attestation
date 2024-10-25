@@ -17,11 +17,10 @@ import (
 )
 
 const (
-	mockChainID             = "mockChainID"
-	mockClientID            = "mockClientID"
-	mockClientToUpdate      = "mockClientToUpdate"
-	mockAttestatorID        = "mockAttestatorID"
-	mockAttestatorSignature = "mockAttestatorSignature"
+	mockChainID        = "mockChainID"
+	mockClientID       = "mockClientID"
+	mockClientToUpdate = "mockClientToUpdate"
+	mockAttestatorID   = "mockAttestatorID"
 )
 
 var mockPacketCommits = [][]byte{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
@@ -52,7 +51,6 @@ func (m *MockChainAttestator) CollectAttestation(ctx context.Context) (types.Att
 			Timestamp:         m.Timestamp,
 			PacketCommitments: mockPacketCommits,
 		},
-		Signature: []byte(mockAttestatorSignature),
 	}, nil
 }
 
@@ -100,7 +98,6 @@ func TestCoordinator_Run(t *testing.T) {
 		require.Equal(t, height, latestAttestations[0].AttestedData.Height.RevisionHeight)
 		require.Equal(t, mockPacketCommits, latestAttestations[0].AttestedData.PacketCommitments)
 		require.Equal(t, mockAttestatorID, string(latestAttestations[0].AttestatorId))
-		require.Equal(t, mockAttestatorSignature, string(latestAttestations[0].Signature))
 		require.Equal(t, mockChainID, latestAttestations[0].AttestedData.ChainId)
 		require.Equal(t, mockClientID, latestAttestations[0].AttestedData.ClientId)
 		require.Equal(t, mockClientToUpdate, latestAttestations[0].AttestedData.ClientToUpdate)

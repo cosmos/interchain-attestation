@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
 	"strings"
 	"testing"
 
@@ -164,9 +163,8 @@ func (s *E2ETestSuite) setupSidecars() {
 
 		attestorID := fmt.Sprintf("attestator-%d", i)
 		sidecarConfig := config.Config{
-			CosmosChains:          chainConfigs,
-			AttestatorID:          attestorID,
-			SigningPrivateKeyPath: "dummy", // Will be updated when we create the key
+			CosmosChains: chainConfigs,
+			AttestatorID: attestorID,
 		}
 
 		byteWriter := new(bytes.Buffer)
@@ -183,25 +181,6 @@ func (s *E2ETestSuite) setupSidecars() {
 				relayerKeyName),
 		}, []string{})
 		s.Require().NoError(err, string(stdOut), string(stdErr))
-
-		// Create the attestator signing key
-		stdOut, stdErr, err = sidecar.Exec(s.ctx, []string{"attestation-sidecar", "signing-keys", "create", "--home", "/home/sidecar"}, []string{})
-		s.Require().NoError(err, string(stdOut), string(stdErr))
-
-		// Generate registration file
-		stdOut, stdErr, err = sidecar.Exec(s.ctx, []string{
-			"attestation-sidecar",
-			"generate-register-attestator-json",
-			"--home",
-			"/home/sidecar",
-		}, []string{})
-		s.Require().NoError(err, string(stdOut), string(stdErr))
-		registrationFileName := fmt.Sprintf("register-attestator-%d.json", i)
-		err = val.WriteFile(s.ctx, stdOut, registrationFileName)
-		s.Require().NoError(err)
-
-		_, err = val.ExecTx(s.ctx, "validator", "attestationconfig", "register-attestator", path.Join(val.HomeDir(), registrationFileName))
-		s.Require().NoError(err)
 
 		err = sidecar.CreateContainer(s.ctx)
 		s.Require().NoError(err)

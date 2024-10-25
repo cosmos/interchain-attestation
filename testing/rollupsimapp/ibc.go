@@ -124,7 +124,7 @@ func (app *RollupSimApp) registerIBCModules(appOpts servertypes.AppOptions) erro
 	smLightClientModule := solomachine.NewLightClientModule(app.appCodec, storeProvider)
 	clientKeeper.AddRoute(solomachine.ModuleName, &smLightClientModule)
 
-	attestationLightClientModule := attestationlightclient.NewLightClientModule(
+	attestationLightClientModule, _ := attestationlightclient.NewLightClientModule(
 		app.appCodec,
 		storeProvider,
 		attestationconfigkeeper.NewAttestatorHandler(app.AttestationConfigKeeper),

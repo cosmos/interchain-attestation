@@ -21,10 +21,9 @@ type Attestator struct {
 
 	attestatorID string
 	config       config.CosmosChainConfig
-	signer       func(msg []byte) ([]byte, error)
 }
 
-func NewCosmosAttestator(logger *zap.Logger, attestatorID string, config config.CosmosChainConfig, signer func(msg []byte) ([]byte, error)) (*Attestator, error) {
+func NewCosmosAttestator(logger *zap.Logger, attestatorID string, config config.CosmosChainConfig) (*Attestator, error) {
 	cometClient, err := clientwrapper.NewClient(config.RPC, time.Second*30) // TODO: Make timeout configurable per chain
 	if err != nil {
 		return nil, err
@@ -46,7 +45,6 @@ func NewCosmosAttestator(logger *zap.Logger, attestatorID string, config config.
 
 		attestatorID: attestatorID,
 		config:       config,
-		signer:       signer,
 	}, nil
 }
 

@@ -36,7 +36,7 @@ import (
 )
 
 // registerIBCModules register IBC keepers and non dependency inject modules.
-func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
+func (app *SimApp) registerIBCModules(_ servertypes.AppOptions) error {
 	// set up non depinject support modules store keys
 	if err := app.RegisterStores(
 		storetypes.NewKVStoreKey(capabilitytypes.StoreKey),
@@ -125,7 +125,7 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 	smLightClientModule := solomachine.NewLightClientModule(app.appCodec, storeProvider)
 	clientKeeper.AddRoute(solomachine.ModuleName, &smLightClientModule)
 
-	attestationLightClientModule := attestationlightclient.NewLightClientModule(
+	attestationLightClientModule, trustedUpdateClientFunc := attestationlightclient.NewLightClientModule(
 		app.appCodec,
 		storeProvider,
 		attestationconfigkeeper.NewAttestatorHandler(app.AttestationConfigKeeper),
@@ -141,7 +141,7 @@ func (app *SimApp) registerIBCModules(appOpts servertypes.AppOptions) error {
 		ibctm.NewAppModule(tmLightClientModule),
 		solomachine.NewAppModule(smLightClientModule),
 		attestationlightclient.NewAppModule(attestationLightClientModule),
-		attestationve.NewAppModule(app.IBCKeeper.ClientKeeper, app.appCodec),
+		attestationve.NewAppModule(trustedUpdateClientFunc, app.appCodec),
 	); err != nil {
 		return err
 	}

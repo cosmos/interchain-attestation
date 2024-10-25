@@ -21,17 +21,6 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Use:       "params",
 					Short:     "Shows the parameters of the module",
 				},
-				{
-					RpcMethod: "Attestators",
-					Use:       "attestators",
-					Short:     "Query all attestators",
-				},
-				{
-					RpcMethod:      "Attestator",
-					Use:            "attestator [attestator_id]",
-					Short:          "Query attestator by attestator id",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "attestator_id"}},
-				},
 			},
 		},
 		Tx: &autocliv1.ServiceCommandDescriptor{

@@ -10,7 +10,6 @@ option go_package = "github.com/cosmos/interchain-attestation/core/types";
 message Attestation {
   bytes attestator_id = 1;
   IBCData attested_data = 2 [ (gogoproto.nullable) = false ];
-  bytes signature = 3;
 }
 
 message IBCData {

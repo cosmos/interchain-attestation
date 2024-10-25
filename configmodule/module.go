@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
@@ -24,7 +23,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	modulev1 "github.com/cosmos/interchain-attestation/configmodule/api/configmodule/module/v1"
-	"github.com/cosmos/interchain-attestation/configmodule/client/cli"
 	"github.com/cosmos/interchain-attestation/configmodule/keeper"
 	"github.com/cosmos/interchain-attestation/configmodule/types"
 )
@@ -77,11 +75,6 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 // RegisterInterfaces registers interfaces and implementations of the attestationconfig module.
 func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
-}
-
-// GetTxCmd returns the root tx command for the attestationconfig module.
-func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.TxCmd(a.cdc.InterfaceRegistry().SigningContext().ValidatorAddressCodec())
 }
 
 // ----------------------------------------------------------------------------

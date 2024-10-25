@@ -8,7 +8,6 @@ import (
 
 	chantypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
 
-	"github.com/cosmos/interchain-attestation/core/lightclient"
 	"github.com/cosmos/interchain-attestation/core/types"
 )
 
@@ -53,7 +52,7 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 		PacketCommitments: packetCommitments,
 	}
 
-	c.logger.Debug("Signing attestation data",
+	c.logger.Debug("Generated attestation data",
 		zap.String("chain_id", c.config.ChainID),
 		zap.String("client_id", c.config.ClientID),
 		zap.String("client_to_update", c.config.ClientToUpdate),
@@ -62,16 +61,9 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 		zap.Int("packet_commitments", len(packetCommitments)),
 	)
 
-	signableBytes := lightclient.GetSignableBytes(c.codec.Marshaler, attestationData)
-	signature, err := c.signer(signableBytes)
-	if err != nil {
-		return types.Attestation{}, errors.Errorf("failed to sign attestation data for client id %s on chain id %s: %w", c.config.ClientID, c.config.ChainID, err)
-	}
-
 	attestation := types.Attestation{
 		AttestatorId: []byte(c.attestatorID),
 		AttestedData: attestationData,
-		Signature:    signature,
 	}
 
 	return attestation, nil

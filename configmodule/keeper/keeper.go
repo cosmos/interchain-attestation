@@ -21,9 +21,8 @@ type Keeper struct {
 
 	stakingKeeper types.StakingKeeper
 
-	Schema      collections.Schema
-	Params      collections.Item[types.Params]
-	Attestators collections.Map[[]byte, types.Attestator]
+	Schema collections.Schema
+	Params collections.Item[types.Params]
 }
 
 func NewKeeper(
@@ -42,7 +41,6 @@ func NewKeeper(
 		authority:             authority,
 		stakingKeeper:         stakingKeeper,
 		Params:                collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		Attestators:           collections.NewMap(sb, types.AttestatorsKey, "attestators", collections.BytesKey, codec.CollValue[types.Attestator](cdc)),
 	}
 
 	schema, err := sb.Build()
