@@ -16,7 +16,7 @@ func NewAttestatorHandler(k Keeper) lightclient.AttestatorsController {
 
 // TODO: Implement properly
 func (a AttestatorHandler) SufficientAttestations(ctx context.Context, attestatorIds [][]byte) (bool, error) {
-	// TODO implement me
+	// TODO: implement me
 	// Just return true for now until we implement the actual logic
 	return true, nil
 }

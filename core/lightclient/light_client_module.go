@@ -116,7 +116,7 @@ func (l *LightClientModule) VerifyMembership(ctx sdk.Context, clientID string, h
 
 	merklePath, ok := path.(v2.MerklePath)
 	if ok {
-		// TODO deal with other stores
+		// TODO: deal with other stores
 		if bytes.Equal(merklePath.KeyPath[0], []byte("ibc")) {
 			split := strings.Split(string(merklePath.KeyPath[1]), "/")
 			if split[0] == host.KeyConnectionPrefix ||

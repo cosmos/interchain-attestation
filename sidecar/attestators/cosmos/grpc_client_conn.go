@@ -237,6 +237,6 @@ func convertProofOps(proofOps *sltypes.ProofOps) *crypto.ProofOps {
 }
 
 func (c *ClientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
-	// TODO implement me
+	// TODO: implement me
 	panic("implement me")
 }

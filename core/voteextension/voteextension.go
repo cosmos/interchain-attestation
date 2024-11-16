@@ -79,7 +79,7 @@ func (a AppModule) VerifyVote(ctx sdk.Context, req *abci.RequestVerifyVoteExtens
 
 	ctx.Logger().Info("AttestationVoteExtension: VerifyVote (doing nothing atm)")
 
-	// TODO implement me
+	// TODO: implement me
 
 	return &abci.ResponseVerifyVoteExtension{
 		Status: abci.ResponseVerifyVoteExtension_ACCEPT,
@@ -170,7 +170,7 @@ func (a AppModule) ProcessProposal(ctx sdk.Context, req *abci.RequestProcessProp
 
 	// ?
 
-	// TODO implement me
+	// TODO: implement me
 
 	return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
 }

@@ -30,7 +30,7 @@ import (
 
 // Not const because we need to give them as pointers later
 var (
-	simappVals            = 1 // TODO: Set to more than one, once we figure out a good coordination/aggregation strategy
+	simappVals            = 4
 	simappFullNodes       = 0
 	rollupsimappVals      = 1
 	rollupsimappFullNodes = 0

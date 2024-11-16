@@ -200,14 +200,14 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 // ----------------------------------------------------------------------------
 
 func (am AppModule) GenerateGenesisState(input *module.SimulationState) {
-	// TODO implement me
+	// TODO: implement me
 }
 
 func (am AppModule) RegisterStoreDecoder(registry simtypes.StoreDecoderRegistry) {
-	// TODO implement me
+	// TODO: implement me
 }
 
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
-	// TODO implement me
+	// TODO: implement me
 	return []simtypes.WeightedOperation{}
 }

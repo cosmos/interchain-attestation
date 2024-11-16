@@ -60,7 +60,7 @@ func (m mockCoordinator) GetLatestAttestations() ([]types.Attestation, error) {
 }
 
 func (m mockCoordinator) GetAttestationForHeight(chainID string, height uint64) (types.Attestation, error) {
-	// TODO implement me
+	// TODO: implement me
 	panic("implement me")
 }
 

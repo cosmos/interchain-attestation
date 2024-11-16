@@ -19,6 +19,6 @@ func (m *AttestationClaim) ClientType() string {
 }
 
 func (m *AttestationClaim) ValidateBasic() error {
-	// TODO implement me
+	// TODO: implement me
 	panic("implement me")
 }
