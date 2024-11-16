@@ -113,6 +113,9 @@ func (s *E2ETestSuite) SetupSuite() {
 	})
 	s.Require().NoError(err)
 
+	err = populateQueryReqToPath(s.ctx, s.simapp)
+	s.Require().NoError(err)
+
 	s.setupSidecars()
 
 	// Create relayer users
