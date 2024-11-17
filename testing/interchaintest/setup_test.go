@@ -160,14 +160,12 @@ func (s *E2ETestSuite) setupSidecars() {
 		},
 	}
 
-	for i, val := range s.simapp.Validators {
+	for _, val := range s.simapp.Validators {
 		s.Require().Len(val.Sidecars, 1)
 		sidecar := val.Sidecars[0]
 
-		attestorID := fmt.Sprintf("attestator-%d", i)
 		sidecarConfig := config.Config{
 			CosmosChains: chainConfigs,
-			AttestatorID: attestorID,
 		}
 
 		byteWriter := new(bytes.Buffer)

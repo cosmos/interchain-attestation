@@ -53,15 +53,15 @@ func (s *Server) Stop() {
 	s.grpcServer.GracefulStop()
 }
 
-func (s *Server) GetAttestations(_ context.Context, _ *types.GetAttestationsRequest) (*types.GetAttestationsResponse, error) {
+func (s *Server) GetIBCData(_ context.Context, _ *types.GetIBCDataRequest) (*types.GetIBCDataResponse, error) {
 	s.logger.Debug("server.GetLatestAttestation")
 
-	attestations, err := s.coordinator.GetLatestAttestations()
+	attestations, err := s.coordinator.GetLatestIBCData()
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.GetAttestationsResponse{
-		Attestations: attestations,
+	return &types.GetIBCDataResponse{
+		IbcData: attestations,
 	}, nil
 }

@@ -11,10 +11,10 @@ import (
 	"github.com/cosmos/interchain-attestation/core/types"
 )
 
-func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation, error) {
-	c.logger.Info("Collecting attestationData for chain", zap.String("chain_id", c.config.ChainID), zap.String("client_id", c.config.ClientID))
+func (c *Attestator) CollectIBCData(ctx context.Context) (types.IBCData, error) {
+	c.logger.Info("Collecting ibc data", zap.String("chain_id", c.config.ChainID), zap.String("client_id", c.config.ClientID))
 
-	// TODO: add locks to prevent multiple CollectAttestation from running at the same time
+	// TODO: add locks to prevent multiple CollectIBCData from running at the same time
 
 	commitments, err := c.queryPacketCommitments(ctx, c.config.ClientID)
 	if err != nil || commitments.Height.RevisionHeight == 0 {
@@ -22,20 +22,20 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 
 		resp, err := c.cometClient.ABCIInfo(ctx)
 		if err != nil {
-			return types.Attestation{}, errors.Errorf("failed to query status for chain id %s: %w", c.config.ChainID, err)
+			return types.IBCData{}, errors.Errorf("failed to query status for chain id %s: %w", c.config.ChainID, err)
 		}
 		commitments = &chantypes.QueryPacketCommitmentsResponse{
 			Commitments: []*chantypes.PacketState{},
 			Height:      c.config.GetClientHeight(uint64(resp.Response.LastBlockHeight - 1)),
 		}
-		// return types.Attestation{}, errors.Errorf("failed to query packet commitments for client id %s on chain id %s: %w", c.config.ClientID, c.config.ChainID, err)
+		// return types.IBCData{}, errors.Errorf("failed to query packet commitments for client id %s on chain id %s: %w", c.config.ClientID, c.config.ChainID, err)
 	}
 
 	height := commitments.Height
 	revHeight := int64(height.GetRevisionHeight())
 	blockAtHeight, err := c.cometClient.Block(ctx, &revHeight)
 	if err != nil {
-		return types.Attestation{}, errors.Errorf("failed to query block for client id %s (height %d) on chain id %s: %w", c.config.ClientID, revHeight, c.config.ChainID, err)
+		return types.IBCData{}, errors.Errorf("failed to query block for client id %s (height %d) on chain id %s: %w", c.config.ClientID, revHeight, c.config.ChainID, err)
 	}
 
 	var packetCommitments [][]byte
@@ -43,7 +43,7 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 		packetCommitments = append(packetCommitments, commitment.Data)
 	}
 
-	attestationData := types.IBCData{
+	ibcData := types.IBCData{
 		ChainId:           c.config.ChainID,
 		ClientId:          c.config.ClientID,
 		ClientToUpdate:    c.config.ClientToUpdate,
@@ -52,7 +52,7 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 		PacketCommitments: packetCommitments,
 	}
 
-	c.logger.Debug("Generated attestation data",
+	c.logger.Debug("Collected IBC data",
 		zap.String("chain_id", c.config.ChainID),
 		zap.String("client_id", c.config.ClientID),
 		zap.String("client_to_update", c.config.ClientToUpdate),
@@ -61,10 +61,5 @@ func (c *Attestator) CollectAttestation(ctx context.Context) (types.Attestation,
 		zap.Int("packet_commitments", len(packetCommitments)),
 	)
 
-	attestation := types.Attestation{
-		AttestatorId: []byte(c.attestatorID),
-		AttestedData: attestationData,
-	}
-
-	return attestation, nil
+	return ibcData, nil
 }

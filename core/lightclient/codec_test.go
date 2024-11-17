@@ -33,9 +33,9 @@ func TestCodec(t *testing.T) {
 			&lightclient.ConsensusState{},
 		},
 		{
-			"AttestationClaim",
+			"AttestationTally",
 			validClientMsg,
-			&lightclient.AttestationClaim{},
+			&lightclient.AttestationTally{},
 		},
 	}
 

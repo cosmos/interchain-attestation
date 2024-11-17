@@ -9,5 +9,5 @@ import (
 // TODO: Document
 type Attestator interface {
 	ChainID() string
-	CollectAttestation(ctx context.Context) (types.Attestation, error)
+	CollectIBCData(ctx context.Context) (types.IBCData, error)
 }

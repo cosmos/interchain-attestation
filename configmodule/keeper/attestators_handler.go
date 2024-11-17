@@ -3,6 +3,8 @@ package keeper
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/cosmos/interchain-attestation/core/lightclient"
 )
 
@@ -14,9 +16,17 @@ func NewAttestatorHandler(k Keeper) lightclient.AttestatorsController {
 	return AttestatorHandler{k: k}
 }
 
-// TODO: Implement properly
-func (a AttestatorHandler) SufficientAttestations(ctx context.Context, attestatorIds [][]byte) (bool, error) {
-	// TODO: implement me
-	// Just return true for now until we implement the actual logic
+func (a AttestatorHandler) SufficientAttestations(ctx context.Context, validatorAddresses [][]byte) (bool, error) {
+	for _, validatorAddress := range validatorAddresses {
+		sdkCtx := sdk.UnwrapSDKContext(ctx)
+		val, found := a.k.stakingKeeper.GetValidatorByConsAddr(sdkCtx, validatorAddress)
+		if !found {
+			sdkCtx.Logger().Warn("validator not found", "validatorAddress", validatorAddress)
+			continue // we just ignore unknown validators, but should really not happen
+		}
+
+		consensusPower := val.ConsensusPower(a.k.stakingKeeper.PowerReduction(sdkCtx))
+	}
+
 	return true, nil
 }

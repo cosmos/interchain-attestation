@@ -15,7 +15,6 @@ const (
 )
 
 type Config struct {
-	AttestatorID string              `toml:"attestator_id"`
 	CosmosChains []CosmosChainConfig `toml:"cosmos_chain"`
 
 	configFilePath string
@@ -46,7 +45,6 @@ func (c Config) Validate() error {
 		return errors.New("at least one chain must be defined in the config")
 	}
 
-	anyAttestationChains := false
 	seenChainIDs := make(map[string]bool)
 	seenClientsToUpdate := make(map[string]bool)
 	for _, chain := range c.CosmosChains {
@@ -64,8 +62,6 @@ func (c Config) Validate() error {
 		}
 
 		if chain.Attestation {
-			anyAttestationChains = true
-
 			if chain.ClientID == "" {
 				return errors.New("client id cannot be empty when attestation is true")
 			}
@@ -78,12 +74,6 @@ func (c Config) Validate() error {
 				return errors.New("duplicate client to update")
 			}
 			seenClientsToUpdate[chain.ClientToUpdate] = true
-		}
-	}
-
-	if anyAttestationChains {
-		if c.AttestatorID == "" {
-			return errors.New("attestator id cannot be empty if any chains have attestation true")
 		}
 	}
 
@@ -127,7 +117,6 @@ func InitConfig(homedir string, force bool) (string, error) {
 	}
 
 	config := Config{
-		AttestatorID: "your-attestator-id",
 		CosmosChains: []CosmosChainConfig{
 			{
 				ChainID:        "chain-to-attest-1",

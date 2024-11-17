@@ -58,20 +58,17 @@ func (s *VoteExtensionTestSuite) SetupSuite() {
 	err := os.Setenv(voteextension.SidecarAddressEnv, addr)
 	require.NoError(s.T(), err)
 
-	s.mockServer.Response = &types.GetAttestationsResponse{
-		Attestations: []types.Attestation{
+	s.mockServer.Response = &types.GetIBCDataResponse{
+		IbcData: []types.IBCData{
 			{
-				AttestatorId: []byte("mock-attestor-id"),
-				AttestedData: types.IBCData{
-					ChainId:        "mock-chain-id",
-					ClientId:       "mock-client-id",
-					ClientToUpdate: "mock-client-to-update",
-					Height:         clienttypes.NewHeight(1, 1),
-					Timestamp:      time.Now(),
-					PacketCommitments: [][]byte{
-						[]byte("pckt1"),
-						[]byte("pckt2"),
-					},
+				ChainId:        "mock-chain-id",
+				ClientId:       "mock-client-id",
+				ClientToUpdate: "mock-client-to-update",
+				Height:         clienttypes.NewHeight(1, 1),
+				Timestamp:      time.Now(),
+				PacketCommitments: [][]byte{
+					[]byte("pckt1"),
+					[]byte("pckt2"),
 				},
 			},
 		},
@@ -107,17 +104,16 @@ func (s *VoteExtensionTestSuite) TestExtendVote() {
 	var voteExt voteextension.VoteExtension
 	err = s.encodingCfg.Codec.Unmarshal(responseExtendVote.VoteExtension, &voteExt)
 	require.NoError(s.T(), err)
-	require.Len(s.T(), voteExt.Attestations, 1)
-	require.Equal(s.T(), s.mockServer.Response.Attestations[0].AttestatorId, voteExt.Attestations[0].AttestatorId)
-	require.Equal(s.T(), s.mockServer.Response.Attestations[0].AttestedData.ChainId, voteExt.Attestations[0].AttestedData.ChainId)
-	require.Equal(s.T(), s.mockServer.Response.Attestations[0].AttestedData.ClientId, voteExt.Attestations[0].AttestedData.ClientId)
-	require.Equal(s.T(), s.mockServer.Response.Attestations[0].AttestedData.ClientToUpdate, voteExt.Attestations[0].AttestedData.ClientToUpdate)
-	require.Equal(s.T(), s.mockServer.Response.Attestations[0].AttestedData.Height, voteExt.Attestations[0].AttestedData.Height)
-	require.Equal(s.T(), s.mockServer.Response.Attestations[0].AttestedData.Timestamp.UnixNano(), voteExt.Attestations[0].AttestedData.Timestamp.UnixNano())
+	require.Len(s.T(), voteExt.IbcData, 1)
+	require.Equal(s.T(), s.mockServer.Response.IbcData[0].ChainId, voteExt.IbcData[0].ChainId)
+	require.Equal(s.T(), s.mockServer.Response.IbcData[0].ClientId, voteExt.IbcData[0].ClientId)
+	require.Equal(s.T(), s.mockServer.Response.IbcData[0].ClientToUpdate, voteExt.IbcData[0].ClientToUpdate)
+	require.Equal(s.T(), s.mockServer.Response.IbcData[0].Height, voteExt.IbcData[0].Height)
+	require.Equal(s.T(), s.mockServer.Response.IbcData[0].Timestamp.UnixNano(), voteExt.IbcData[0].Timestamp.UnixNano())
 
-	require.Len(s.T(), voteExt.Attestations[0].AttestedData.PacketCommitments, 2)
-	require.Equal(s.T(), s.mockServer.Response.Attestations[0].AttestedData.PacketCommitments[0], voteExt.Attestations[0].AttestedData.PacketCommitments[0])
-	require.Equal(s.T(), s.mockServer.Response.Attestations[0].AttestedData.PacketCommitments[1], voteExt.Attestations[0].AttestedData.PacketCommitments[1])
+	require.Len(s.T(), voteExt.IbcData[0].PacketCommitments, 2)
+	require.Equal(s.T(), s.mockServer.Response.IbcData[0].PacketCommitments[0], voteExt.IbcData[0].PacketCommitments[0])
+	require.Equal(s.T(), s.mockServer.Response.IbcData[0].PacketCommitments[1], voteExt.IbcData[0].PacketCommitments[1])
 }
 
 func (s *VoteExtensionTestSuite) TestPreBlocker() {
@@ -146,7 +142,7 @@ func (s *VoteExtensionTestSuite) TestPreBlocker() {
 						AttestationClaim: lightclient.AttestationClaim{
 							Attestations: []types.Attestation{
 								{
-									AttestatorId: []byte("whatever"),
+									ValidatorAddress: []byte("whatever"),
 									AttestedData: types.IBCData{
 										ChainId:           "whateverchain",
 										ClientId:          "whateverclient",

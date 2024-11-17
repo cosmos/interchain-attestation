@@ -22,14 +22,20 @@ import (
 )
 
 const (
-	mockChainID           = "mockChainID"
-	mockClientID          = "mockClientID"
-	mockChainAttestatorID = "mockChainAttestatorID"
+	mockChainID  = "mockChainID"
+	mockClientID = "mockClientID"
 )
 
-type mockCoordinator struct{}
+func (m mockChainAttestator) ChainID() string {
+	return mockChainID
+}
+
+func (m mockChainAttestator) CollectIBCData(ctx context.Context) (types.IBCData, error) {
+	panic("should not be called in this test")
+}
 
 type mockChainAttestator struct{}
+type mockCoordinator struct{}
 
 var (
 	_ attestators.Coordinator = &mockCoordinator{}
@@ -44,32 +50,21 @@ func (m mockCoordinator) Run(_ context.Context) error {
 	panic("should not be called in this test")
 }
 
-func (m mockCoordinator) GetLatestAttestations() ([]types.Attestation, error) {
-	return []types.Attestation{
+func (m mockCoordinator) GetLatestIBCData() ([]types.IBCData, error) {
+	return []types.IBCData{
 		{
-			AttestatorId: []byte(mockChainAttestatorID),
-			AttestedData: types.IBCData{
-				ChainId:           mockChainID,
-				ClientId:          mockClientID,
-				Height:            clienttypes.NewHeight(1, 42),
-				Timestamp:         time.Now(),
-				PacketCommitments: [][]byte{{0x01}, {0x02}, {0x03}},
-			},
+			ChainId:           mockChainID,
+			ClientId:          mockClientID,
+			Height:            clienttypes.NewHeight(1, 42),
+			Timestamp:         time.Now(),
+			PacketCommitments: [][]byte{{0x01}, {0x02}, {0x03}},
 		},
 	}, nil
 }
 
-func (m mockCoordinator) GetAttestationForHeight(chainID string, height uint64) (types.Attestation, error) {
+func (m mockCoordinator) GetIBCDataForHeight(chainID string, height uint64) (types.IBCData, error) {
 	// TODO: implement me
 	panic("implement me")
-}
-
-func (m mockChainAttestator) ChainID() string {
-	return mockChainID
-}
-
-func (m mockChainAttestator) CollectAttestation(ctx context.Context) (types.Attestation, error) {
-	panic("should not be called in this test")
 }
 
 // TestServe is mostly just a smoke test that the server can start and serve requests. Everything is mocked except the server itself.
@@ -92,13 +87,12 @@ func TestServe(t *testing.T) {
 	require.NoError(t, err)
 
 	sidecarClient := types.NewSidecarClient(client)
-	resp, err := sidecarClient.GetAttestations(context.Background(), &types.GetAttestationsRequest{})
+	resp, err := sidecarClient.GetIBCData(context.Background(), &types.GetIBCDataRequest{})
 
 	require.NoError(t, err)
-	require.Len(t, resp.Attestations, 1)
-	require.Equal(t, []byte(mockChainAttestatorID), resp.Attestations[0].AttestatorId)
-	require.Equal(t, mockChainID, resp.Attestations[0].AttestedData.ChainId)
-	require.Equal(t, mockClientID, resp.Attestations[0].AttestedData.ClientId)
+	require.Len(t, resp.IbcData, 1)
+	require.Equal(t, mockChainID, resp.IbcData[0].ChainId)
+	require.Equal(t, mockClientID, resp.IbcData[0].ClientId)
 
 	s.Stop()
 

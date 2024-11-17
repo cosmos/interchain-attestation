@@ -20,7 +20,6 @@ const (
 	mockChainID        = "mockChainID"
 	mockClientID       = "mockClientID"
 	mockClientToUpdate = "mockClientToUpdate"
-	mockAttestatorID   = "mockAttestatorID"
 )
 
 var mockPacketCommits = [][]byte{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
@@ -38,19 +37,16 @@ func (m *MockChainAttestator) ChainID() string {
 	return mockChainID
 }
 
-func (m *MockChainAttestator) CollectAttestation(ctx context.Context) (types.Attestation, error) {
+func (m *MockChainAttestator) CollectIBCData(ctx context.Context) (types.IBCData, error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
-	return types.Attestation{
-		AttestatorId: []byte(mockAttestatorID),
-		AttestedData: types.IBCData{
-			ChainId:           mockChainID,
-			ClientId:          mockClientID,
-			ClientToUpdate:    mockClientToUpdate,
-			Height:            clienttypes.NewHeight(1, m.CurrentHeight),
-			Timestamp:         m.Timestamp,
-			PacketCommitments: mockPacketCommits,
-		},
+	return types.IBCData{
+		ChainId:           mockChainID,
+		ClientId:          mockClientID,
+		ClientToUpdate:    mockClientToUpdate,
+		Height:            clienttypes.NewHeight(1, m.CurrentHeight),
+		Timestamp:         m.Timestamp,
+		PacketCommitments: mockPacketCommits,
 	}, nil
 }
 
@@ -92,26 +88,25 @@ func TestCoordinator_Run(t *testing.T) {
 		timestampAtHeight[height] = timestamp
 		time.Sleep(250 * time.Millisecond)
 
-		latestAttestations, err := testCoordinator.GetLatestAttestations()
+		latestAttestations, err := testCoordinator.GetLatestIBCData()
 		require.NoError(t, err)
 		require.Len(t, latestAttestations, 1)
-		require.Equal(t, height, latestAttestations[0].AttestedData.Height.RevisionHeight)
-		require.Equal(t, mockPacketCommits, latestAttestations[0].AttestedData.PacketCommitments)
-		require.Equal(t, mockAttestatorID, string(latestAttestations[0].AttestatorId))
-		require.Equal(t, mockChainID, latestAttestations[0].AttestedData.ChainId)
-		require.Equal(t, mockClientID, latestAttestations[0].AttestedData.ClientId)
-		require.Equal(t, mockClientToUpdate, latestAttestations[0].AttestedData.ClientToUpdate)
-		require.Equal(t, timestampAtHeight[height].UnixNano(), latestAttestations[0].AttestedData.Timestamp.UnixNano())
+		require.Equal(t, height, latestAttestations[0].Height.RevisionHeight)
+		require.Equal(t, mockPacketCommits, latestAttestations[0].PacketCommitments)
+		require.Equal(t, mockChainID, latestAttestations[0].ChainId)
+		require.Equal(t, mockClientID, latestAttestations[0].ClientId)
+		require.Equal(t, mockClientToUpdate, latestAttestations[0].ClientToUpdate)
+		require.Equal(t, timestampAtHeight[height].UnixNano(), latestAttestations[0].Timestamp.UnixNano())
 
-		attestationAtHeight, err := testCoordinator.GetAttestationForHeight(mockChainID, height)
+		attestationAtHeight, err := testCoordinator.GetIBCDataForHeight(mockChainID, height)
 		require.NoError(t, err)
-		require.Equal(t, height, attestationAtHeight.AttestedData.Height.RevisionHeight)
+		require.Equal(t, height, attestationAtHeight.Height.RevisionHeight)
 		require.Equal(t, latestAttestations[0], attestationAtHeight)
 
 		for j := 1; j <= i; j++ {
-			attestationAtHeight, err := testCoordinator.GetAttestationForHeight(mockChainID, uint64(j))
+			attestationAtHeight, err := testCoordinator.GetIBCDataForHeight(mockChainID, uint64(j))
 			require.NoError(t, err)
-			require.Equal(t, uint64(j), attestationAtHeight.AttestedData.Height.RevisionHeight)
+			require.Equal(t, uint64(j), attestationAtHeight.Height.RevisionHeight)
 		}
 	}
 

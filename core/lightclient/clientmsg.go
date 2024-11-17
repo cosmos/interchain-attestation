@@ -2,23 +2,15 @@ package lightclient
 
 import (
 	"github.com/cosmos/ibc-go/v9/modules/core/exported"
-
-	"github.com/cosmos/interchain-attestation/core/types"
 )
 
-var _ exported.ClientMessage = (*AttestationClaim)(nil)
+var _ exported.ClientMessage = (*AttestationTally)(nil)
 
-func NewAttestationClaim(attestation []types.Attestation) *AttestationClaim {
-	return &AttestationClaim{
-		Attestations: attestation,
-	}
-}
-
-func (m *AttestationClaim) ClientType() string {
+func (m *AttestationTally) ClientType() string {
 	return ModuleName
 }
 
-func (m *AttestationClaim) ValidateBasic() error {
+func (m *AttestationTally) ValidateBasic() error {
 	// TODO: implement me
 	panic("implement me")
 }

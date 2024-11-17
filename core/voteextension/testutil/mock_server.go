@@ -14,7 +14,7 @@ type Server struct {
 	types.UnimplementedSidecarServer
 	grpcServer *grpc.Server
 
-	Response *types.GetAttestationsResponse
+	Response *types.GetIBCDataResponse
 }
 
 var _ types.SidecarServer = &Server{}
@@ -42,6 +42,6 @@ func (s *Server) Stop() {
 	s.grpcServer.GracefulStop()
 }
 
-func (s *Server) GetAttestations(_ context.Context, _ *types.GetAttestationsRequest) (*types.GetAttestationsResponse, error) {
+func (s *Server) GetIBCData(_ context.Context, _ *types.GetIBCDataRequest) (*types.GetIBCDataResponse, error) {
 	return s.Response, nil
 }

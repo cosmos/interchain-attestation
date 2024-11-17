@@ -5,7 +5,6 @@
 package testutil
 
 import (
-	context "context"
 	reflect "reflect"
 
 	types "github.com/cosmos/cosmos-sdk/types"
@@ -36,17 +35,17 @@ func (m *MockStakingKeeper) EXPECT() *MockStakingKeeperMockRecorder {
 	return m.recorder
 }
 
-// GetValidator mocks base method.
-func (m *MockStakingKeeper) GetValidator(ctx context.Context, addr types.ValAddress) (types0.Validator, error) {
+// GetValidatorByConsAddr mocks base method.
+func (m *MockStakingKeeper) GetValidatorByConsAddr(ctx types.Context, consAddr types.ConsAddress) (types0.Validator, bool) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetValidator", ctx, addr)
+	ret := m.ctrl.Call(m, "GetValidatorByConsAddr", ctx, consAddr)
 	ret0, _ := ret[0].(types0.Validator)
-	ret1, _ := ret[1].(error)
+	ret1, _ := ret[1].(bool)
 	return ret0, ret1
 }
 
-// GetValidator indicates an expected call of GetValidator.
-func (mr *MockStakingKeeperMockRecorder) GetValidator(ctx, addr interface{}) *gomock.Call {
+// GetValidatorByConsAddr indicates an expected call of GetValidatorByConsAddr.
+func (mr *MockStakingKeeperMockRecorder) GetValidatorByConsAddr(ctx, consAddr interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidator", reflect.TypeOf((*MockStakingKeeper)(nil).GetValidator), ctx, addr)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidatorByConsAddr", reflect.TypeOf((*MockStakingKeeper)(nil).GetValidatorByConsAddr), ctx, consAddr)
 }

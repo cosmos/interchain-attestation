@@ -24,8 +24,8 @@ const (
 // TODO: Document
 type Coordinator interface {
 	Run(ctx context.Context) error
-	GetLatestAttestations() ([]types.Attestation, error)
-	GetAttestationForHeight(chainID string, height uint64) (types.Attestation, error)
+	GetLatestIBCData() ([]types.IBCData, error)
+	GetIBCDataForHeight(chainID string, height uint64) (types.IBCData, error)
 }
 
 type coordinator struct {
@@ -48,7 +48,6 @@ func NewCoordinator(logger *zap.Logger, db *badger.DB, sidecarConfig config.Conf
 
 		att, err := cosmos.NewCosmosAttestator(
 			logger,
-			sidecarConfig.AttestatorID,
 			cosmosConfig,
 		)
 		if err != nil {
@@ -65,9 +64,9 @@ func NewCoordinator(logger *zap.Logger, db *badger.DB, sidecarConfig config.Conf
 	}, nil
 }
 
-func (c *coordinator) GetLatestAttestations() ([]types.Attestation, error) {
+func (c *coordinator) GetLatestIBCData() ([]types.IBCData, error) {
 	var wg sync.WaitGroup
-	attestationChan := make(chan types.Attestation, len(c.chainAttestators))
+	ibcDataChan := make(chan types.IBCData, len(c.chainAttestators))
 	errChan := make(chan error, len(c.chainAttestators))
 
 	for _, chainAttestator := range c.chainAttestators {
@@ -90,47 +89,47 @@ func (c *coordinator) GetLatestAttestations() ([]types.Attestation, error) {
 				return
 			}
 
-			var attestation types.Attestation
-			if err := proto.Unmarshal(bz, &attestation); err != nil {
+			var ibcData types.IBCData
+			if err := proto.Unmarshal(bz, &ibcData); err != nil {
 				errChan <- err
 				return
 			}
 
-			attestationChan <- attestation
+			ibcDataChan <- ibcData
 		}(chainAttestator)
 	}
 
 	go func() {
 		wg.Wait()
-		close(attestationChan)
+		close(ibcDataChan)
 		close(errChan)
 	}()
 
-	var attestations []types.Attestation
-	for attestation := range attestationChan {
-		attestations = append(attestations, attestation)
+	var ibcData []types.IBCData
+	for attestation := range ibcDataChan {
+		ibcData = append(ibcData, attestation)
 	}
 
 	if err := <-errChan; err != nil {
 		return nil, err
 	}
 
-	return attestations, nil
+	return ibcData, nil
 }
 
-func (c *coordinator) GetAttestationForHeight(chainID string, height uint64) (types.Attestation, error) {
-	var attestation types.Attestation
+func (c *coordinator) GetIBCDataForHeight(chainID string, height uint64) (types.IBCData, error) {
+	var ibcData types.IBCData
 	if err := c.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(heightKey(chainID, height))
 		if err != nil {
 			return err
 		}
-		return item.Value(attestation.Unmarshal)
+		return item.Value(ibcData.Unmarshal)
 	}); err != nil {
-		return attestation, err
+		return ibcData, err
 	}
 
-	return attestation, nil
+	return ibcData, nil
 }
 
 func (c *coordinator) Run(ctx context.Context) error {
@@ -171,45 +170,45 @@ func (c *coordinator) collectionLoop(ctx context.Context, chainProver attestator
 }
 
 func (c *coordinator) collectOnce(ctx context.Context, chainProver attestator.Attestator) {
-	c.logger.Info("Collecting claims", zap.String("chain_id", chainProver.ChainID()))
-	attestation, err := chainProver.CollectAttestation(ctx)
+	c.logger.Info("Collecting ibc data", zap.String("chain_id", chainProver.ChainID()))
+	ibcData, err := chainProver.CollectIBCData(ctx)
 	if err != nil {
-		c.logger.Error("Failed to collect claims", zap.String("chain_id", chainProver.ChainID()), zap.Error(err))
+		c.logger.Error("Failed to collect ibc data", zap.String("chain_id", chainProver.ChainID()), zap.Error(err))
 		return
 	}
-	c.logger.Info("Collected attestation for chain",
+	c.logger.Info("Collected ibc data for chain",
 		zap.String("chain_id", chainProver.ChainID()),
-		zap.String("client_id", attestation.AttestedData.ClientId),
-		zap.String("client_to_update", attestation.AttestedData.ClientToUpdate),
-		zap.String("height", fmt.Sprint(attestation.AttestedData.Height.RevisionHeight)),
-		zap.String("timestamp", attestation.AttestedData.Timestamp.String()),
-		zap.Int("num_packet_commitments", len(attestation.AttestedData.PacketCommitments)),
+		zap.String("client_id", ibcData.ClientId),
+		zap.String("client_to_update", ibcData.ClientToUpdate),
+		zap.String("height", fmt.Sprint(ibcData.Height.RevisionHeight)),
+		zap.String("timestamp", ibcData.Timestamp.String()),
+		zap.Int("num_packet_commitments", len(ibcData.PacketCommitments)),
 	)
 
 	if err := c.db.Update(func(txn *badger.Txn) error {
-		aBz, err := attestation.Marshal()
+		ibcDataBz, err := ibcData.Marshal()
 		if err != nil {
 			return err
 		}
-		height := attestation.AttestedData.Height.RevisionHeight
-		if err := txn.Set(heightKey(chainProver.ChainID(), height), aBz); err != nil {
+		height := ibcData.Height.RevisionHeight
+		if err := txn.Set(heightKey(chainProver.ChainID(), height), ibcDataBz); err != nil {
 			return err
 		}
-		if err := txn.Set(latestKey(chainProver.ChainID()), aBz); err != nil {
+		if err := txn.Set(latestKey(chainProver.ChainID()), ibcDataBz); err != nil {
 			return err
 		}
 
 		return nil
 	}); err != nil {
-		c.logger.Error("Failed to store attestation", zap.String("chain_id", chainProver.ChainID()), zap.Error(err))
+		c.logger.Error("Failed to store ibc data", zap.String("chain_id", chainProver.ChainID()), zap.Error(err))
 		return
 	}
 }
 
 func heightKey(chainID string, height uint64) []byte {
-	return []byte(fmt.Sprintf("%s/attestations/%d", chainID, height))
+	return []byte(fmt.Sprintf("%s/ibcdata/%d", chainID, height))
 }
 
 func latestKey(chainID string) []byte {
-	return []byte(fmt.Sprintf("%s/attestations/latest", chainID))
+	return []byte(fmt.Sprintf("%s/ibcdata/latest", chainID))
 }

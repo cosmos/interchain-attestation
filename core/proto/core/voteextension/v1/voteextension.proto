@@ -9,16 +9,5 @@ option go_package = "github.com/cosmos/interchain-attestation/core/voteextension
 
 message VoteExtension {
   // one attestation for every chain configured in the sidecar
-  repeated types.v1.Attestation attestations = 1
-      [ (gogoproto.nullable) = false ];
-}
-
-message ClientUpdate {
-  string client_to_update = 1;
-  lightclient.v1.AttestationClaim attestation_claim = 2
-      [ (gogoproto.nullable) = false ];
-}
-
-message ClientUpdates {
-  repeated ClientUpdate client_updates = 1 [ (gogoproto.nullable) = false ];
+  repeated types.v1.IBCData ibcData = 1 [ (gogoproto.nullable) = false ];
 }

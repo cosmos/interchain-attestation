@@ -79,7 +79,7 @@ func (s *AttestationLightClientTestSuite) SetupTest() {
 }
 
 type mockAttestator struct {
-	id []byte
+	validatorAddress []byte
 }
 
 type mockAttestatorsHandler struct {
@@ -92,7 +92,7 @@ var _ lightclient.AttestatorsController = &mockAttestatorsHandler{}
 func NewMockAttestatorsHandler(attestators []mockAttestator) mockAttestatorsHandler {
 	attestatorsMap := make(map[string]mockAttestator)
 	for _, attestator := range attestators {
-		attestatorsMap[string(attestator.id)] = attestator
+		attestatorsMap[string(attestator.validatorAddress)] = attestator
 	}
 	return mockAttestatorsHandler{
 		attestators: attestatorsMap,
@@ -112,7 +112,7 @@ func generateAttestators(n int) []mockAttestator {
 		privKey := secp256k1.GenPrivKey()
 		valAddr := sdk.ValAddress(privKey.PubKey().Address())
 		attestators[i] = mockAttestator{
-			id: valAddr,
+			validatorAddress: valAddr,
 		}
 	}
 	return attestators
@@ -141,8 +141,8 @@ func generateClientMsg(_ codec.BinaryCodec, attestators []mockAttestator, number
 		}
 
 		attestations[i] = types.Attestation{
-			AttestatorId: attestator.id,
-			AttestedData: attestationData,
+			ValidatorAddress: attestator.validatorAddress,
+			AttestedData:     attestationData,
 		}
 	}
 	return &lightclient.AttestationClaim{

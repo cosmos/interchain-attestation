@@ -19,11 +19,10 @@ type Attestator struct {
 	cometClient *clientwrapper.Client
 	codec       CodecConfig
 
-	attestatorID string
-	config       config.CosmosChainConfig
+	config config.CosmosChainConfig
 }
 
-func NewCosmosAttestator(logger *zap.Logger, attestatorID string, config config.CosmosChainConfig) (*Attestator, error) {
+func NewCosmosAttestator(logger *zap.Logger, config config.CosmosChainConfig) (*Attestator, error) {
 	cometClient, err := clientwrapper.NewClient(config.RPC, time.Second*30) // TODO: Make timeout configurable per chain
 	if err != nil {
 		return nil, err
@@ -43,8 +42,7 @@ func NewCosmosAttestator(logger *zap.Logger, attestatorID string, config config.
 		cometClient: cometClient,
 		codec:       codec,
 
-		attestatorID: attestatorID,
-		config:       config,
+		config: config,
 	}, nil
 }
 

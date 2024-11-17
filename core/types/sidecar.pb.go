@@ -28,21 +28,21 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type GetAttestationsRequest struct {
+type GetIBCDataRequest struct {
 }
 
-func (m *GetAttestationsRequest) Reset()         { *m = GetAttestationsRequest{} }
-func (m *GetAttestationsRequest) String() string { return proto.CompactTextString(m) }
-func (*GetAttestationsRequest) ProtoMessage()    {}
-func (*GetAttestationsRequest) Descriptor() ([]byte, []int) {
+func (m *GetIBCDataRequest) Reset()         { *m = GetIBCDataRequest{} }
+func (m *GetIBCDataRequest) String() string { return proto.CompactTextString(m) }
+func (*GetIBCDataRequest) ProtoMessage()    {}
+func (*GetIBCDataRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8ce634b51eec8241, []int{0}
 }
-func (m *GetAttestationsRequest) XXX_Unmarshal(b []byte) error {
+func (m *GetIBCDataRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GetAttestationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GetIBCDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_GetAttestationsRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GetIBCDataRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -52,35 +52,35 @@ func (m *GetAttestationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-func (m *GetAttestationsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetAttestationsRequest.Merge(m, src)
+func (m *GetIBCDataRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetIBCDataRequest.Merge(m, src)
 }
-func (m *GetAttestationsRequest) XXX_Size() int {
+func (m *GetIBCDataRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *GetAttestationsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetAttestationsRequest.DiscardUnknown(m)
+func (m *GetIBCDataRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetIBCDataRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetAttestationsRequest proto.InternalMessageInfo
+var xxx_messageInfo_GetIBCDataRequest proto.InternalMessageInfo
 
-type GetAttestationsResponse struct {
+type GetIBCDataResponse struct {
 	// one attestation for every chain configured in the sidecar
-	Attestations []Attestation `protobuf:"bytes,1,rep,name=attestations,proto3" json:"attestations"`
+	IbcData []IBCData `protobuf:"bytes,1,rep,name=ibcData,proto3" json:"ibcData"`
 }
 
-func (m *GetAttestationsResponse) Reset()         { *m = GetAttestationsResponse{} }
-func (m *GetAttestationsResponse) String() string { return proto.CompactTextString(m) }
-func (*GetAttestationsResponse) ProtoMessage()    {}
-func (*GetAttestationsResponse) Descriptor() ([]byte, []int) {
+func (m *GetIBCDataResponse) Reset()         { *m = GetIBCDataResponse{} }
+func (m *GetIBCDataResponse) String() string { return proto.CompactTextString(m) }
+func (*GetIBCDataResponse) ProtoMessage()    {}
+func (*GetIBCDataResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8ce634b51eec8241, []int{1}
 }
-func (m *GetAttestationsResponse) XXX_Unmarshal(b []byte) error {
+func (m *GetIBCDataResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GetAttestationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GetIBCDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_GetAttestationsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GetIBCDataResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -90,51 +90,51 @@ func (m *GetAttestationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *GetAttestationsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetAttestationsResponse.Merge(m, src)
+func (m *GetIBCDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetIBCDataResponse.Merge(m, src)
 }
-func (m *GetAttestationsResponse) XXX_Size() int {
+func (m *GetIBCDataResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *GetAttestationsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetAttestationsResponse.DiscardUnknown(m)
+func (m *GetIBCDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetIBCDataResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetAttestationsResponse proto.InternalMessageInfo
+var xxx_messageInfo_GetIBCDataResponse proto.InternalMessageInfo
 
-func (m *GetAttestationsResponse) GetAttestations() []Attestation {
+func (m *GetIBCDataResponse) GetIbcData() []IBCData {
 	if m != nil {
-		return m.Attestations
+		return m.IbcData
 	}
 	return nil
 }
 
 func init() {
-	proto.RegisterType((*GetAttestationsRequest)(nil), "core.sidecar.v1.GetAttestationsRequest")
-	proto.RegisterType((*GetAttestationsResponse)(nil), "core.sidecar.v1.GetAttestationsResponse")
+	proto.RegisterType((*GetIBCDataRequest)(nil), "core.sidecar.v1.GetIBCDataRequest")
+	proto.RegisterType((*GetIBCDataResponse)(nil), "core.sidecar.v1.GetIBCDataResponse")
 }
 
 func init() { proto.RegisterFile("core/sidecar/v1/sidecar.proto", fileDescriptor_8ce634b51eec8241) }
 
 var fileDescriptor_8ce634b51eec8241 = []byte{
-	// 261 bytes of a gzipped FileDescriptorProto
+	// 265 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4d, 0xce, 0x2f, 0x4a,
 	0xd5, 0x2f, 0xce, 0x4c, 0x49, 0x4d, 0x4e, 0x2c, 0xd2, 0x2f, 0x33, 0x84, 0x31, 0xf5, 0x0a, 0x8a,
 	0xf2, 0x4b, 0xf2, 0x85, 0xf8, 0x41, 0xd2, 0x7a, 0x30, 0xb1, 0x32, 0x43, 0x29, 0x91, 0xf4, 0xfc,
 	0xf4, 0x7c, 0xb0, 0x9c, 0x3e, 0x88, 0x05, 0x51, 0x26, 0x25, 0x0f, 0x36, 0xa5, 0xa4, 0xb2, 0x20,
 	0xb5, 0x18, 0x64, 0x46, 0x62, 0x49, 0x49, 0x6a, 0x71, 0x49, 0x62, 0x49, 0x66, 0x7e, 0x1e, 0x44,
-	0x81, 0x92, 0x04, 0x97, 0x98, 0x7b, 0x6a, 0x89, 0x23, 0x42, 0xbc, 0x38, 0x28, 0xb5, 0xb0, 0x34,
-	0xb5, 0xb8, 0x44, 0x29, 0x9e, 0x4b, 0x1c, 0x43, 0xa6, 0xb8, 0x20, 0x3f, 0xaf, 0x38, 0x55, 0xc8,
-	0x85, 0x8b, 0x07, 0xc9, 0xa4, 0x62, 0x09, 0x46, 0x05, 0x66, 0x0d, 0x6e, 0x23, 0x29, 0x3d, 0xb0,
-	0x9b, 0xc0, 0x96, 0xe9, 0x95, 0x19, 0xea, 0x21, 0x69, 0x75, 0x62, 0x39, 0x71, 0x4f, 0x9e, 0x21,
-	0x08, 0x45, 0x97, 0x51, 0x21, 0x17, 0x7b, 0x30, 0xc4, 0xfd, 0x42, 0x69, 0x5c, 0xfc, 0x68, 0x76,
-	0x09, 0xa9, 0xeb, 0xa1, 0xf9, 0x50, 0x0f, 0xbb, 0x3b, 0xa5, 0x34, 0x08, 0x2b, 0x84, 0x38, 0x5b,
-	0x89, 0xc1, 0xc9, 0xf7, 0xc4, 0x23, 0x39, 0xc6, 0x0b, 0x8f, 0xe4, 0x18, 0x1f, 0x3c, 0x92, 0x63,
-	0x9c, 0xf0, 0x58, 0x8e, 0xe1, 0xc2, 0x63, 0x39, 0x86, 0x1b, 0x8f, 0xe5, 0x18, 0xa2, 0x8c, 0xd3,
-	0x33, 0x4b, 0x32, 0x4a, 0x93, 0xf4, 0x92, 0xf3, 0x73, 0xf5, 0x93, 0xf3, 0x8b, 0x73, 0xf3, 0x8b,
-	0xf5, 0x33, 0xf3, 0x4a, 0x52, 0x8b, 0x92, 0x33, 0x12, 0x33, 0xf3, 0x74, 0x91, 0xdc, 0xad, 0x8f,
-	0x08, 0xd1, 0x24, 0x36, 0x70, 0x18, 0x1a, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0xc6, 0x45, 0x24,
-	0x24, 0xac, 0x01, 0x00, 0x00,
+	0x81, 0x92, 0x30, 0x97, 0xa0, 0x7b, 0x6a, 0x89, 0xa7, 0x93, 0xb3, 0x4b, 0x62, 0x49, 0x62, 0x50,
+	0x6a, 0x61, 0x69, 0x6a, 0x71, 0x89, 0x92, 0x0f, 0x97, 0x10, 0xb2, 0x60, 0x71, 0x41, 0x7e, 0x5e,
+	0x71, 0xaa, 0x90, 0x19, 0x17, 0x7b, 0x66, 0x52, 0x32, 0x48, 0x48, 0x82, 0x51, 0x81, 0x59, 0x83,
+	0xdb, 0x48, 0x4c, 0x0f, 0xec, 0x08, 0xb0, 0xe9, 0x7a, 0x65, 0x86, 0x7a, 0x50, 0x0d, 0x4e, 0x2c,
+	0x27, 0xee, 0xc9, 0x33, 0x04, 0xc1, 0x14, 0x1b, 0x25, 0x71, 0xb1, 0x07, 0x43, 0xdc, 0x29, 0x14,
+	0xce, 0xc5, 0x85, 0x30, 0x58, 0x48, 0x49, 0x0f, 0xcd, 0x13, 0x7a, 0x18, 0x4e, 0x91, 0x52, 0xc6,
+	0xab, 0x06, 0xe2, 0x32, 0x25, 0x06, 0x27, 0xdf, 0x13, 0x8f, 0xe4, 0x18, 0x2f, 0x3c, 0x92, 0x63,
+	0x7c, 0xf0, 0x48, 0x8e, 0x71, 0xc2, 0x63, 0x39, 0x86, 0x0b, 0x8f, 0xe5, 0x18, 0x6e, 0x3c, 0x96,
+	0x63, 0x88, 0x32, 0x4e, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f, 0xce,
+	0x2f, 0xce, 0xcd, 0x2f, 0xd6, 0xcf, 0xcc, 0x2b, 0x49, 0x2d, 0x4a, 0xce, 0x48, 0xcc, 0xcc, 0xd3,
+	0x45, 0x0a, 0x10, 0x7d, 0x44, 0x50, 0x25, 0xb1, 0x81, 0x03, 0xc7, 0x18, 0x10, 0x00, 0x00, 0xff,
+	0xff, 0x8e, 0x02, 0x90, 0xa5, 0x85, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -149,7 +149,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type SidecarClient interface {
-	GetAttestations(ctx context.Context, in *GetAttestationsRequest, opts ...grpc.CallOption) (*GetAttestationsResponse, error)
+	GetIBCData(ctx context.Context, in *GetIBCDataRequest, opts ...grpc.CallOption) (*GetIBCDataResponse, error)
 }
 
 type sidecarClient struct {
@@ -160,9 +160,9 @@ func NewSidecarClient(cc grpc1.ClientConn) SidecarClient {
 	return &sidecarClient{cc}
 }
 
-func (c *sidecarClient) GetAttestations(ctx context.Context, in *GetAttestationsRequest, opts ...grpc.CallOption) (*GetAttestationsResponse, error) {
-	out := new(GetAttestationsResponse)
-	err := c.cc.Invoke(ctx, "/core.sidecar.v1.Sidecar/GetAttestations", in, out, opts...)
+func (c *sidecarClient) GetIBCData(ctx context.Context, in *GetIBCDataRequest, opts ...grpc.CallOption) (*GetIBCDataResponse, error) {
+	out := new(GetIBCDataResponse)
+	err := c.cc.Invoke(ctx, "/core.sidecar.v1.Sidecar/GetIBCData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -171,35 +171,35 @@ func (c *sidecarClient) GetAttestations(ctx context.Context, in *GetAttestations
 
 // SidecarServer is the server API for Sidecar service.
 type SidecarServer interface {
-	GetAttestations(context.Context, *GetAttestationsRequest) (*GetAttestationsResponse, error)
+	GetIBCData(context.Context, *GetIBCDataRequest) (*GetIBCDataResponse, error)
 }
 
 // UnimplementedSidecarServer can be embedded to have forward compatible implementations.
 type UnimplementedSidecarServer struct {
 }
 
-func (*UnimplementedSidecarServer) GetAttestations(ctx context.Context, req *GetAttestationsRequest) (*GetAttestationsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAttestations not implemented")
+func (*UnimplementedSidecarServer) GetIBCData(ctx context.Context, req *GetIBCDataRequest) (*GetIBCDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetIBCData not implemented")
 }
 
 func RegisterSidecarServer(s grpc1.Server, srv SidecarServer) {
 	s.RegisterService(&_Sidecar_serviceDesc, srv)
 }
 
-func _Sidecar_GetAttestations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAttestationsRequest)
+func _Sidecar_GetIBCData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetIBCDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SidecarServer).GetAttestations(ctx, in)
+		return srv.(SidecarServer).GetIBCData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/core.sidecar.v1.Sidecar/GetAttestations",
+		FullMethod: "/core.sidecar.v1.Sidecar/GetIBCData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SidecarServer).GetAttestations(ctx, req.(*GetAttestationsRequest))
+		return srv.(SidecarServer).GetIBCData(ctx, req.(*GetIBCDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -209,15 +209,15 @@ var _Sidecar_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*SidecarServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetAttestations",
-			Handler:    _Sidecar_GetAttestations_Handler,
+			MethodName: "GetIBCData",
+			Handler:    _Sidecar_GetIBCData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "core/sidecar/v1/sidecar.proto",
 }
 
-func (m *GetAttestationsRequest) Marshal() (dAtA []byte, err error) {
+func (m *GetIBCDataRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -227,12 +227,12 @@ func (m *GetAttestationsRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GetAttestationsRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *GetIBCDataRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GetAttestationsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GetIBCDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -240,7 +240,7 @@ func (m *GetAttestationsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
-func (m *GetAttestationsResponse) Marshal() (dAtA []byte, err error) {
+func (m *GetIBCDataResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -250,20 +250,20 @@ func (m *GetAttestationsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GetAttestationsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *GetIBCDataResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GetAttestationsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GetIBCDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Attestations) > 0 {
-		for iNdEx := len(m.Attestations) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.IbcData) > 0 {
+		for iNdEx := len(m.IbcData) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Attestations[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.IbcData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -288,7 +288,7 @@ func encodeVarintSidecar(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *GetAttestationsRequest) Size() (n int) {
+func (m *GetIBCDataRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -297,14 +297,14 @@ func (m *GetAttestationsRequest) Size() (n int) {
 	return n
 }
 
-func (m *GetAttestationsResponse) Size() (n int) {
+func (m *GetIBCDataResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Attestations) > 0 {
-		for _, e := range m.Attestations {
+	if len(m.IbcData) > 0 {
+		for _, e := range m.IbcData {
 			l = e.Size()
 			n += 1 + l + sovSidecar(uint64(l))
 		}
@@ -318,7 +318,7 @@ func sovSidecar(x uint64) (n int) {
 func sozSidecar(x uint64) (n int) {
 	return sovSidecar(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *GetAttestationsRequest) Unmarshal(dAtA []byte) error {
+func (m *GetIBCDataRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -341,10 +341,10 @@ func (m *GetAttestationsRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GetAttestationsRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetIBCDataRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetAttestationsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetIBCDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -368,7 +368,7 @@ func (m *GetAttestationsRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *GetAttestationsResponse) Unmarshal(dAtA []byte) error {
+func (m *GetIBCDataResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -391,15 +391,15 @@ func (m *GetAttestationsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GetAttestationsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetIBCDataResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetAttestationsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetIBCDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Attestations", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field IbcData", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -426,8 +426,8 @@ func (m *GetAttestationsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Attestations = append(m.Attestations, Attestation{})
-			if err := m.Attestations[len(m.Attestations)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.IbcData = append(m.IbcData, IBCData{})
+			if err := m.IbcData[len(m.IbcData)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

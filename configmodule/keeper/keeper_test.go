@@ -65,10 +65,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 	suite.mockValidator = mockValidator
 
-	validatorAddressCodec := address.NewBech32Codec("cosmosvaloper")
+	validatorAddressCodec := address.NewBech32Codec(sdk.Bech32PrefixConsAddr)
 	valAddr, err := validatorAddressCodec.StringToBytes(testValidatorAddress)
 	suite.Require().NoError(err)
-	stakingKeeper.EXPECT().GetValidator(ctx, valAddr).Return(mockValidator, nil).AnyTimes()
+	stakingKeeper.EXPECT().GetValidatorByConsAddr(ctx, valAddr).Return(mockValidator, nil).AnyTimes()
 
 	k := keeper.NewKeeper(
 		storeService,

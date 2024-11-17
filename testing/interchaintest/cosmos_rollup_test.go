@@ -1,7 +1,6 @@
 package interchaintest
 
 import (
-	"fmt"
 	"time"
 
 	"google.golang.org/grpc"
@@ -104,7 +103,7 @@ func (s *E2ETestSuite) TestCosmosRollupAttestation() {
 	time.Sleep(5 * time.Second)
 
 	// Check that all sidecars have the attestation
-	for i, val := range s.simapp.Validators {
+	for _, val := range s.simapp.Validators {
 		s.Require().Len(val.Sidecars, 1)
 		sidecar := val.Sidecars[0]
 
@@ -117,12 +116,11 @@ func (s *E2ETestSuite) TestCosmosRollupAttestation() {
 		defer client.Close()
 
 		sidecarClient := types.NewSidecarClient(client)
-		resp, err := sidecarClient.GetAttestations(s.ctx, &types.GetAttestationsRequest{})
+		resp, err := sidecarClient.GetIBCData(s.ctx, &types.GetIBCDataRequest{})
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
-		s.Require().Len(resp.Attestations, 1)
-		s.Require().Equal([]byte(fmt.Sprintf("attestator-%d", i)), resp.Attestations[0].AttestatorId)
-		s.Require().Len(resp.Attestations[0].AttestedData.PacketCommitments, 1)
+		s.Require().Len(resp.IbcData, 1)
+		s.Require().Len(resp.IbcData[0].PacketCommitments, 1)
 	}
 
 	// Receive packet

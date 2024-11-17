@@ -6,5 +6,5 @@ import (
 
 // TODO: Document the interface and its methods
 type AttestatorsController interface {
-	SufficientAttestations(ctx context.Context, attestatorIds [][]byte) (bool, error)
+	SufficientAttestations(ctx context.Context, validatorAddresses [][]byte) (bool, error)
 }

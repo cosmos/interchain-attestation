@@ -19,6 +19,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 	registry.RegisterImplementations(
 		(*exported.ClientMessage)(nil),
-		&AttestationClaim{},
+		&AttestationTally{},
 	)
 }

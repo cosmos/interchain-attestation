@@ -8,14 +8,12 @@ option go_package = "github.com/cosmos/interchain-attestation/core/types";
 
 // TODO: Document
 service Sidecar {
-  rpc GetAttestations(GetAttestationsRequest)
-      returns (GetAttestationsResponse) {}
+  rpc GetIBCData(GetIBCDataRequest) returns (GetIBCDataResponse) {}
 }
 
-message GetAttestationsRequest {}
+message GetIBCDataRequest {}
 
-message GetAttestationsResponse {
+message GetIBCDataResponse {
   // one attestation for every chain configured in the sidecar
-  repeated types.v1.Attestation attestations = 1
-      [ (gogoproto.nullable) = false ];
+  repeated types.v1.IBCData ibcData = 1 [ (gogoproto.nullable) = false ];
 }

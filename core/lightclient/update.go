@@ -21,12 +21,12 @@ func (cs *ClientState) VerifyClientMessage(
 	attestatorsHandler AttestatorsController,
 	clientMsg exported.ClientMessage,
 ) error {
-	attestationClaim, ok := clientMsg.(*AttestationClaim)
+	attestationTally, ok := clientMsg.(*AttestationTally)
 	if !ok {
 		return errorsmod.Wrapf(ErrInvalidClientMsg, "invalid client message type %T", clientMsg)
 	}
 
-	return cs.verifyAttestationClaim(ctx, cdc, attestatorsHandler, attestationClaim)
+	return cs.verifyAttestationClaim(ctx, cdc, attestatorsHandler, attestationTally)
 }
 
 // verifyAttestationClaim verifies that the provided attestation claims are valid, all the same and valid signatures from enough validators
@@ -34,38 +34,24 @@ func (cs *ClientState) verifyAttestationClaim(
 	ctx sdk.Context,
 	cdc codec.BinaryCodec,
 	attestatorsHandler AttestatorsController,
-	attestationClaim *AttestationClaim,
+	attestationTally *AttestationTally,
 ) error {
-	if len(attestationClaim.Attestations) == 0 {
-		return errorsmod.Wrapf(ErrInvalidClientMsg, "empty attestations")
-	}
-
-	seenAttestators := make(map[string]bool)
-	var attestatorsSignedOff [][]byte
-	for _, attestation := range attestationClaim.Attestations {
-		attestator := string(attestation.AttestatorId)
-
-		// check that all attestators are unqiue
-		_, ok := seenAttestators[attestator]
-		if ok {
-			return errorsmod.Wrapf(ErrInvalidClientMsg, "duplicate attestation from %s", attestator)
+	votingPower := 0
+	for _, vote := range attestationTally.Votes {
+		if vote.PacketCommitments == nil {
+			continue
 		}
-		seenAttestators[attestator] = true
-		attestatorsSignedOff = append(attestatorsSignedOff, attestation.AttestatorId)
+
+		votingPower += vote.VotingPower
 	}
 
-	// check that enough attestators have signed off
-	sufficient, err := attestatorsHandler.SufficientAttestations(ctx, attestatorsSignedOff)
-	if err != nil {
-		return errorsmod.Wrapf(ErrInvalidClientMsg, "failed to check sufficient attestations: %s", err)
-	}
-	if !sufficient {
-		return errorsmod.Wrapf(ErrInvalidClientMsg, "not enough attestations")
-	}
+	attestatorsHandler.SufficientAttestations(ctx, votingPower)
+
+	// TODO: Check height and timestamp is correct (increasing and all that)
 
 	// check that all attestations have packet commitments that are unique
 	seenPacketCommitments := make(map[string]bool)
-	for _, packetCommitements := range attestationClaim.Attestations[0].AttestedData.PacketCommitments {
+	for _, packetCommitements := range attestationTally.Attestations[0].AttestedData.PacketCommitments {
 		_, ok := seenPacketCommitments[string(packetCommitements)]
 		if ok {
 			return errorsmod.Wrapf(ErrInvalidClientMsg, "duplicate packet commitment %s", string(packetCommitements))
@@ -74,10 +60,10 @@ func (cs *ClientState) verifyAttestationClaim(
 	}
 
 	// Used to check against all the other attestations to make sure they match
-	firstAttestationBytes := types.GetDeterministicAttestationBytes(cdc, attestationClaim.Attestations[0].AttestedData)
+	firstAttestationBytes := types.GetDeterministicAttestationBytes(cdc, attestationTally.Attestations[0].AttestedData)
 
 	// check that the attestations are all the same
-	for i, attestation := range attestationClaim.Attestations {
+	for i, attestation := range attestationTally.Attestations {
 		// we are going to equals check against the first one, so we skip it here
 		if i == 0 {
 			continue
