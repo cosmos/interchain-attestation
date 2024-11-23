@@ -48,8 +48,6 @@ just install-simapps
 
 There is a command that spins up a local test environment with the following components:
 * Simapp (Cosmos SDK chain with Interchain Attestion integrated)
-* Rollupsimapp (Rollkit rollup)
-* Mock DA service (for the rollup)
 * Sidecar
 * Configuration
   * Light clients

@@ -6,7 +6,6 @@ build:
     cd configmodule && make build
     cd sidecar && make build
     cd testing/simapp && make build
-    cd testing/rollupsimapp && make build
     cd testing/interchaintest && go build ./...
 
 lint:
@@ -15,7 +14,6 @@ lint:
     cd configmodule && golangci-lint run
     cd sidecar && golangci-lint run
     cd testing/simapp && golangci-lint run
-    cd testing/rollupsimapp && golangci-lint run
     cd testing/interchaintest && golangci-lint run
 
 lint-fix:
@@ -24,7 +22,6 @@ lint-fix:
     cd configmodule && golangci-lint run --fix
     cd sidecar && golangci-lint run --fix
     cd testing/simapp && golangci-lint run --fix
-    cd testing/rollupsimapp && golangci-lint run --fix
     cd testing/interchaintest && golangci-lint run --fix
 
 tidy:
@@ -33,7 +30,6 @@ tidy:
     cd configmodule && go mod tidy
     cd sidecar && go mod tidy
     cd testing/simapp && go mod tidy
-    cd testing/rollupsimapp && go mod tidy
     cd testing/interchaintest && go mod tidy
 
 proto-gen:
@@ -58,6 +54,3 @@ install-simapps:
     @echo "Installing simapps"
     cd testing && make install-simapps
 
-serve:
-    @echo "Spinning up a test environment"
-    cd testing && make serve
